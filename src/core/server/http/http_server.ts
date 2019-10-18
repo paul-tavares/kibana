@@ -269,7 +269,7 @@ export class HttpServer {
     }
 
     this.registerOnPreAuth((request, response, toolkit) => {
-      const oldUrl = request.url.href!;
+      const oldUrl = request.url.pathname!;
       const newURL = basePathService.remove(oldUrl);
       const shouldRedirect = newURL !== oldUrl;
       if (shouldRedirect) {

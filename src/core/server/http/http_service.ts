@@ -217,7 +217,7 @@ export class HttpService implements CoreService<HttpServiceSetup, HttpServiceSta
       path: '/{p*}',
       method: '*',
       handler: (req, responseToolkit) => {
-        this.log.debug(`Kibana server is not ready yet ${req.method}:${req.url.href}.`);
+        this.log.debug(`Kibana server is not ready yet ${req.method}:${req.url.pathname}.`);
 
         // If server is not ready yet, because plugins or core can perform
         // long running tasks (build assets, saved objects migrations etc.)
