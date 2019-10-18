@@ -98,8 +98,8 @@ const cookieOptions = {
   encryptionKey: 'something_at_least_32_characters',
   validate: (session: Storage) => session.expires > Date.now(),
   isSecure: false,
-  path: '/',
 };
+const basePath = '/';
 
 describe('Cookie based SessionStorage', () => {
   describe('#set()', () => {
@@ -116,7 +116,8 @@ describe('Cookie based SessionStorage', () => {
       const factory = await createCookieSessionStorageFactory(
         logger.get(),
         innerServer,
-        cookieOptions
+        cookieOptions,
+        basePath
       );
       await server.start();
 
@@ -154,7 +155,8 @@ describe('Cookie based SessionStorage', () => {
       const factory = await createCookieSessionStorageFactory(
         logger.get(),
         innerServer,
-        cookieOptions
+        cookieOptions,
+        basePath
       );
       await server.start();
 
@@ -186,7 +188,8 @@ describe('Cookie based SessionStorage', () => {
       const factory = await createCookieSessionStorageFactory(
         logger.get(),
         innerServer,
-        cookieOptions
+        cookieOptions,
+        basePath
       );
       await server.start();
 
@@ -218,7 +221,8 @@ describe('Cookie based SessionStorage', () => {
       const factory = await createCookieSessionStorageFactory(
         logger.get(),
         innerServer,
-        cookieOptions
+        cookieOptions,
+        basePath
       );
       await server.start();
 
@@ -248,7 +252,7 @@ describe('Cookie based SessionStorage', () => {
         register: jest.fn(),
         auth: {
           strategy: jest.fn(),
-          test: jest.fn(() => ['foo', 'bar']),
+          test: jest.fn(() => ({ credentials: ['foo', 'bar'] })),
         },
       };
 
@@ -257,7 +261,8 @@ describe('Cookie based SessionStorage', () => {
       const factory = await createCookieSessionStorageFactory(
         logger.get(),
         mockServer as any,
-        cookieOptions
+        cookieOptions,
+        basePath
       );
 
       expect(mockServer.register).toBeCalledTimes(1);
@@ -279,7 +284,7 @@ describe('Cookie based SessionStorage', () => {
         register: jest.fn(),
         auth: {
           strategy: jest.fn(),
-          test: jest.fn(() => ['foo']),
+          test: jest.fn(() => ({ credentials: ['foo'] })),
         },
       };
 
@@ -288,7 +293,8 @@ describe('Cookie based SessionStorage', () => {
       const factory = await createCookieSessionStorageFactory(
         logger.get(),
         mockServer as any,
-        cookieOptions
+        cookieOptions,
+        basePath
       );
 
       expect(mockServer.register).toBeCalledTimes(1);
@@ -317,7 +323,8 @@ describe('Cookie based SessionStorage', () => {
       const factory = await createCookieSessionStorageFactory(
         logger.get(),
         mockServer as any,
-        cookieOptions
+        cookieOptions,
+        basePath
       );
 
       expect(mockServer.register).toBeCalledTimes(1);
@@ -349,7 +356,8 @@ describe('Cookie based SessionStorage', () => {
       const factory = await createCookieSessionStorageFactory(
         logger.get(),
         innerServer,
-        cookieOptions
+        cookieOptions,
+        basePath
       );
       await server.start();
 

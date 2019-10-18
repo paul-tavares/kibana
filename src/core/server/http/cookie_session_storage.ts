@@ -55,10 +55,10 @@ class ScopedCookieSessionStorage<T extends Record<string, any>> implements Sessi
   ) {}
   public async get(): Promise<T | null> {
     try {
-      const session = await this.server.auth.test('security-cookie', this.request);
+      const { credentials: session } = await this.server.auth.test('security-cookie', this.request);
       // A browser can send several cookies, if it's not an array, just return the session value
       if (!Array.isArray(session)) {
-        return (session as unknown) as T;
+        return session as T;
       }
 
       // If we have an array with one value, we're good also
@@ -101,16 +101,18 @@ export async function createCookieSessionStorageFactory<T>(
   await server.register({ plugin: hapiAuthCookie });
 
   server.auth.strategy('security-cookie', 'cookie', {
-    cookie: cookieOptions.name,
-    password: cookieOptions.encryptionKey,
+    cookie: {
+      name: cookieOptions.name,
+      password: cookieOptions.encryptionKey,
+      path: basePath,
+      clearInvalid: true,
+      isSecure: cookieOptions.isSecure,
+      isHttpOnly: true,
+      isSameSite: false,
+    },
     validateFunc: async (req: Request, session: T) => ({
       valid: await cookieOptions.validate(session),
     }),
-    isSecure: cookieOptions.isSecure,
-    path: basePath,
-    clearInvalid: true,
-    isHttpOnly: true,
-    isSameSite: false,
   });
 
   return {
