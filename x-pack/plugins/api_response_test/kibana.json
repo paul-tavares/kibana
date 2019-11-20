@@ -1,0 +1,8 @@
+{
+    "id": "api_response_test",
+    "version": "0.0.1",
+    "kibanaVersion": "kibana",
+    "configPath": ["x-pack", "api_response_test"],
+    "server": true,
+    "ui": true
+}
