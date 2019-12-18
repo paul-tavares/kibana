@@ -1,0 +1,27 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License;
+ * you may not use this file except in compliance with the Elastic License.
+ */
+
+import { actionCreatorFactory } from '../lib/action_creator';
+import { Datasource } from '../../../../legacy/plugins/ingest/server/libs/types';
+
+export interface IPolicyListServerResponse {
+  list: Datasource[];
+  success: boolean;
+  total: number;
+  page: number;
+  perPage: number;
+}
+
+export const serverReturnedPolicyListData = actionCreatorFactory<
+  'serverReturnedPolicyListData',
+  [IPolicyListServerResponse]
+>('serverReturnedPolicyListData');
+
+export const policyListActions = {
+  serverReturnedPolicyListData,
+};
+
+export type IPolicyListActions = ReturnType<typeof serverReturnedPolicyListData>;

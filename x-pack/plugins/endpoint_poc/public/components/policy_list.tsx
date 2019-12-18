@@ -5,8 +5,11 @@
  */
 
 import React from 'react';
+import { useSelector } from 'react-redux';
+
 import { EuiBasicTable, EuiTableCriteria, EuiLink } from '@elastic/eui';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { selectList } from '../selectors/policy_list';
 
 interface IConnectedEuiLinkProps extends RouteComponentProps {
   path: string;
@@ -29,19 +32,17 @@ const columns = [
     },
   },
   {
+    field: 'id',
+    name: 'ID',
+  },
+  {
     field: 'version',
     name: 'Version',
   },
 ];
 
 export const PolicyList = React.memo(() => {
-  const tableItems: object[] = [
-    {
-      id: '123',
-      name: 'Policy 1',
-      version: '1.0.0',
-    },
-  ];
+  const tableItems = useSelector(selectList);
   const paginationSetup = {
     pageIndex: 0,
     pageSize: 20,
