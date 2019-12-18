@@ -97,6 +97,7 @@
       "packages/*",
       "x-pack",
       "x-pack/legacy/plugins/*",
+      "x-pack/plugins/endpoint_poc",
       "examples/*",
       "test/plugin_functional/plugins/*",
       "test/interpreter_functional/plugins/*"
