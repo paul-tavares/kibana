@@ -19,6 +19,7 @@ import { Management } from './components/management';
 import { AlertList } from './components/alert_list';
 import { AlertDetails } from './components/alert_details';
 import { EndpointsPage } from './components/endpoints_page';
+import { PoliciesPage } from './components/policies_page';
 
 const LocationChangeWrapper = function({ children }) {
   // TODO: Find another way that doesn't require updating react-router-dom to 5.1.0
@@ -53,6 +54,7 @@ const EndpointRouter = ({
             <Route path="/" exact component={Home} />
             <Route path="/management" component={Management} />
             <Route path="/endpoints" component={EndpointsPage} />
+            <Route path="/policies" component={PoliciesPage} />
             <Route path="/alerts" render={() => <AlertList />} />
             <Route path="/alerts/:alertId" render={() => <AlertDetails />} />
           </EuiPage>

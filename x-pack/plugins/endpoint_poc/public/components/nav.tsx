@@ -52,6 +52,11 @@ export const Nav = withRouter(({ history, navigateToApp }: NavProps) => (
             name: 'Alerts',
             onClick: () => history.push('/alerts'),
           },
+          {
+            id: 'policies',
+            name: 'Policies',
+            onClick: () => history.push('/policies'),
+          },
         ],
       },
     ]}
