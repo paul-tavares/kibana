@@ -9,8 +9,8 @@ import { Plugin, CoreSetup } from 'kibana/public';
 export class EndpointPlugin implements Plugin<EndpointPluginSetup, EndpointPluginStart> {
   public setup(core: CoreSetup, deps: {}) {
     core.application.register({
-      id: 'endpoint',
-      title: 'Endpoint',
+      id: 'endpoint_poc',
+      title: 'Endpoint POC',
       async mount(context, params) {
         const { renderApp } = await import('./application');
         return renderApp(context, params);
