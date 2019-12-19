@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 
 import { EuiBasicTable, EuiTableCriteria, EuiLink } from '@elastic/eui';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
-import { selectList } from '../selectors/policy_list';
+import { selectIsFetching, selectList } from '../selectors/policy_list';
 
 interface IConnectedEuiLinkProps extends RouteComponentProps {
   path: string;
@@ -42,7 +42,8 @@ const columns = [
 ];
 
 export const PolicyList = React.memo(() => {
-  const tableItems = useSelector(selectList);
+  const tableItemList = useSelector(selectList);
+  const isFetching = useSelector(selectIsFetching);
   const paginationSetup = {
     pageIndex: 0,
     pageSize: 20,
@@ -60,8 +61,9 @@ export const PolicyList = React.memo(() => {
 
   return (
     <EuiBasicTable
-      items={tableItems}
+      items={tableItemList}
       columns={columns}
+      loading={isFetching}
       pagination={paginationSetup}
       sorting={sortingSetup}
       onChange={handleTableChange}

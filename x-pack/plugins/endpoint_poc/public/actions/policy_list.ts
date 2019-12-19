@@ -20,8 +20,30 @@ export const serverReturnedPolicyListData = actionCreatorFactory<
   [IPolicyListServerResponse]
 >('serverReturnedPolicyListData');
 
+export const isFetchingPolicyListData = actionCreatorFactory<
+  'isFetchingPolicyListData',
+  [{ isFetching: boolean }]
+>('isFetchingPolicyListData');
+
+export const userClickedPolicyCreate = actionCreatorFactory<
+  'userClickedPolicyCreate',
+  [{ showCreate: boolean }]
+>('userClickedPolicyCreate');
+
+export const userExitedPolicyCreate = actionCreatorFactory<
+  'userExitedPolicyCreate',
+  [{ showCreate: boolean }]
+>('userExitedPolicyCreate');
+
 export const policyListActions = {
   serverReturnedPolicyListData,
+  isFetchingPolicyListData,
+  userClickedPolicyCreate,
+  userExitedPolicyCreate,
 };
 
-export type IPolicyListActions = ReturnType<typeof serverReturnedPolicyListData>;
+export type IPolicyListActions =
+  | ReturnType<typeof serverReturnedPolicyListData>
+  | ReturnType<typeof isFetchingPolicyListData>
+  | ReturnType<typeof userClickedPolicyCreate>
+  | ReturnType<typeof userExitedPolicyCreate>;

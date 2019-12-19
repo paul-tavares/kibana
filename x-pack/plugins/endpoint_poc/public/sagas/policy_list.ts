@@ -7,7 +7,11 @@
 import { AppMountContext } from 'kibana/public';
 import { withPageNavigationStatus } from './common';
 import { hrefIsForPath } from '../concerns/routing';
-import { IPolicyListServerResponse, serverReturnedPolicyListData } from '../actions/policy_list';
+import {
+  IPolicyListServerResponse,
+  isFetchingPolicyListData,
+  serverReturnedPolicyListData,
+} from '../actions/policy_list';
 
 export const policyListSaga = async (
   { actionsAndState, dispatch }: { actionsAndState: any; dispatch: any },
@@ -33,7 +37,9 @@ export const policyListSaga = async (
   })) {
     if (userIsOnPageAndLoggedIn) {
       if (shouldInitialize) {
+        dispatch(isFetchingPolicyListData({ isFetching: true }));
         try {
+          // FIXME: need to have ability to filter datasources by something that identifies the ones for Endpoint
           const response = await context.core.http.get<IPolicyListServerResponse>(
             '/api/ingest/datasources'
           );

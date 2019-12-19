@@ -16,10 +16,13 @@ import {
   EuiPageContentBody,
   EuiButton,
 } from '@elastic/eui';
-import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
+import { Route, withRouter } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { PolicyList } from './policy_list';
 import { PolicyDetail } from './policy_detail';
-import { PolicyCreate } from './policy_create';
+import { PolicyCreateFlyout } from './policy_create_flyout';
+import { selectShowCreate } from '../selectors/policy_list';
+import { userClickedPolicyCreate } from '../actions/policy_list';
 
 const PageView = React.memo<{ title: string; children: ReactElement }>(({ title, children }) => {
   return (
@@ -40,31 +43,37 @@ const PageView = React.memo<{ title: string; children: ReactElement }>(({ title,
   );
 });
 
-const CreatePolicyButton = withRouter(({ history }: RouteComponentProps) => {
-  return <EuiButton onClick={() => history.push('/policies/create')}>Create Policy</EuiButton>;
-});
-
-const ListView = React.memo(() => {
+const CreatePolicyButton = React.memo<{ isDisabled?: boolean }>(({ isDisabled }) => {
+  const dispatch = useDispatch();
+  const handleButtonClick = () => {
+    dispatch(userClickedPolicyCreate({ showCreate: true }));
+  };
   return (
-    <PageView title="Endpoint Security Policies">
-      <CreatePolicyButton />
-      <PolicyList />
-    </PageView>
+    <EuiButton onClick={handleButtonClick} isDisabled={isDisabled}>
+      Create Policy
+    </EuiButton>
   );
 });
+
+const ListView = withRouter(
+  React.memo(() => {
+    const showCreate = useSelector(selectShowCreate);
+    return (
+      <PageView title="Endpoint Security Policies">
+        <>
+          {showCreate && <PolicyCreateFlyout />}
+          <CreatePolicyButton isDisabled={showCreate} />
+        </>
+        <PolicyList />
+      </PageView>
+    );
+  })
+);
 
 const DetailView = React.memo(() => {
   return (
     <PageView title="Policy: Name here">
       <PolicyDetail />
-    </PageView>
-  );
-});
-
-const CreateView = React.memo(() => {
-  return (
-    <PageView title="Create Policy">
-      <PolicyCreate />
     </PageView>
   );
 });
@@ -82,7 +91,6 @@ export const PoliciesPage = React.memo(() => {
       <EuiPageContent>
         <Route path="/policies" exact component={ListView} />
         <Route path="/policies/view/:policyId" exact component={DetailView} />
-        <Route path="/policies/create" exact component={CreateView} />
       </EuiPageContent>
     </EuiPageBody>
   );

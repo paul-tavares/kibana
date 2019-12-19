@@ -11,8 +11,10 @@ const selectPolicyListState = (state: GlobalState) => state.policyList as IPolic
 
 export const selectList = (state: GlobalState) => selectPolicyListState(state).list;
 export const selectIsFetching = (state: GlobalState) => selectPolicyListState(state).isFetching;
+export const selectShowCreate = (state: GlobalState) => selectPolicyListState(state).showCreate;
 
 export const policySelectors = {
   selectList,
   selectIsFetching,
+  selectShowCreate,
 };
