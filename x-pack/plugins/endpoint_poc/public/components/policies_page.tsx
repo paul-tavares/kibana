@@ -14,9 +14,12 @@ import {
   EuiPageContentHeader,
   EuiPageContentHeaderSection,
   EuiPageContentBody,
+  EuiButton,
 } from '@elastic/eui';
-import { Route } from 'react-router-dom';
+import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
 import { PolicyList } from './policy_list';
+import { PolicyDetail } from './policy_detail';
+import { PolicyCreate } from './policy_create';
 
 const PageView = React.memo<{ title: string; children: ReactElement }>(({ title, children }) => {
   return (
@@ -37,10 +40,31 @@ const PageView = React.memo<{ title: string; children: ReactElement }>(({ title,
   );
 });
 
+const CreatePolicyButton = withRouter(({ history }: RouteComponentProps) => {
+  return <EuiButton onClick={() => history.push('/policies/create')}>Create Policy</EuiButton>;
+});
+
 const ListView = React.memo(() => {
   return (
     <PageView title="Endpoint Security Policies">
+      <CreatePolicyButton />
       <PolicyList />
+    </PageView>
+  );
+});
+
+const DetailView = React.memo(() => {
+  return (
+    <PageView title="Policy: Name here">
+      <PolicyDetail />
+    </PageView>
+  );
+});
+
+const CreateView = React.memo(() => {
+  return (
+    <PageView title="Create Policy">
+      <PolicyCreate />
     </PageView>
   );
 });
@@ -57,6 +81,8 @@ export const PoliciesPage = React.memo(() => {
       </EuiPageHeader>
       <EuiPageContent>
         <Route path="/policies" exact component={ListView} />
+        <Route path="/policies/view/:policyId" exact component={DetailView} />
+        <Route path="/policies/create" exact component={CreateView} />
       </EuiPageContent>
     </EuiPageBody>
   );

@@ -36,7 +36,7 @@ const columns = [
     name: 'ID',
   },
   {
-    field: 'version',
+    field: 'package.version',
     name: 'Version',
   },
 ];
