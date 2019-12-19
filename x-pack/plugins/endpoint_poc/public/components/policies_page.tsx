@@ -63,8 +63,8 @@ const ListView = withRouter(
         <>
           {showCreate && <PolicyCreateFlyout />}
           <CreatePolicyButton isDisabled={showCreate} />
+          <PolicyList />
         </>
-        <PolicyList />
       </PageView>
     );
   })

@@ -15,72 +15,53 @@ import {
   EuiButtonEmpty,
   EuiButton,
 } from '@elastic/eui';
-import { useDispatch } from 'react-redux';
-import { userExitedPolicyCreate } from '../actions/policy_list';
+import { useDispatch, useSelector } from 'react-redux';
+import { userClickedPolicyCreateButton, userExitedPolicyCreate } from '../actions/policy_list';
+import { PolicyCreateForm } from './policy_create_form';
+import { isCreateFormDataValid, selectIsCreating } from '../selectors/policy_list';
 
 export const PolicyCreateFlyout = React.memo(() => {
   const dispatch = useDispatch();
+  const isFormDataValid = useSelector(isCreateFormDataValid);
+  const isCreating = useSelector(selectIsCreating);
   const exitPolicyFloyout = useCallback(() => {
     dispatch(userExitedPolicyCreate({ showCreate: false }));
   }, [dispatch]);
-  const onClose = () => {
+  const handleOnClose = () => {
     exitPolicyFloyout();
+  };
+  const handleCreateOnClick = () => {
+    dispatch(userClickedPolicyCreateButton());
   };
 
   // When this component unmounts, ensure we reset State
   useEffect(() => exitPolicyFloyout, [exitPolicyFloyout]);
 
   return (
-    <EuiFlyout onClose={onClose} size="m">
+    <EuiFlyout onClose={handleOnClose} size="s">
       <EuiFlyoutHeader hasBorder aria-labelledby="FleetCreatePolicyFlyoutTitle">
         <EuiTitle size="m">
           <h2>Create New Security Policy</h2>
         </EuiTitle>
       </EuiFlyoutHeader>
 
-      <EuiFlyoutBody>FORM GOES HERE...</EuiFlyoutBody>
+      <EuiFlyoutBody>
+        <PolicyCreateForm />
+      </EuiFlyoutBody>
 
       <EuiFlyoutFooter>
         <EuiFlexGroup justifyContent="spaceBetween">
           <EuiFlexItem grow={false}>
-            <EuiButtonEmpty iconType="cross" onClick={onClose} flush="left">
+            <EuiButtonEmpty iconType="cross" onClick={handleOnClose} flush="left">
               Cancel
             </EuiButtonEmpty>
           </EuiFlexItem>
           <EuiFlexItem grow={false}>
             <EuiButton
               fill
-              isLoading={false}
-              onClick={async () => {
-                // setIsLoading(true);
-                // try {
-                //   const { success, error } = await libs.policies.create(policy);
-                //   if (success) {
-                //     libs.framework.notifications.addSuccess(
-                //       i18n.translate('xpack.fleet.createPolicy.successNotificationTitle', {
-                //         defaultMessage: "Policy '{name}' created",
-                //         values: { name: policy.name },
-                //       })
-                //     );
-                //   } else {
-                //     libs.framework.notifications.addDanger(
-                //       error
-                //         ? error.message
-                //         : i18n.translate('xpack.fleet.createPolicy.errorNotificationTitle', {
-                //           defaultMessage: 'Unable to create policy',
-                //         })
-                //     );
-                //   }
-                // } catch (e) {
-                //   libs.framework.notifications.addDanger(
-                //     i18n.translate('xpack.fleet.createPolicy.errorNotificationTitle', {
-                //       defaultMessage: 'Unable to create policy',
-                //     })
-                //   );
-                // }
-                // setIsLoading(false);
-                // onClose();
-              }}
+              isLoading={isCreating}
+              isDisabled={!isFormDataValid}
+              onClick={handleCreateOnClick}
             >
               Create
             </EuiButton>

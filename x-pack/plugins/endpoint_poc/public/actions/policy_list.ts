@@ -6,6 +6,7 @@
 
 import { actionCreatorFactory } from '../lib/action_creator';
 import { Datasource } from '../../../../legacy/plugins/ingest/server/libs/types';
+import { IPolicyListState } from '../reducers/policy_list';
 
 export interface IPolicyListServerResponse {
   list: Datasource[];
@@ -13,6 +14,12 @@ export interface IPolicyListServerResponse {
   total: number;
   page: number;
   perPage: number;
+}
+
+export interface IPolicyCreateServerResponse {
+  item: Datasource;
+  success: boolean;
+  action: string;
 }
 
 export const serverReturnedPolicyListData = actionCreatorFactory<
@@ -35,15 +42,36 @@ export const userExitedPolicyCreate = actionCreatorFactory<
   [{ showCreate: boolean }]
 >('userExitedPolicyCreate');
 
+export const userEnteredPolicyCreateData = actionCreatorFactory<
+  'userEnteredPolicyCreateData',
+  [Partial<IPolicyListState['createFormData']>]
+>('userEnteredPolicyCreateData');
+
+export const userClickedPolicyCreateButton = actionCreatorFactory<
+  'userClickedPolicyCreateButton',
+  []
+>('userClickedPolicyCreateButton');
+
+export const serverReturnedPolicyCreateSuccess = actionCreatorFactory<
+  'serverReturnedPolicyCreateSuccess',
+  [IPolicyCreateServerResponse]
+>('serverReturnedPolicyCreateSuccess');
+
 export const policyListActions = {
   serverReturnedPolicyListData,
   isFetchingPolicyListData,
   userClickedPolicyCreate,
   userExitedPolicyCreate,
+  userEnteredPolicyCreateData,
+  userClickedPolicyCreateButton,
+  serverReturnedPolicyCreateSuccess,
 };
 
 export type IPolicyListActions =
   | ReturnType<typeof serverReturnedPolicyListData>
   | ReturnType<typeof isFetchingPolicyListData>
   | ReturnType<typeof userClickedPolicyCreate>
-  | ReturnType<typeof userExitedPolicyCreate>;
+  | ReturnType<typeof userExitedPolicyCreate>
+  | ReturnType<typeof userEnteredPolicyCreateData>
+  | ReturnType<typeof userClickedPolicyCreateButton>
+  | ReturnType<typeof serverReturnedPolicyCreateSuccess>;

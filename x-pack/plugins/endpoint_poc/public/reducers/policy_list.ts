@@ -9,8 +9,11 @@ import { Datasource } from '../../../../legacy/plugins/ingest/server/libs/types'
 import {
   IPolicyListActions,
   isFetchingPolicyListData,
+  serverReturnedPolicyCreateSuccess,
   serverReturnedPolicyListData,
   userClickedPolicyCreate,
+  userClickedPolicyCreateButton,
+  userEnteredPolicyCreateData,
   userExitedPolicyCreate,
 } from '../actions/policy_list';
 
@@ -18,12 +21,20 @@ export interface IPolicyListState {
   list: Datasource[];
   isFetching: boolean;
   showCreate: boolean;
+  createFormData: {
+    name: string;
+  };
+  isCreating: boolean;
 }
 
 const initialPolicyListState: IPolicyListState = {
   list: [],
   isFetching: false,
   showCreate: false,
+  createFormData: {
+    name: '',
+  },
+  isCreating: false,
 };
 
 export const policyListReducer = (state = initialPolicyListState, action: IPolicyListActions) => {
@@ -35,8 +46,24 @@ export const policyListReducer = (state = initialPolicyListState, action: IPolic
       return { ...state, isFetching: action.payload[0].isFetching };
 
     case userClickedPolicyCreate.type:
-    case userExitedPolicyCreate.type:
       return { ...state, showCreate: action.payload[0].showCreate };
+
+    case userExitedPolicyCreate.type:
+      return {
+        ...state,
+        showCreate: action.payload[0].showCreate,
+        createFormData: { ...initialPolicyListState.createFormData },
+        isCreating: false,
+      };
+
+    case userEnteredPolicyCreateData.type:
+      return { ...state, createFormData: { ...state.createFormData, ...action.payload[0] } };
+
+    case userClickedPolicyCreateButton.type:
+      return { ...state, isCreating: true };
+
+    case serverReturnedPolicyCreateSuccess.type:
+      return { ...state, wasCreated: true, showCreate: false };
 
     default:
       return state;
