@@ -13,6 +13,7 @@ import {
   serverReturnedPolicyCreateSuccess,
   serverReturnedPolicyListData,
   userClickedPolicyCreateButton,
+  userClickedPolicyListRefreshButton,
 } from '../actions/policy_list';
 import { GlobalState } from '../types';
 
@@ -41,7 +42,11 @@ export const policyListSaga = async (
     isOnPage,
   })) {
     if (userIsOnPageAndLoggedIn) {
-      if (shouldInitialize || action.type === serverReturnedPolicyCreateSuccess.type) {
+      if (
+        shouldInitialize ||
+        action.type === serverReturnedPolicyCreateSuccess.type ||
+        action.type === userClickedPolicyListRefreshButton.type
+      ) {
         dispatch(isFetchingPolicyListData({ isFetching: true }));
         try {
           // FIXME: need to have ability to filter datasources by something that identifies the ones for Endpoint

@@ -52,6 +52,11 @@ export const userClickedPolicyCreateButton = actionCreatorFactory<
   []
 >('userClickedPolicyCreateButton');
 
+export const userClickedPolicyListRefreshButton = actionCreatorFactory<
+  'userClickedPolicyListRefreshButton',
+  []
+>('userClickedPolicyListRefreshButton');
+
 export const serverReturnedPolicyCreateSuccess = actionCreatorFactory<
   'serverReturnedPolicyCreateSuccess',
   [IPolicyCreateServerResponse]
@@ -65,6 +70,7 @@ export const policyListActions = {
   userEnteredPolicyCreateData,
   userClickedPolicyCreateButton,
   serverReturnedPolicyCreateSuccess,
+  userClickedPolicyListRefreshButton,
 };
 
 export type IPolicyListActions =
@@ -74,4 +80,5 @@ export type IPolicyListActions =
   | ReturnType<typeof userExitedPolicyCreate>
   | ReturnType<typeof userEnteredPolicyCreateData>
   | ReturnType<typeof userClickedPolicyCreateButton>
+  | ReturnType<typeof userClickedPolicyListRefreshButton>
   | ReturnType<typeof serverReturnedPolicyCreateSuccess>;

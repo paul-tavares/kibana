@@ -63,7 +63,8 @@ export const policyListReducer = (state = initialPolicyListState, action: IPolic
       return { ...state, isCreating: true };
 
     case serverReturnedPolicyCreateSuccess.type:
-      return { ...state, wasCreated: true, showCreate: false };
+      // FIXME: this should just make state that policy was created and let the policy flyout show a toaster message then it should close the flyout
+      return { ...state, showCreate: false };
 
     default:
       return state;

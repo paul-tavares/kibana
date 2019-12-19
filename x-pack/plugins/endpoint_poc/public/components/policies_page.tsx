@@ -15,14 +15,20 @@ import {
   EuiPageContentHeaderSection,
   EuiPageContentBody,
   EuiButton,
+  EuiButtonIcon,
+  EuiFlexGroup,
+  EuiFlexItem,
 } from '@elastic/eui';
 import { Route, withRouter } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { PolicyList } from './policy_list';
 import { PolicyDetail } from './policy_detail';
 import { PolicyCreateFlyout } from './policy_create_flyout';
-import { selectShowCreate } from '../selectors/policy_list';
-import { userClickedPolicyCreate } from '../actions/policy_list';
+import { selectIsFetching, selectShowCreate } from '../selectors/policy_list';
+import {
+  userClickedPolicyCreate,
+  userClickedPolicyListRefreshButton,
+} from '../actions/policy_list';
 
 const PageView = React.memo<{ title: string; children: ReactElement }>(({ title, children }) => {
   return (
@@ -55,6 +61,18 @@ const CreatePolicyButton = React.memo<{ isDisabled?: boolean }>(({ isDisabled })
   );
 });
 
+const RefreshButton = React.memo(() => {
+  const dispatch = useDispatch();
+  const isFetching = useSelector(selectIsFetching);
+  return (
+    <EuiButtonIcon
+      iconType="refresh"
+      disabled={isFetching}
+      onClick={() => dispatch(userClickedPolicyListRefreshButton())}
+    />
+  );
+});
+
 const ListView = withRouter(
   React.memo(() => {
     const showCreate = useSelector(selectShowCreate);
@@ -62,7 +80,14 @@ const ListView = withRouter(
       <PageView title="Endpoint Security Policies">
         <>
           {showCreate && <PolicyCreateFlyout />}
-          <CreatePolicyButton isDisabled={showCreate} />
+          <EuiFlexGroup gutterSize="l" alignItems="center">
+            <EuiFlexItem grow={false}>
+              <RefreshButton />
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              <CreatePolicyButton isDisabled={showCreate} />
+            </EuiFlexItem>
+          </EuiFlexGroup>
           <PolicyList />
         </>
       </PageView>
