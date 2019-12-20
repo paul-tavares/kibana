@@ -13,7 +13,7 @@ export function alertIdFromHref(href: string) {
   // TODO: Verify default type of IDs in elasticsearch
   const uuidRegex = /.*/;
 
-  if (pathname.startsWith('/app/endpoint/alerts/')) {
+  if (pathname.startsWith('/app/endpoint_poc/alerts/')) {
     const parts = pathname.split('/');
     if (parts.length > 4 && uuidRegex.test(parts[4])) {
       return parts[4];

@@ -11,7 +11,7 @@ import { EndpointRequestContext } from '../handlers/endpoint_handler';
 export function registerEndpointRoutes(router: IRouter, endpointHandler: EndpointRequestContext) {
   router.get(
     {
-      path: '/api/endpoint/endpoints/{id}',
+      path: '/api/endpoint_poc/endpoints/{id}',
       validate: {
         params: schema.object({ id: schema.string() }),
       },
@@ -29,7 +29,7 @@ export function registerEndpointRoutes(router: IRouter, endpointHandler: Endpoin
 
   router.get(
     {
-      path: '/api/endpoint/endpoints',
+      path: '/api/endpoint_poc/endpoints',
       validate: {
         query: schema.object({
           pageSize: schema.number({ defaultValue: 10 }),

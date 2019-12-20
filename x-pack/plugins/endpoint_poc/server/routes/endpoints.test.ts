@@ -43,7 +43,7 @@ describe('endpoints route test', () => {
     endpointHandler.findEndpoint.mockReturnValue(Promise.resolve(response));
     registerEndpointRoutes(routerMock, endpointHandler);
     [routeConfig, routeHandler] = routerMock.get.mock.calls.find(([{ path }]) =>
-      path.startsWith('/api/endpoint/endpoints')
+      path.startsWith('/api/endpoint_poc/endpoints')
     )!;
     await routeHandler(({} as unknown) as RequestHandlerContext, mockRequest, mockResponse);
     expect(routeConfig.options).toEqual({ authRequired: true });
@@ -66,7 +66,7 @@ describe('endpoints route test', () => {
     endpointHandler.findLatestOfAllEndpoints.mockReturnValue(Promise.resolve(response));
     registerEndpointRoutes(routerMock, endpointHandler);
     [routeConfig, routeHandler] = routerMock.get.mock.calls.find(
-      ([{ path }]) => path === '/api/endpoint/endpoints'
+      ([{ path }]) => path === '/api/endpoint_poc/endpoints'
     )!;
     await routeHandler(({} as unknown) as RequestHandlerContext, mockRequest, mockResponse);
     expect(routeConfig.options).toEqual({ authRequired: true });

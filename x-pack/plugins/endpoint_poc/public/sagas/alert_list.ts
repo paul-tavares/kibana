@@ -21,7 +21,7 @@ async function resourceSaga(
   context: AppMountContext
 ) {
   function isOnPage(href: any) {
-    return hrefIsForPath(href, `${context.core.http.basePath.get()}/app/endpoint/alerts`);
+    return hrefIsForPath(href, `${context.core.http.basePath.get()}/app/endpoint_poc/alerts`);
   }
 
   for await (const {

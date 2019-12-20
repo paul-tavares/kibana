@@ -23,7 +23,7 @@ async function resourceSaga(
   function isOnPage(href: any) {
     const isOnPageResponse: boolean = hrefIsForPath(
       href,
-      `${context.core.http.basePath.get()}/app/endpoint/endpoints`
+      `${context.core.http.basePath.get()}/app/endpoint_poc/endpoints`
     );
     return isOnPageResponse;
   }
