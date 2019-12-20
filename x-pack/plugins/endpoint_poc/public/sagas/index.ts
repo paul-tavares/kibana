@@ -11,6 +11,7 @@ import { alertListSaga } from './alert_list';
 import { alertDetailsSaga } from './alert_details';
 import { endpointsListSaga } from './endpoints_list';
 import { policyListSaga } from './policy_list';
+import { policyDetailsSaga } from './policy_details';
 
 // TODO: Type this properly
 // eslint-disable-next-line import/no-default-export
@@ -22,6 +23,7 @@ export default function(context: AppMountContext, history: History) {
       alertDetailsSaga(...[...args, context, history]),
       endpointsListSaga(...[...args, context, history]),
       policyListSaga(...[...args, context, history]),
+      policyDetailsSaga(...[...args, context, history]),
     ]);
   };
 }

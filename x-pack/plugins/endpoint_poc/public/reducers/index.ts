@@ -10,6 +10,7 @@ import { reducer as alertList } from './alert_list';
 import { reducer as alertDetails } from './alert_details';
 import { endpointListReducer as endpointsList } from './endpoints_list';
 import { policyListReducer as policyList } from './policy_list';
+import { policyDetailsReducer as policyDetails } from './policy_details';
 
 // eslint-disable-next-line import/no-default-export
 export default combineReducers({
@@ -18,4 +19,5 @@ export default combineReducers({
   alertDetails,
   endpointsList,
   policyList,
+  policyDetails,
 });

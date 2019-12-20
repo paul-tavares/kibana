@@ -19,7 +19,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
 } from '@elastic/eui';
-import { Route, withRouter } from 'react-router-dom';
+import { Route, RouteComponentProps, withRouter } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { PolicyList } from './policy_list';
 import { PolicyDetail } from './policy_detail';
@@ -95,13 +95,18 @@ const ListView = withRouter(
   })
 );
 
-const DetailView = React.memo(() => {
-  return (
-    <PageView title="Policy: Name here">
-      <PolicyDetail />
-    </PageView>
-  );
-});
+interface IDetailsViewRouterProps {
+  policyId: string;
+}
+const DetailView = withRouter<IDetailsViewRouterProps>(
+  React.memo(({ match }: RouteComponentProps<IDetailsViewRouterProps>) => {
+    return (
+      <PageView title="Policy: Name here">
+        <PolicyDetail policyId={match.params.policyId} />
+      </PageView>
+    );
+  })
+);
 
 export const PoliciesPage = React.memo(() => {
   return (

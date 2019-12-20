@@ -6,6 +6,7 @@
 
 import { actionCreatorFactory } from '../lib/action_creator';
 import { Datasource } from '../../../../legacy/plugins/ingest/server/libs/types';
+// TODO: problem? circular dependency below with reducers/policy_list (for type imports)
 import { IPolicyListState } from '../reducers/policy_list';
 
 export interface IPolicyListServerResponse {
