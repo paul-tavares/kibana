@@ -6,7 +6,7 @@
 
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route, useLocation, withRouter, RouteComponentProps } from 'react-router-dom';
+import { Router, Route, useLocation } from 'react-router-dom';
 
 import { createBrowserHistory, History } from 'history';
 import { Provider, useDispatch } from 'react-redux';

@@ -35,14 +35,40 @@ export type TServerReturnedPolicyDetailsDataAction = ReturnType<
   typeof serverReturnedPolicyDetailsData
 >;
 
+export const serverReturnedPolicyUpdateData = actionCreatorFactory<
+  'serverReturnedPolicyUpdateData',
+  [IPolicyDetailsServerResponse]
+>('serverReturnedPolicyUpdateData');
+
+export type TServerReturnedPolicyUpdateDataAction = ReturnType<
+  typeof serverReturnedPolicyUpdateData
+>;
+
 export const userExitedPolicyDetails = actionCreatorFactory<'userExitedPolicyDetails', []>(
   'userExitedPolicyDetails'
 );
 
 export type TUserExitedPolicyDetailsAction = ReturnType<typeof userExitedPolicyDetails>;
 
+export const userUpdatedPolicyDetailsData = actionCreatorFactory<
+  'userUpdatedPolicyDetailsData',
+  [Pick<Datasource, 'name'>]
+>('userUpdatedPolicyDetailsData');
+
+export type TUserUpdatedPolicyDetailsDataAction = ReturnType<typeof userUpdatedPolicyDetailsData>;
+
+export const userClickedPolicyUpdateButton = actionCreatorFactory<
+  'userClickedPolicyUpdateButton',
+  [{ id: string; item: Omit<Datasource, 'id'> }]
+>('userClickedPolicyUpdateButton');
+
+export type TUserClickedPolicyUpdateButtonAction = ReturnType<typeof userClickedPolicyUpdateButton>;
+
 export type IPolicyDetailsActions =
   | TServerReturnedPolicyDetailsDataAction
+  | TServerReturnedPolicyUpdateDataAction
   | TFetchPolicyDetailsDataAction
   | TIsFetchingPolicyDetailsDataAction
-  | TUserExitedPolicyDetailsAction;
+  | TUserExitedPolicyDetailsAction
+  | TUserUpdatedPolicyDetailsDataAction
+  | TUserClickedPolicyUpdateButtonAction;

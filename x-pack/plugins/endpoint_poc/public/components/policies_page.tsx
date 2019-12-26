@@ -29,6 +29,7 @@ import {
   userClickedPolicyCreate,
   userClickedPolicyListRefreshButton,
 } from '../actions/policy_list';
+import { selectPolicyDetailsPageTitle } from '../selectors/policy_details';
 
 const PageView = React.memo<{ title: string; children: ReactElement }>(({ title, children }) => {
   return (
@@ -95,13 +96,17 @@ const ListView = withRouter(
   })
 );
 
-interface IDetailsViewRouterProps {
-  policyId: string;
-}
-const DetailView = withRouter<IDetailsViewRouterProps>(
-  React.memo(({ match }: RouteComponentProps<IDetailsViewRouterProps>) => {
+type TDetailsViewRouterProps = RouteComponentProps<{ policyId: string }>;
+
+const DetailView = withRouter<
+  TDetailsViewRouterProps,
+  React.ComponentType<TDetailsViewRouterProps>
+>(
+  React.memo(({ match }) => {
+    const policyTitle = useSelector(selectPolicyDetailsPageTitle);
+
     return (
-      <PageView title="Policy: Name here">
+      <PageView title={`Policy: ${policyTitle}`}>
         <PolicyDetail policyId={match.params.policyId} />
       </PageView>
     );
