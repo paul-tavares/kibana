@@ -32,6 +32,11 @@ const columns = [
     },
   },
   {
+    field: 'policies',
+    name: 'Assigned to Fleet Policy',
+    render: (policies: string[]) => <span>{policies.length}</span>,
+  },
+  {
     field: 'id',
     name: 'ID',
   },
@@ -66,6 +71,13 @@ export const PolicyList = React.memo(() => {
       loading={isFetching}
       pagination={paginationSetup}
       sorting={sortingSetup}
+      itemId="id"
+      isSelectable={true}
+      selection={{
+        selectable: () => true,
+        selectableMessage: () => 'select it',
+        onSelectionChange: () => {},
+      }}
       onChange={handleTableChange}
     />
   );

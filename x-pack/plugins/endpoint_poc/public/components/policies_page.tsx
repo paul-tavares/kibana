@@ -69,6 +69,7 @@ const RefreshButton = React.memo(() => {
     <EuiButtonIcon
       iconType="refresh"
       disabled={isFetching}
+      aria-label="Refresh"
       onClick={() => dispatch(userClickedPolicyListRefreshButton())}
     />
   );

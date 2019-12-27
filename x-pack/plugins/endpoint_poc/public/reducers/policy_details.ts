@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { Datasource } from '../../../../legacy/plugins/ingest/server/libs/types';
 import {
+  IPolicyDetailsServerResponse,
   IPolicyDetailsActions,
   isFetchingPolicyDetailsData,
   serverReturnedPolicyDetailsData,
@@ -17,14 +17,25 @@ import {
   userClickedPolicyUpdateButton,
   userExitedPolicyDetails,
   userUpdatedPolicyDetailsData,
+  IDatasource,
+  TUserClickedFleetActionButtonAction,
+  userClickedFleetActionButton,
 } from '../actions/policy_details';
 
+export enum EPolicyDetailsFloyout {
+  none,
+  viewFleetPolicies,
+  assignFleetPolicies,
+  unAssignFleetPolicies,
+}
+
 export interface IPolicyDetailsState {
-  item: Datasource | null;
+  item: IPolicyDetailsServerResponse['item'];
   wasFetched: boolean;
   wasFound: boolean;
   wasUpdated: boolean;
   isFetching: boolean;
+  showFlyout: EPolicyDetailsFloyout;
 }
 
 const createPolicyDetailsState = (): IPolicyDetailsState => ({
@@ -33,6 +44,7 @@ const createPolicyDetailsState = (): IPolicyDetailsState => ({
   wasFound: false,
   wasUpdated: false,
   isFetching: false,
+  showFlyout: EPolicyDetailsFloyout.none,
 });
 
 export const policyDetailsReducer = (
@@ -63,7 +75,7 @@ export const policyDetailsReducer = (
       return {
         ...state,
         item: {
-          ...(state.item as Datasource),
+          ...(state.item as IDatasource),
           ...(action as TUserUpdatedPolicyDetailsDataAction).payload[0],
         },
         wasUpdated: true,
@@ -79,6 +91,9 @@ export const policyDetailsReducer = (
         isFetching: false,
         wasUpdated: false,
       };
+
+    case userClickedFleetActionButton.type:
+      return { ...state, ...(action as TUserClickedFleetActionButtonAction).payload[0] };
 
     default:
       return state;

@@ -6,9 +6,14 @@
 
 import { actionCreatorFactory } from '../lib/action_creator';
 import { Datasource } from '../../../../legacy/plugins/ingest/server/libs/types';
+import { IPolicyDetailsState } from '../reducers/policy_details';
+
+export interface IDatasource extends Datasource {
+  policies: string[];
+}
 
 export interface IPolicyDetailsServerResponse {
-  item: Datasource | null;
+  item: IDatasource | null;
   success: boolean;
 }
 
@@ -64,6 +69,13 @@ export const userClickedPolicyUpdateButton = actionCreatorFactory<
 
 export type TUserClickedPolicyUpdateButtonAction = ReturnType<typeof userClickedPolicyUpdateButton>;
 
+export const userClickedFleetActionButton = actionCreatorFactory<
+  'userClickedFleetActionButton',
+  [Pick<IPolicyDetailsState, 'showFlyout'>]
+>('userClickedFleetActionButton');
+
+export type TUserClickedFleetActionButtonAction = ReturnType<typeof userClickedFleetActionButton>;
+
 export type IPolicyDetailsActions =
   | TServerReturnedPolicyDetailsDataAction
   | TServerReturnedPolicyUpdateDataAction
@@ -71,4 +83,5 @@ export type IPolicyDetailsActions =
   | TIsFetchingPolicyDetailsDataAction
   | TUserExitedPolicyDetailsAction
   | TUserUpdatedPolicyDetailsDataAction
-  | TUserClickedPolicyUpdateButtonAction;
+  | TUserClickedPolicyUpdateButtonAction
+  | TUserClickedFleetActionButtonAction;

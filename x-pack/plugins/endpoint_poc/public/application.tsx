@@ -20,6 +20,7 @@ import { AlertList } from './components/alert_list';
 import { AlertDetails } from './components/alert_details';
 import { EndpointsPage } from './components/endpoints_page';
 import { PoliciesPage } from './components/policies_page';
+import { storeAppMountContext } from './concerns/kibana_app_context';
 
 const LocationChangeWrapper = function({ children }) {
   // TODO: Find another way that doesn't require updating react-router-dom to 5.1.0
@@ -43,6 +44,8 @@ const EndpointRouter = ({
   context: AppMountContext;
   store: any;
 }) => {
+  storeAppMountContext(context);
+
   return (
     <Provider store={store}>
       <Router history={history}>

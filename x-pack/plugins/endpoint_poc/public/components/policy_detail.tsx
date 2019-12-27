@@ -4,38 +4,44 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import React, { ChangeEvent, useEffect } from 'react';
+import React, { ChangeEvent, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   EuiAccordion,
   EuiBadge,
+  EuiButton,
+  EuiButtonEmpty,
   EuiCallOut,
+  EuiFieldText,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiLoadingContent,
   EuiPanel,
   EuiSpacer,
+  EuiStat,
   EuiSwitch,
   EuiText,
-  EuiFieldText,
-  EuiButtonEmpty,
-  EuiButton,
-  EuiFlexGroup,
-  EuiFlexItem,
 } from '@elastic/eui';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import {
   selectIsEndpointPolicy,
   selectIsFetching,
   selectItem,
+  selectShowFlyout,
   selectWasFetched,
   selectWasFound,
   selectWasUpdated,
 } from '../selectors/policy_details';
 import {
   fetchPolicyDetailsData,
+  userClickedFleetActionButton,
   userClickedPolicyUpdateButton,
   userExitedPolicyDetails,
   userUpdatedPolicyDetailsData,
 } from '../actions/policy_details';
+import { FleetPolicyListFlyout } from './fleet_policy_list_flyout';
+import { EPolicyDetailsFloyout } from '../reducers/policy_details';
+import { FleetPolicyAssignmentFlyout } from './fleet_policy_assignment_flyout';
 
 const Loading = () => (
   <div>
@@ -107,6 +113,7 @@ export const PolicyDetail = React.memo<{
   const wasFound = useSelector(selectWasFound);
   const isFetching = useSelector(selectIsFetching);
   const wasUpdated = useSelector(selectWasUpdated);
+  const showFlyout = useSelector(selectShowFlyout);
   const rules = getFakeRuleList();
   const handlePolicyNameChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     dispatch(userUpdatedPolicyDetailsData({ name: value }));
@@ -120,6 +127,35 @@ export const PolicyDetail = React.memo<{
       })
     );
   };
+  const handleViewFleetPoliciesButtonClick = useCallback(
+    () =>
+      dispatch(
+        userClickedFleetActionButton({ showFlyout: EPolicyDetailsFloyout.viewFleetPolicies })
+      ),
+    [dispatch]
+  );
+  const handleAssignFleetPoliciesButtonClick = useCallback(
+    () =>
+      dispatch(
+        userClickedFleetActionButton({ showFlyout: EPolicyDetailsFloyout.assignFleetPolicies })
+      ),
+    [dispatch]
+  );
+  const handleUnAssignFleetPoliciesButtonClick = useCallback(
+    () =>
+      dispatch(
+        userClickedFleetActionButton({ showFlyout: EPolicyDetailsFloyout.unAssignFleetPolicies })
+      ),
+    [dispatch]
+  );
+  const handleFlyoutClose = useCallback(
+    () => dispatch(userClickedFleetActionButton({ showFlyout: EPolicyDetailsFloyout.none })),
+    [dispatch]
+  );
+  const handleFleetAssignmentSuccess = useCallback(() => {
+    dispatch(fetchPolicyDetailsData({ policyId: item.id }));
+    handleFlyoutClose();
+  }, [dispatch, handleFlyoutClose, item]);
 
   useEffect(() => {
     dispatch(fetchPolicyDetailsData({ policyId }));
@@ -149,6 +185,47 @@ export const PolicyDetail = React.memo<{
 
   return (
     <>
+      {showFlyout === EPolicyDetailsFloyout.viewFleetPolicies && (
+        <FleetPolicyListFlyout datasourceId={item.id} onClose={handleFlyoutClose} />
+      )}
+
+      {showFlyout === EPolicyDetailsFloyout.assignFleetPolicies && (
+        <FleetPolicyAssignmentFlyout
+          datasourceId={item.id}
+          onClose={handleFlyoutClose}
+          mode="assign"
+          onSuccess={handleFleetAssignmentSuccess}
+        />
+      )}
+
+      {showFlyout === EPolicyDetailsFloyout.unAssignFleetPolicies && (
+        <FleetPolicyAssignmentFlyout
+          datasourceId={item.id}
+          onClose={handleFlyoutClose}
+          mode="un-assign"
+          onSuccess={handleFleetAssignmentSuccess}
+        />
+      )}
+
+      <EuiPanel>
+        <EuiFlexGroup>
+          <EuiFlexItem>
+            <EuiStat title={item.policies.length} description="Fleet Policy Total" />
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiButton onClick={handleViewFleetPoliciesButtonClick}>View Policies</EuiButton>
+            <EuiSpacer size="xs" />
+            <EuiButton onClick={handleAssignFleetPoliciesButtonClick}>Assign to Policy</EuiButton>
+            <EuiSpacer size="xs" />
+            <EuiButton onClick={handleUnAssignFleetPoliciesButtonClick}>
+              Un-assign from Policy
+            </EuiButton>
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiPanel>
+
+      <EuiSpacer size="l" />
+
       <EuiPanel>
         <EuiFieldText onChange={handlePolicyNameChange} value={item!.name} required fullWidth />
       </EuiPanel>

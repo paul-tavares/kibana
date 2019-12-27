@@ -4,13 +4,13 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { Datasource } from '../../../../legacy/plugins/ingest/server/libs/types';
 import { GlobalState } from '../types';
 import { IPolicyDetailsState } from '../reducers/policy_details';
+import { IDatasource } from '../actions/policy_details';
 
 const selectPolicyDetailsState = (s: GlobalState) => s.policyDetails as IPolicyDetailsState;
 
-export const selectItem = (s: GlobalState) => selectPolicyDetailsState(s).item as Datasource;
+export const selectItem = (s: GlobalState) => selectPolicyDetailsState(s).item as IDatasource;
 
 export const selectIsEndpointPolicy = (s: GlobalState) =>
   selectPolicyDetailsState(s).item?.package.name === 'endpoint';
@@ -22,6 +22,8 @@ export const selectWasFetched = (s: GlobalState) => selectPolicyDetailsState(s).
 export const selectIsFetching = (s: GlobalState) => selectPolicyDetailsState(s).isFetching;
 
 export const selectWasUpdated = (s: GlobalState) => selectPolicyDetailsState(s).wasUpdated;
+
+export const selectShowFlyout = (s: GlobalState) => selectPolicyDetailsState(s).showFlyout;
 
 export const selectPolicyDetailsPageTitle = (s: GlobalState) => {
   const wasFetched = selectWasFetched(s);
