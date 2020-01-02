@@ -16,7 +16,7 @@ import {
   EuiButton,
 } from '@elastic/eui';
 import { FleetPolicyList } from './fleet_policy_list';
-import { useAddDatasourceToFleetPolicy, useARemoveDatasourceToFleetPolicy } from '../hooks/fleet';
+import { useAddDatasourceToFleetPolicy, useARemoveDatasourceFromFleetPolicy } from '../hooks/fleet';
 
 const NOOP = () => {};
 
@@ -29,7 +29,7 @@ export const FleetPolicyAssignmentFlyout: React.FunctionComponent<{
   const [selected, setSelected] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [addDatasourceToFleetPolicy] = useAddDatasourceToFleetPolicy();
-  const [removeDatasourceToFleetPolicy] = useARemoveDatasourceToFleetPolicy();
+  const [removeDatasourceFromFleetPolicy] = useARemoveDatasourceFromFleetPolicy();
   const isAssignMode = mode === 'assign';
   const assignUnAssignButtonTitle = isAssignMode ? 'Assign' : 'Un-Assign';
   const hasSelections = selected.length > 0;
@@ -40,7 +40,7 @@ export const FleetPolicyAssignmentFlyout: React.FunctionComponent<{
       selected.map(policy =>
         isAssignMode
           ? addDatasourceToFleetPolicy(policy.id, datasourceId)
-          : removeDatasourceToFleetPolicy(policy.id, datasourceId)
+          : removeDatasourceFromFleetPolicy(policy.id, datasourceId)
       )
     ).then(() => {
       onSuccess();

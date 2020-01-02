@@ -74,7 +74,7 @@ export const useAddDatasourceToFleetPolicy = (): [
 /**
  * Remove datasource to a given Fleet policy
  */
-export const useARemoveDatasourceToFleetPolicy = (): [
+export const useARemoveDatasourceFromFleetPolicy = (): [
   (
     fleetPolicyId: string,
     datasourceId: string
