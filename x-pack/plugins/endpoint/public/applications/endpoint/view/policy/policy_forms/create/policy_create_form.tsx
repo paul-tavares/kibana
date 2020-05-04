@@ -4,8 +4,24 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
+import { EuiSteps } from '@elastic/eui';
+import { AgentConfigSelection } from './agent_config_selection';
+import { PolicyDefinition } from './policy_definition';
 
 export const PolicyCreateForm = memo(() => {
-  return <div>create form</div>;
+  const steps = useMemo(() => {
+    return [
+      {
+        title: 'Select Agent Configuration',
+        children: <AgentConfigSelection />,
+      },
+      {
+        title: 'Define Policy',
+        children: <PolicyDefinition />,
+      },
+    ];
+  }, []);
+
+  return <EuiSteps steps={steps} />;
 });

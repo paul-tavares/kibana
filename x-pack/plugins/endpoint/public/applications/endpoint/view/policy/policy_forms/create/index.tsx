@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiTitle } from '@elastic/eui';
+import { EuiFlyout, EuiFlyoutBody, EuiFlyoutFooter, EuiFlyoutHeader, EuiTitle } from '@elastic/eui';
 import React, { memo, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { PolicyListAction } from '../../../../store/policy_list';
@@ -27,6 +27,7 @@ export const PolicyCreateFlyout = memo(() => {
       <EuiFlyoutBody>
         <PolicyCreateForm />
       </EuiFlyoutBody>
+      <EuiFlyoutFooter>Create button here</EuiFlyoutFooter>
     </EuiFlyout>
   );
 });

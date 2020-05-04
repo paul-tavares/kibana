@@ -153,6 +153,13 @@ export interface PolicyListState {
   /** current location information */
   location?: Immutable<EndpointAppLocation>;
   showCreate: boolean;
+  newPolicy: {
+    isFetchingAgentConfigs: boolean;
+    agentConfigs: object[];
+    configId: string;
+    policyName: string;
+    policyDescription: string;
+  };
 }
 
 /**

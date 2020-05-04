@@ -19,6 +19,13 @@ const initialPolicyListState = (): PolicyListState => {
     total: 0,
     location: undefined,
     showCreate: false,
+    newPolicy: {
+      isFetchingAgentConfigs: false,
+      agentConfigs: [],
+      configId: '',
+      policyName: '',
+      policyDescription: '',
+    },
   };
 };
 
@@ -53,6 +60,7 @@ export const policyListReducer: ImmutableReducer<PolicyListState, AppAction> = (
     return {
       ...state,
       showCreate: false,
+      newPolicy: initialPolicyListState().newPolicy,
     };
   }
 
