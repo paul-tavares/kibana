@@ -22,4 +22,20 @@ interface ServerFailedToReturnPolicyListData {
   payload: ServerApiError;
 }
 
-export type PolicyListAction = ServerReturnedPolicyListData | ServerFailedToReturnPolicyListData;
+interface UserClickedPolicyCreateButton {
+  type: 'userClickedPolicyCreateButton';
+  payload: {
+    /** if `true`, then form should be shown; else hide it */
+    show: boolean;
+  };
+}
+
+interface UserClosedPolicyCreateFlyout {
+  type: 'userClosedPolicyCreateFlyout';
+}
+
+export type PolicyListAction =
+  | ServerReturnedPolicyListData
+  | ServerFailedToReturnPolicyListData
+  | UserClickedPolicyCreateButton
+  | UserClosedPolicyCreateFlyout;

@@ -5,7 +5,13 @@
  */
 
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { EuiBasicTable, EuiText, EuiTableFieldDataColumnType, EuiLink } from '@elastic/eui';
+import {
+  EuiBasicTable,
+  EuiText,
+  EuiTableFieldDataColumnType,
+  EuiLink,
+  EuiButton,
+} from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { FormattedMessage } from '@kbn/i18n/react';
 import { useDispatch } from 'react-redux';
@@ -17,6 +23,7 @@ import {
   selectPageSize,
   selectPolicyItems,
   selectTotal,
+  showCreate,
 } from '../../store/policy_list/selectors';
 import { usePolicyListSelector } from './policy_hooks';
 import { PolicyListAction } from '../../store/policy_list';
@@ -25,6 +32,7 @@ import { PageView } from '../components/page_view';
 import { LinkToApp } from '../components/link_to_app';
 import { Immutable, PolicyData } from '../../../../../common/types';
 import { useNavigateByRouterEventHandler } from '../hooks/use_navigate_by_router_event_handler';
+import { PolicyCreateFlyout } from './policy_forms/create';
 
 interface TableChangeCallbackArguments {
   page: { index: number; size: number };
@@ -56,6 +64,7 @@ export const PolicyList = React.memo(() => {
   const totalItemCount = usePolicyListSelector(selectTotal);
   const loading = usePolicyListSelector(selectIsLoading);
   const apiError = usePolicyListSelector(selectApiError);
+  const showCreateFlyout = usePolicyListSelector(showCreate);
 
   useEffect(() => {
     if (apiError) {
@@ -66,6 +75,19 @@ export const PolicyList = React.memo(() => {
       });
     }
   }, [apiError, dispatch, notifications.toasts]);
+
+  const handleCreateButtonClick = useCallback(() => {
+    dispatch({
+      type: 'userClickedPolicyCreateButton',
+      payload: {
+        show: !showCreateFlyout,
+      },
+    });
+  }, [dispatch, showCreateFlyout]);
+
+  const headerRightContent = useMemo(() => {
+    return <EuiButton onClick={handleCreateButtonClick}>Create</EuiButton>;
+  }, [handleCreateButtonClick]);
 
   const paginationSetup = useMemo(() => {
     return {
@@ -148,30 +170,34 @@ export const PolicyList = React.memo(() => {
   );
 
   return (
-    <PageView
-      viewType="list"
-      data-test-subj="policyListPage"
-      headerLeft={i18n.translate('xpack.endpoint.policyList.viewTitle', {
-        defaultMessage: 'Policies',
-      })}
-      bodyHeader={
-        <EuiText color="subdued" data-test-subj="policyTotalCount">
-          <FormattedMessage
-            id="xpack.endpoint.policyList.viewTitleTotalCount"
-            defaultMessage="{totalItemCount, plural, one {# Policy} other {# Policies}}"
-            values={{ totalItemCount }}
-          />
-        </EuiText>
-      }
-    >
-      <EuiBasicTable
-        items={useMemo(() => [...policyItems], [policyItems])}
-        columns={columns}
-        loading={loading}
-        pagination={paginationSetup}
-        onChange={handleTableChange}
-        data-test-subj="policyTable"
-      />
-    </PageView>
+    <>
+      {showCreateFlyout && <PolicyCreateFlyout />}
+      <PageView
+        viewType="list"
+        data-test-subj="policyListPage"
+        headerLeft={i18n.translate('xpack.endpoint.policyList.viewTitle', {
+          defaultMessage: 'Policies',
+        })}
+        headerRight={headerRightContent}
+        bodyHeader={
+          <EuiText color="subdued" data-test-subj="policyTotalCount">
+            <FormattedMessage
+              id="xpack.endpoint.policyList.viewTitleTotalCount"
+              defaultMessage="{totalItemCount, plural, one {# Policy} other {# Policies}}"
+              values={{ totalItemCount }}
+            />
+          </EuiText>
+        }
+      >
+        <EuiBasicTable
+          items={useMemo(() => [...policyItems], [policyItems])}
+          columns={columns}
+          loading={loading}
+          pagination={paginationSetup}
+          onChange={handleTableChange}
+          data-test-subj="policyTable"
+        />
+      </PageView>
+    </>
   );
 });

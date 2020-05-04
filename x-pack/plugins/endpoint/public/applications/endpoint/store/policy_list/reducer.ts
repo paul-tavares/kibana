@@ -18,6 +18,7 @@ const initialPolicyListState = (): PolicyListState => {
     pageSize: 10,
     total: 0,
     location: undefined,
+    showCreate: false,
   };
 };
 
@@ -38,6 +39,20 @@ export const policyListReducer: ImmutableReducer<PolicyListState, AppAction> = (
       ...state,
       apiError: action.payload,
       isLoading: false,
+    };
+  }
+
+  if (action.type === 'userClickedPolicyCreateButton') {
+    return {
+      ...state,
+      showCreate: action.payload.show,
+    };
+  }
+
+  if (action.type === 'userClosedPolicyCreateFlyout') {
+    return {
+      ...state,
+      showCreate: false,
     };
   }
 

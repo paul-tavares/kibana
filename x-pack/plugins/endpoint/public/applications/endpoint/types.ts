@@ -152,6 +152,7 @@ export interface PolicyListState {
   isLoading: boolean;
   /** current location information */
   location?: Immutable<EndpointAppLocation>;
+  showCreate: boolean;
 }
 
 /**
