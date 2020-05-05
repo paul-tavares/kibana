@@ -49,6 +49,16 @@ export const policyListReducer: ImmutableReducer<PolicyListState, AppAction> = (
     };
   }
 
+  if (action.type === 'serverReturnedAgentConfigsWithNoPolicyData') {
+    return {
+      ...state,
+      newPolicy: {
+        ...state.newPolicy,
+        agentConfigs: action.payload.items,
+      },
+    };
+  }
+
   if (action.type === 'userClickedPolicyCreateButton') {
     return {
       ...state,

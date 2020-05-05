@@ -5,7 +5,8 @@
  */
 
 import { ServerApiError } from '../../types';
-import { PolicyData } from '../../../../../common/types';
+import { Immutable, PolicyData } from '../../../../../common/types';
+import { GetAgentConfigsResponse } from '../../../../../../ingest_manager/common/types/rest_spec';
 
 interface ServerReturnedPolicyListData {
   type: 'serverReturnedPolicyListData';
@@ -20,6 +21,11 @@ interface ServerReturnedPolicyListData {
 interface ServerFailedToReturnPolicyListData {
   type: 'serverFailedToReturnPolicyListData';
   payload: ServerApiError;
+}
+
+interface ServerReturnedAgentConfigsWithNoPolicyData {
+  type: 'serverReturnedAgentConfigsWithNoPolicyData';
+  payload: Immutable<GetAgentConfigsResponse>;
 }
 
 interface UserClickedPolicyCreateButton {
@@ -37,5 +43,6 @@ interface UserClosedPolicyCreateFlyout {
 export type PolicyListAction =
   | ServerReturnedPolicyListData
   | ServerFailedToReturnPolicyListData
+  | ServerReturnedAgentConfigsWithNoPolicyData
   | UserClickedPolicyCreateButton
   | UserClosedPolicyCreateFlyout;

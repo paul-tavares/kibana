@@ -86,7 +86,11 @@ export const PolicyList = React.memo(() => {
   }, [dispatch, showCreateFlyout]);
 
   const headerRightContent = useMemo(() => {
-    return <EuiButton onClick={handleCreateButtonClick}>Create</EuiButton>;
+    return (
+      <EuiButton onClick={handleCreateButtonClick} color="primary" fill>
+        Create
+      </EuiButton>
+    );
   }, [handleCreateButtonClick]);
 
   const paginationSetup = useMemo(() => {

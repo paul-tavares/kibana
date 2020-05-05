@@ -9,12 +9,14 @@ import {
   GetDatasourcesRequest,
   GetAgentStatusResponse,
   DATASOURCE_SAVED_OBJECT_TYPE,
+  GetAgentConfigsResponse,
 } from '../../../../../../../ingest_manager/common';
 import { GetPolicyListResponse, GetPolicyResponse, UpdatePolicyResponse } from '../../../types';
 import { NewPolicyData } from '../../../../../../common/types';
 
 const INGEST_API_ROOT = `/api/ingest_manager`;
 export const INGEST_API_DATASOURCES = `${INGEST_API_ROOT}/datasources`;
+const INGEST_API_AGENT_CONFIGS = `${INGEST_API_ROOT}/agent_configs`;
 const INGEST_API_FLEET = `${INGEST_API_ROOT}/fleet`;
 const INGEST_API_FLEET_AGENT_STATUS = `${INGEST_API_FLEET}/agent-status`;
 
@@ -90,6 +92,21 @@ export const sendGetFleetAgentStatusForConfig = (
     ...options,
     query: {
       configId,
+    },
+  });
+};
+
+// FIXME: needs to support options (ex. pagination)
+export const sendGetAgentConfigsWithNoPolicy = async (
+  http: HttpStart
+): Promise<GetAgentConfigsResponse> => {
+  // FIXME: call below need to support pagination as well
+  const datasources = await sendGetEndpointSpecificDatasources(http);
+  return http.get(INGEST_API_AGENT_CONFIGS, {
+    query: {
+      page: 1,
+      perPage: 100,
+      kuery: `not (ingest-agent-configs.id: (${datasources.items.map(d => d.id).join(' or ')}))`,
     },
   });
 };

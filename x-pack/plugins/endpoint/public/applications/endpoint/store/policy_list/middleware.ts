@@ -5,7 +5,10 @@
  */
 
 import { GetPolicyListResponse, ImmutableMiddlewareFactory, PolicyListState } from '../../types';
-import { sendGetEndpointSpecificDatasources } from './services/ingest';
+import {
+  sendGetAgentConfigsWithNoPolicy,
+  sendGetEndpointSpecificDatasources,
+} from './services/ingest';
 import { isOnPolicyListPage, urlSearchParams } from './selectors';
 
 export const policyListMiddlewareFactory: ImmutableMiddlewareFactory<PolicyListState> = coreStart => {
@@ -45,6 +48,13 @@ export const policyListMiddlewareFactory: ImmutableMiddlewareFactory<PolicyListS
           pageSize,
           total,
         },
+      });
+    } else if (action.type === 'userClickedPolicyCreateButton' && action.payload.show) {
+      // FIXME: use try block and handle errors
+      const agentConfigsResponse = await sendGetAgentConfigsWithNoPolicy(http);
+      dispatch({
+        type: 'serverReturnedAgentConfigsWithNoPolicyData',
+        payload: agentConfigsResponse,
       });
     }
   };

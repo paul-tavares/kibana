@@ -72,3 +72,5 @@ export const urlSearchParams: (
 });
 
 export const showCreate = (state: Immutable<PolicyListState>) => state.showCreate;
+
+export const newPolicyConfigId = (state: Immutable<PolicyListState>) => state.newPolicy.configId;

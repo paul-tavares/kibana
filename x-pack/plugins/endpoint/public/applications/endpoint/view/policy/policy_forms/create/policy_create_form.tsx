@@ -6,11 +6,16 @@
 
 import React, { memo, useMemo } from 'react';
 import { EuiSteps } from '@elastic/eui';
+import { EuiStepsProps } from '@elastic/eui/src/components/steps/steps';
 import { AgentConfigSelection } from './agent_config_selection';
 import { PolicyDefinition } from './policy_definition';
+import { usePolicyListSelector } from '../../policy_hooks';
+import { newPolicyConfigId } from '../../../../store/policy_list/selectors';
 
 export const PolicyCreateForm = memo(() => {
-  const steps = useMemo(() => {
+  const configId = usePolicyListSelector(newPolicyConfigId);
+
+  const steps = useMemo<EuiStepsProps['steps']>(() => {
     return [
       {
         title: 'Select Agent Configuration',
@@ -18,10 +23,11 @@ export const PolicyCreateForm = memo(() => {
       },
       {
         title: 'Define Policy',
+        status: configId ? undefined : 'disabled',
         children: <PolicyDefinition />,
       },
     ];
-  }, []);
+  }, [configId]);
 
   return <EuiSteps steps={steps} />;
 });

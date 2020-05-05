@@ -5,7 +5,11 @@
  */
 
 import React, { memo } from 'react';
+import { usePolicyListSelector } from '../../policy_hooks';
+import { newPolicyConfigId } from '../../../../store/policy_list/selectors';
 
 export const PolicyDefinition = memo(() => {
-  return <div>Policy definition here</div>;
+  const configId = usePolicyListSelector(newPolicyConfigId);
+
+  return (configId && <div>Policy definition here</div>) || null;
 });
