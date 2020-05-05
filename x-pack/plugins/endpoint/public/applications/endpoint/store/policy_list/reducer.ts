@@ -26,6 +26,7 @@ const initialPolicyListState = (): PolicyListState => {
       policyName: '',
       policyDescription: '',
       isCreating: false,
+      wasCreated: false,
     },
   };
 };
@@ -104,6 +105,17 @@ export const policyListReducer: ImmutableReducer<PolicyListState, AppAction> = (
       newPolicy: {
         ...state.newPolicy,
         isCreating: true,
+      },
+    };
+  }
+
+  if (action.type === 'serverReturnedNewPolicyCreateSuccess') {
+    return {
+      ...state,
+      newPolicy: {
+        ...state.newPolicy,
+        isCreating: false,
+        wasCreated: true,
       },
     };
   }

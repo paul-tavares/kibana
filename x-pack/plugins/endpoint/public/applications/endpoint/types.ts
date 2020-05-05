@@ -161,6 +161,7 @@ export interface PolicyListState {
     policyName: string;
     policyDescription: string;
     isCreating: boolean;
+    wasCreated: boolean;
   };
 }
 

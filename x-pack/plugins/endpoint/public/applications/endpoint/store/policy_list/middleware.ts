@@ -60,6 +60,10 @@ export const policyListMiddlewareFactory: ImmutableMiddlewareFactory<PolicyListS
       });
     } else if (action.type === 'userClickExecuteCreatePolicy') {
       const policyCreateResponse = await sendPostDatasource(http, action.payload as NewPolicyData);
+      dispatch({
+        type: 'serverReturnedNewPolicyCreateSuccess',
+        paload: policyCreateResponse,
+      });
     }
   };
 };

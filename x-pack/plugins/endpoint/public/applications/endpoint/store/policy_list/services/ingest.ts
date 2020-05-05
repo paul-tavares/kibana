@@ -10,6 +10,7 @@ import {
   GetAgentStatusResponse,
   DATASOURCE_SAVED_OBJECT_TYPE,
   GetAgentConfigsResponse,
+  CreateDatasourceResponse,
 } from '../../../../../../../ingest_manager/common';
 import { GetPolicyListResponse, GetPolicyResponse, UpdatePolicyResponse } from '../../../types';
 import { NewPolicyData } from '../../../../../../common/types';
@@ -66,7 +67,7 @@ export const sendPostDatasource = (
   http: HttpStart,
   datasource: NewPolicyData,
   options: Exclude<HttpFetchOptions, 'body'> = {}
-): Promise<UpdatePolicyResponse> => {
+): Promise<CreateDatasourceResponse> => {
   return http.post(INGEST_API_DATASOURCES, {
     ...options,
     body: JSON.stringify(datasource),
