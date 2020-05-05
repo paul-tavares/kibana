@@ -7,8 +7,10 @@
 import { createSelector } from 'reselect';
 import { parse } from 'query-string';
 import { PolicyListState, PolicyListUrlSearchParams } from '../../types';
-import { Immutable } from '../../../../../common/types';
+import { Immutable, NewPolicyData } from '../../../../../common/types';
+import { EndpointDocGenerator } from '../../../../../common/generate_data';
 
+const generator = new EndpointDocGenerator();
 const PAGE_SIZES = Object.freeze([10, 20, 50]);
 
 export const selectPolicyItems = (state: Immutable<PolicyListState>) => state.policyItems;
@@ -86,3 +88,38 @@ export const newPolicyName = (state: Immutable<PolicyListState>) => state.newPol
 
 export const newPolicyDescription = (state: Immutable<PolicyListState>) =>
   state.newPolicy.policyDescription;
+
+export const isCreatingNewPolicy = (state: Immutable<PolicyListState>) =>
+  state.newPolicy.isCreating;
+
+export const hasRequiredNewPolicyInput: (
+  state: Immutable<PolicyListState>
+) => boolean = createSelector(
+  configId,
+  newPolicyName,
+  (agentConfigId, policyName) => !!(agentConfigId && policyName)
+);
+
+export const newPolicyDataForCreate: (
+  state: Immutable<PolicyListState>
+) => NewPolicyData | undefined = createSelector(
+  hasRequiredNewPolicyInput,
+  configId,
+  newPolicyName,
+  newPolicyDescription,
+  (hasRequired, agentConfigId, name, description) => {
+    if (hasRequired) {
+      // FIXME: this likely would need to be done in Middleware and the API used to retrieve the Endpoint package and get accurate datasource defintion from there.
+      return {
+        config_id: agentConfigId,
+        name,
+        description,
+        namespace: '',
+        enabled: true,
+        output_id: '',
+        package: { name: 'endpoint', title: 'Elastic Endpoint', version: '1.0.0' },
+        inputs: generator.generatePolicyDatasource().inputs,
+      };
+    }
+  }
+);

@@ -160,6 +160,7 @@ export interface PolicyListState {
     configId: string;
     policyName: string;
     policyDescription: string;
+    isCreating: boolean;
   };
 }
 

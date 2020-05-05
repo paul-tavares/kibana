@@ -8,8 +8,10 @@ import { GetPolicyListResponse, ImmutableMiddlewareFactory, PolicyListState } fr
 import {
   sendGetAgentConfigsWithNoPolicy,
   sendGetEndpointSpecificDatasources,
+  sendPostDatasource,
 } from './services/ingest';
 import { isOnPolicyListPage, urlSearchParams } from './selectors';
+import { NewPolicyData } from '../../../../../common/types';
 
 export const policyListMiddlewareFactory: ImmutableMiddlewareFactory<PolicyListState> = coreStart => {
   const http = coreStart.http;
@@ -56,6 +58,8 @@ export const policyListMiddlewareFactory: ImmutableMiddlewareFactory<PolicyListS
         type: 'serverReturnedAgentConfigsWithNoPolicyData',
         payload: agentConfigsResponse,
       });
+    } else if (action.type === 'userClickExecuteCreatePolicy') {
+      const policyCreateResponse = await sendPostDatasource(http, action.payload as NewPolicyData);
     }
   };
 };

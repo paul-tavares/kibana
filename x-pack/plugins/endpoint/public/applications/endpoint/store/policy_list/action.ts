@@ -5,7 +5,7 @@
  */
 
 import { PolicyListState, ServerApiError } from '../../types';
-import { Immutable, PolicyData } from '../../../../../common/types';
+import { Immutable, NewPolicyData, PolicyData } from '../../../../../common/types';
 import { GetAgentConfigsResponse } from '../../../../../../ingest_manager/common/types/rest_spec';
 
 interface ServerReturnedPolicyListData {
@@ -48,6 +48,11 @@ interface UserEnteredPolicyInformation {
   payload: Partial<Pick<PolicyListState['newPolicy'], 'policyName' | 'policyDescription'>>;
 }
 
+interface UserClickExecuteCreatePolicy {
+  type: 'userClickExecuteCreatePolicy';
+  payload: NewPolicyData;
+}
+
 interface UserClosedPolicyCreateFlyout {
   type: 'userClosedPolicyCreateFlyout';
 }
@@ -59,4 +64,5 @@ export type PolicyListAction =
   | UserSelectedAgentConfiguration
   | UserClickedPolicyCreateButton
   | UserEnteredPolicyInformation
+  | UserClickExecuteCreatePolicy
   | UserClosedPolicyCreateFlyout;
