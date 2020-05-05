@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { ServerApiError } from '../../types';
+import { PolicyListState, ServerApiError } from '../../types';
 import { Immutable, PolicyData } from '../../../../../common/types';
 import { GetAgentConfigsResponse } from '../../../../../../ingest_manager/common/types/rest_spec';
 
@@ -43,6 +43,11 @@ interface UserClickedPolicyCreateButton {
   };
 }
 
+interface UserEnteredPolicyInformation {
+  type: 'userEnteredPolicyInformation';
+  payload: Partial<Pick<PolicyListState['newPolicy'], 'policyName' | 'policyDescription'>>;
+}
+
 interface UserClosedPolicyCreateFlyout {
   type: 'userClosedPolicyCreateFlyout';
 }
@@ -53,4 +58,5 @@ export type PolicyListAction =
   | ServerReturnedAgentConfigsWithNoPolicyData
   | UserSelectedAgentConfiguration
   | UserClickedPolicyCreateButton
+  | UserEnteredPolicyInformation
   | UserClosedPolicyCreateFlyout;

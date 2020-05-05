@@ -79,6 +79,15 @@ export const policyListReducer: ImmutableReducer<PolicyListState, AppAction> = (
       },
     };
   }
+  if (action.type === 'userEnteredPolicyInformation') {
+    return {
+      ...state,
+      newPolicy: {
+        ...state.newPolicy,
+        ...action.payload,
+      },
+    };
+  }
 
   if (action.type === 'userClosedPolicyCreateFlyout') {
     return {

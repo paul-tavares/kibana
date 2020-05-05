@@ -38,7 +38,7 @@ export const AgentConfigSelection = memo(() => {
         key: config.id,
         label: config.name,
         append: (
-          <EuiToolTip position="left" title="Number of Agents enrolled">
+          <EuiToolTip position="left" content="Number of Agents enrolled">
             <EuiBadge>{config.agents}</EuiBadge>
           </EuiToolTip>
         ),
@@ -102,7 +102,7 @@ const NoAgentConfigsPrompt = memo(() => {
   });
   return (
     <EuiEmptyPrompt
-      iconType=""
+      iconType="savedObjectsApp"
       title={<h3>No configuration available</h3>}
       titleSize="s"
       body={

@@ -4,12 +4,63 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import React, { memo } from 'react';
+import React, { memo, useCallback, ChangeEventHandler } from 'react';
+import { EuiCallOut, EuiForm, EuiFormRow, EuiFieldText, EuiText } from '@elastic/eui';
+import { useDispatch } from 'react-redux';
 import { usePolicyListSelector } from '../../policy_hooks';
-import { newPolicyConfigId } from '../../../../store/policy_list/selectors';
+import {
+  newPolicyConfigId,
+  newPolicyDescription,
+  newPolicyName,
+} from '../../../../store/policy_list/selectors';
+import { PolicyListAction } from '../../../../store/policy_list';
 
 export const PolicyDefinition = memo(() => {
+  const dispatch = useDispatch<(a: PolicyListAction) => void>();
   const configId = usePolicyListSelector(newPolicyConfigId);
+  const policyName = usePolicyListSelector(newPolicyName);
+  const policyDescription = usePolicyListSelector(newPolicyDescription);
 
-  return (configId && <div>Policy definition here</div>) || null;
+  const handleFieldOnChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    event => {
+      dispatch({
+        type: 'userEnteredPolicyInformation',
+        payload: {
+          [event.target.name]: event.target.value,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  if (!configId) {
+    return <EuiCallOut size="s" title="Select an agent configuration" iconType="help" />;
+  }
+
+  return (
+    <EuiForm>
+      <EuiFormRow label="Name">
+        <EuiFieldText
+          name="policyName"
+          value={policyName}
+          placeholder="Choose a name"
+          onChange={handleFieldOnChange}
+        />
+      </EuiFormRow>
+      <EuiFormRow
+        label="Description"
+        labelAppend={
+          <EuiText color="subdued" size="s">
+            Optional
+          </EuiText>
+        }
+      >
+        <EuiFieldText
+          name="policyDescription"
+          value={policyDescription}
+          onChange={handleFieldOnChange}
+        />
+      </EuiFormRow>
+    </EuiForm>
+  );
 });

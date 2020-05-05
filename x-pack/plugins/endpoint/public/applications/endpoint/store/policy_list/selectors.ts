@@ -81,3 +81,8 @@ export const isFetchingAgentConfigs = (state: Immutable<PolicyListState>) =>
 export const agentConfigs = (state: Immutable<PolicyListState>) => state.newPolicy.agentConfigs;
 
 export const configId = (state: Immutable<PolicyListState>) => state.newPolicy.configId;
+
+export const newPolicyName = (state: Immutable<PolicyListState>) => state.newPolicy.policyName;
+
+export const newPolicyDescription = (state: Immutable<PolicyListState>) =>
+  state.newPolicy.policyDescription;

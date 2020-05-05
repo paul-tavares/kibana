@@ -56,6 +56,24 @@ export const sendGetDatasource = (
 };
 
 /**
+ * creates a datasource for Endpoint
+ *
+ * @param http
+ * @param datasource
+ * @param options
+ */
+export const sendPostDatasource = (
+  http: HttpStart,
+  datasource: NewPolicyData,
+  options: Exclude<HttpFetchOptions, 'body'> = {}
+): Promise<UpdatePolicyResponse> => {
+  return http.post(INGEST_API_DATASOURCES, {
+    ...options,
+    body: JSON.stringify(datasource),
+  });
+};
+
+/**
  * Updates a datasources
  *
  * @param http
