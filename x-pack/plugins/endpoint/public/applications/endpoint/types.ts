@@ -28,6 +28,7 @@ import { EndpointPluginStartDependencies } from '../../plugin';
 import { AppAction } from './store/action';
 import { CoreStart } from '../../../../../../src/core/public';
 import {
+  GetAgentConfigsResponseItem,
   GetAgentStatusResponse,
   GetDatasourcesResponse,
   GetOneDatasourceResponse,
@@ -155,7 +156,7 @@ export interface PolicyListState {
   showCreate: boolean;
   newPolicy: {
     isFetchingAgentConfigs: boolean;
-    agentConfigs: object[];
+    agentConfigs: GetAgentConfigsResponseItem[];
     configId: string;
     policyName: string;
     policyDescription: string;

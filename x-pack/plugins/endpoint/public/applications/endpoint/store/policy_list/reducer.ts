@@ -54,6 +54,7 @@ export const policyListReducer: ImmutableReducer<PolicyListState, AppAction> = (
       ...state,
       newPolicy: {
         ...state.newPolicy,
+        isFetchingAgentConfigs: false,
         agentConfigs: action.payload.items,
       },
     };
@@ -63,6 +64,19 @@ export const policyListReducer: ImmutableReducer<PolicyListState, AppAction> = (
     return {
       ...state,
       showCreate: action.payload.show,
+      newPolicy: {
+        ...state.newPolicy,
+        isFetchingAgentConfigs: true,
+      },
+    };
+  }
+  if (action.type === 'userSelectedAgentConfiguration') {
+    return {
+      ...state,
+      newPolicy: {
+        ...state.newPolicy,
+        ...action.payload,
+      },
     };
   }
 

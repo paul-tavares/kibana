@@ -74,3 +74,10 @@ export const urlSearchParams: (
 export const showCreate = (state: Immutable<PolicyListState>) => state.showCreate;
 
 export const newPolicyConfigId = (state: Immutable<PolicyListState>) => state.newPolicy.configId;
+
+export const isFetchingAgentConfigs = (state: Immutable<PolicyListState>) =>
+  state.newPolicy.isFetchingAgentConfigs;
+
+export const agentConfigs = (state: Immutable<PolicyListState>) => state.newPolicy.agentConfigs;
+
+export const configId = (state: Immutable<PolicyListState>) => state.newPolicy.configId;

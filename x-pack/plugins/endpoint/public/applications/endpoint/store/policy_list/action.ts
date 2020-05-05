@@ -28,6 +28,13 @@ interface ServerReturnedAgentConfigsWithNoPolicyData {
   payload: Immutable<GetAgentConfigsResponse>;
 }
 
+interface UserSelectedAgentConfiguration {
+  type: 'userSelectedAgentConfiguration';
+  payload: {
+    configId: string;
+  };
+}
+
 interface UserClickedPolicyCreateButton {
   type: 'userClickedPolicyCreateButton';
   payload: {
@@ -44,5 +51,6 @@ export type PolicyListAction =
   | ServerReturnedPolicyListData
   | ServerFailedToReturnPolicyListData
   | ServerReturnedAgentConfigsWithNoPolicyData
+  | UserSelectedAgentConfiguration
   | UserClickedPolicyCreateButton
   | UserClosedPolicyCreateFlyout;
