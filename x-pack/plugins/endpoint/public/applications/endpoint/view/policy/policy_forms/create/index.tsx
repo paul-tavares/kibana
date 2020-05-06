@@ -15,8 +15,6 @@ import {
 import React, { memo, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { i18n } from '@kbn/i18n';
-import { FormattedMessage } from '@kbn/i18n/react';
 import { PolicyListAction } from '../../../../store/policy_list';
 import { PolicyCreateForm } from './policy_create_form';
 import { usePolicyListSelector } from '../../policy_hooks';
