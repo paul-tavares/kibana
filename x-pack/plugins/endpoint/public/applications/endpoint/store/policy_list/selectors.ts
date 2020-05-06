@@ -102,7 +102,7 @@ export const hasRequiredNewPolicyInput: (
 ) => boolean = createSelector(
   configId,
   newPolicyName,
-  (agentConfigId, policyName) => !!(agentConfigId && policyName)
+  (agentConfigId, policyName) => !!(agentConfigId.trim() && policyName.trim())
 );
 
 export const newPolicyDataForCreate: (
