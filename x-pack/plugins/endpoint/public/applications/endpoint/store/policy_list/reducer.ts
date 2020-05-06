@@ -27,6 +27,7 @@ const initialPolicyListState = (): PolicyListState => {
       policyDescription: '',
       isCreating: false,
       wasCreated: false,
+      newPolicy: undefined,
     },
   };
 };
@@ -116,6 +117,7 @@ export const policyListReducer: ImmutableReducer<PolicyListState, AppAction> = (
         ...state.newPolicy,
         isCreating: false,
         wasCreated: true,
+        newPolicy: action.payload.item,
       },
     };
   }

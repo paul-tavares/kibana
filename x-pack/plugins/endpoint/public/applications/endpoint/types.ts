@@ -162,6 +162,7 @@ export interface PolicyListState {
     policyDescription: string;
     isCreating: boolean;
     wasCreated: boolean;
+    newPolicy: PolicyData | undefined;
   };
 }
 

@@ -62,7 +62,7 @@ export const policyListMiddlewareFactory: ImmutableMiddlewareFactory<PolicyListS
       const policyCreateResponse = await sendPostDatasource(http, action.payload as NewPolicyData);
       dispatch({
         type: 'serverReturnedNewPolicyCreateSuccess',
-        paload: policyCreateResponse,
+        payload: policyCreateResponse,
       });
     }
   };

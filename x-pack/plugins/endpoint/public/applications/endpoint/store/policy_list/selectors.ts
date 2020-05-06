@@ -95,6 +95,8 @@ export const isCreatingNewPolicy = (state: Immutable<PolicyListState>) =>
 export const wasNewPolicyCreated = (state: Immutable<PolicyListState>) =>
   state.newPolicy.wasCreated;
 
+export const newlyCreatedPolicy = (state: Immutable<PolicyListState>) => state.newPolicy.newPolicy;
+
 export const hasRequiredNewPolicyInput: (
   state: Immutable<PolicyListState>
 ) => boolean = createSelector(

@@ -125,7 +125,9 @@ export const sendGetAgentConfigsWithNoPolicy = async (
     query: {
       page: 1,
       perPage: 100,
-      kuery: `not (ingest-agent-configs.id: (${datasources.items.map(d => d.id).join(' or ')}))`,
+      kuery: `not ingest-agent-configs.id : (${datasources.items
+        .map(d => `"${d.config_id}"`)
+        .join(' or ')})`,
     },
   });
 };
