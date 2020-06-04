@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom';
 interface IntraAppState {
   forRoute: string;
   returnTo?: Parameters<ApplicationStart['navigateToApp']>;
+  returnToUrl?: string;
 }
 
 const IntraAppStateContext = React.createContext<IntraAppState>({ forRoute: '' });
@@ -22,11 +23,12 @@ export const IntraAppStateProvider = memo<{
   const internalAppToAppState = useMemo<IntraAppState>(() => {
     return {
       forRoute: kibanaScopedHistory.location.hash.substr(1),
-      returnTo: (kibanaScopedHistory.location.state || undefined) as Parameters<
+      returnTo: (kibanaScopedHistory.location?.state?.returnTo || undefined) as Parameters<
         ApplicationStart['navigateToApp']
       >,
+      returnToUrl: kibanaScopedHistory.location?.state?.returnToUrl ?? '',
     };
-  }, [kibanaScopedHistory.location.hash, kibanaScopedHistory.location.state]);
+  }, [kibanaScopedHistory.location]);
   return (
     <IntraAppStateContext.Provider value={internalAppToAppState}>
       {children}
@@ -37,6 +39,9 @@ export const IntraAppStateProvider = memo<{
 export const useIntraAppState = (): IntraAppState | undefined => {
   const location = useLocation();
   const intraAppState = useContext(IntraAppStateContext);
+  if (!intraAppState) {
+    throw new Error('Hook called outside of IntraAppStateContext');
+  }
   const appState = useMemo((): IntraAppState | undefined => {
     if (location.pathname === intraAppState.forRoute) {
       return intraAppState;
