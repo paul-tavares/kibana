@@ -7,6 +7,7 @@
 import { MouseEventHandler, useCallback } from 'react';
 import { ApplicationStart } from 'kibana/public';
 import { useKibana } from '../../../../../../../src/plugins/kibana_react/public';
+import { StartServices } from '../../../types';
 
 type NavigateToAppHandlerProps = Parameters<ApplicationStart['navigateToApp']>;
 type EventHandlerCallback = MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
@@ -34,7 +35,7 @@ export const useNavigateToAppEventHandler = (
     onClick?: EventHandlerCallback;
   }
 ): EventHandlerCallback => {
-  const { services } = useKibana();
+  const { services } = useKibana<StartServices>();
   const { path, state, onClick } = options || {};
   return useCallback(
     (ev) => {

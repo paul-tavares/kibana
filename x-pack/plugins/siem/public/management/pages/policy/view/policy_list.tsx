@@ -17,6 +17,7 @@ import {
   EuiContextMenuItem,
   EuiButtonIcon,
   EuiContextMenuPanel,
+  EuiButton,
 } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { FormattedMessage } from '@kbn/i18n/react';
@@ -35,6 +36,7 @@ import { ManagementPageView } from '../../../components/management_page_view';
 import { SpyRoute } from '../../../../common/utils/route/spy_routes';
 import { getManagementUrl } from '../../../common/routing';
 import { FormattedDateAndTime } from '../../../../common/components/endpoint/formatted_date_time';
+import { useNavigateToAppEventHandler } from '../../../../common/hooks/endpoint/use_navigate_to_app_event_handler';
 
 interface TableChangeCallbackArguments {
   page: { index: number; size: number };
@@ -142,6 +144,17 @@ export const PolicyList = React.memo(() => {
     },
     [history, location.pathname]
   );
+
+  const handleCreateButtonClick = useNavigateToAppEventHandler('ingestManager', {
+    path: '#/integrations/endpoint-0.2.0/add-datasource',
+    state: {
+      returnTo: ['siem', { path: getManagementUrl({ name: 'policyList' }) }],
+    },
+  });
+
+  const headerRightContent = useMemo(() => {
+    return <EuiButton onClick={handleCreateButtonClick}>{'Create'}</EuiButton>;
+  }, [handleCreateButtonClick]);
 
   const columns: Array<EuiTableFieldDataColumnType<Immutable<PolicyData>>> = useMemo(
     () => [
@@ -266,6 +279,7 @@ export const PolicyList = React.memo(() => {
       headerLeft={i18n.translate('xpack.siem.endpoint.policyList.viewTitle', {
         defaultMessage: 'Policies',
       })}
+      headerRight={headerRightContent}
       bodyHeader={
         <EuiText color="subdued" data-test-subj="policyTotalCount">
           <FormattedMessage

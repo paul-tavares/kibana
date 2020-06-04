@@ -11,7 +11,7 @@ import { i18n } from '@kbn/i18n';
 import { FormattedMessage } from '@kbn/i18n/react';
 import styled from 'styled-components';
 import { EuiErrorBoundary, EuiPanel, EuiEmptyPrompt, EuiCode } from '@elastic/eui';
-import { CoreStart, AppMountParameters } from 'src/core/public';
+import { CoreStart, AppMountParameters, ApplicationStart } from 'src/core/public';
 import { EuiThemeProvider } from '../../../../../legacy/common/eui_styled_components';
 import {
   IngestManagerSetupDeps,
@@ -27,6 +27,7 @@ import { PackageInstallProvider } from './sections/epm/hooks';
 import { useCore, sendSetup, sendGetPermissionsCheck } from './hooks';
 import { FleetStatusProvider } from './hooks/use_fleet_status';
 import './index.scss';
+import { IntraAppStateProvider } from './hooks/use_intra_app_state';
 
 export interface ProtectedRouteProps extends RouteProps {
   isAllowed?: boolean;
@@ -55,7 +56,7 @@ const ErrorLayout = ({ children }: { children: JSX.Element }) => (
   </EuiErrorBoundary>
 );
 
-const IngestManagerRoutes = ({ ...rest }) => {
+const IngestManagerRoutes = ({ history, ...rest }) => {
   const { epm, fleet } = useConfig();
   const { notifications } = useCore();
 
@@ -176,38 +177,40 @@ const IngestManagerRoutes = ({ ...rest }) => {
   return (
     <EuiErrorBoundary>
       <FleetStatusProvider>
-        <Router {...rest}>
-          <PackageInstallProvider notifications={notifications}>
-            <Switch>
-              <ProtectedRoute path={PAGE_ROUTING_PATHS.integrations} isAllowed={epm.enabled}>
-                <DefaultLayout section="epm">
-                  <EPMApp />
-                </DefaultLayout>
-              </ProtectedRoute>
-              <Route path={PAGE_ROUTING_PATHS.configurations}>
-                <DefaultLayout section="agent_config">
-                  <AgentConfigApp />
-                </DefaultLayout>
-              </Route>
-              <Route path={PAGE_ROUTING_PATHS.data_streams}>
-                <DefaultLayout section="data_stream">
-                  <DataStreamApp />
-                </DefaultLayout>
-              </Route>
-              <ProtectedRoute path={PAGE_ROUTING_PATHS.fleet} isAllowed={fleet.enabled}>
-                <DefaultLayout section="fleet">
-                  <FleetApp />
-                </DefaultLayout>
-              </ProtectedRoute>
-              <Route exact path={PAGE_ROUTING_PATHS.overview}>
-                <DefaultLayout section="overview">
-                  <IngestManagerOverview />
-                </DefaultLayout>
-              </Route>
-              <Redirect to="/" />
-            </Switch>
-          </PackageInstallProvider>
-        </Router>
+        <IntraAppStateProvider kibanaScopedHistory={history}>
+          <Router {...rest}>
+            <PackageInstallProvider notifications={notifications}>
+              <Switch>
+                <ProtectedRoute path={PAGE_ROUTING_PATHS.integrations} isAllowed={epm.enabled}>
+                  <DefaultLayout section="epm">
+                    <EPMApp />
+                  </DefaultLayout>
+                </ProtectedRoute>
+                <Route path={PAGE_ROUTING_PATHS.configurations}>
+                  <DefaultLayout section="agent_config">
+                    <AgentConfigApp />
+                  </DefaultLayout>
+                </Route>
+                <Route path={PAGE_ROUTING_PATHS.data_streams}>
+                  <DefaultLayout section="data_stream">
+                    <DataStreamApp />
+                  </DefaultLayout>
+                </Route>
+                <ProtectedRoute path={PAGE_ROUTING_PATHS.fleet} isAllowed={fleet.enabled}>
+                  <DefaultLayout section="fleet">
+                    <FleetApp />
+                  </DefaultLayout>
+                </ProtectedRoute>
+                <Route exact path={PAGE_ROUTING_PATHS.overview}>
+                  <DefaultLayout section="overview">
+                    <IngestManagerOverview />
+                  </DefaultLayout>
+                </Route>
+                <Redirect to="/" />
+              </Switch>
+            </PackageInstallProvider>
+          </Router>
+        </IntraAppStateProvider>
       </FleetStatusProvider>
     </EuiErrorBoundary>
   );
@@ -219,12 +222,14 @@ const IngestManagerApp = ({
   setupDeps,
   startDeps,
   config,
+  history,
 }: {
   basepath: string;
   coreStart: CoreStart;
   setupDeps: IngestManagerSetupDeps;
   startDeps: IngestManagerStartDeps;
   config: IngestManagerConfigType;
+  history: AppMountParameters['history'];
 }) => {
   const isDarkMode = useObservable<boolean>(coreStart.uiSettings.get$('theme:darkMode'));
   return (
@@ -233,7 +238,7 @@ const IngestManagerApp = ({
         <DepsContext.Provider value={{ setup: setupDeps, start: startDeps }}>
           <ConfigContext.Provider value={config}>
             <EuiThemeProvider darkMode={isDarkMode}>
-              <IngestManagerRoutes basepath={basepath} />
+              <IngestManagerRoutes history={history} basepath={basepath} />
             </EuiThemeProvider>
           </ConfigContext.Provider>
         </DepsContext.Provider>
@@ -244,7 +249,7 @@ const IngestManagerApp = ({
 
 export function renderApp(
   coreStart: CoreStart,
-  { element, appBasePath }: AppMountParameters,
+  { element, appBasePath, history }: AppMountParameters,
   setupDeps: IngestManagerSetupDeps,
   startDeps: IngestManagerStartDeps,
   config: IngestManagerConfigType
@@ -257,6 +262,7 @@ export function renderApp(
       setupDeps={setupDeps}
       startDeps={startDeps}
       config={config}
+      history={history}
     />,
     element
   );
