@@ -18,7 +18,7 @@ export const useManagementUrl: (params: GetManagementUrlProps) => string = ({
     },
   } = useKibana();
   const url = useMemo((): string => {
-    return getUrlForApp('siem') + getManagementUrl(params);
+    return getUrlForApp('securitySolution') + getManagementUrl(params);
   }, [getUrlForApp, getManagementUrl]);
   return url;
 };
