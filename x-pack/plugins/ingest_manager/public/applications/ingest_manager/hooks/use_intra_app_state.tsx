@@ -14,6 +14,17 @@ interface IntraAppState {
   returnToUrl?: string;
 }
 
+// PT: NOTE:
+// The `returnTo` value above could also be a function that returns the type above, and is
+// provided on input with relevant data for the given route. Example:
+//
+// type ReturnTo =
+//   | ((params: {
+//       event: string; // example: created, canceled
+//       data: Datasource | AgentConfig; // the type applicable to the ingest route
+//     }) => Parameters<ApplicationStart['navigateToApp']>)
+//   | Parameters<ApplicationStart['navigateToApp']>;
+
 const IntraAppStateContext = React.createContext<IntraAppState>({ forRoute: '' });
 const wasHandled = new WeakSet<IntraAppState>();
 
@@ -43,7 +54,7 @@ export const useIntraAppState = (): IntraAppState | undefined => {
   if (!intraAppState) {
     throw new Error('Hook called outside of IntraAppStateContext');
   }
-  const appState = useMemo((): IntraAppState | undefined => {
+  return useMemo((): IntraAppState | undefined => {
     // Due to the use of HashRouter in Ingest, we only want state to be returned
     // once so that it does not impact navigation to the page from within the
     // ingest app. side affect is that the browser back button would not work
@@ -53,5 +64,4 @@ export const useIntraAppState = (): IntraAppState | undefined => {
       return intraAppState;
     }
   }, [intraAppState, location.pathname]);
-  return appState;
 };
