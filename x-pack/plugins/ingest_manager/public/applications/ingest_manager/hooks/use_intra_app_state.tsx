@@ -5,7 +5,7 @@
  */
 
 import React, { memo, useContext, useMemo } from 'react';
-import { ApplicationStart, AppMountParameters } from 'kibana/public';
+import { ApplicationStart, ScopedHistory } from 'kibana/public';
 import { useLocation } from 'react-router-dom';
 
 interface IntraAppState {
@@ -15,9 +15,10 @@ interface IntraAppState {
 }
 
 const IntraAppStateContext = React.createContext<IntraAppState>({ forRoute: '' });
+const wasHandled = new WeakSet<IntraAppState>();
 
 export const IntraAppStateProvider = memo<{
-  kibanaScopedHistory: AppMountParameters['history'];
+  kibanaScopedHistory: ScopedHistory<IntraAppState>;
   children: React.ReactNode;
 }>(({ kibanaScopedHistory, children }) => {
   const internalAppToAppState = useMemo<IntraAppState>(() => {
@@ -43,7 +44,12 @@ export const useIntraAppState = (): IntraAppState | undefined => {
     throw new Error('Hook called outside of IntraAppStateContext');
   }
   const appState = useMemo((): IntraAppState | undefined => {
-    if (location.pathname === intraAppState.forRoute) {
+    // Due to the use of HashRouter in Ingest, we only want state to be returned
+    // once so that it does not impact navigation to the page from within the
+    // ingest app. side affect is that the browser back button would not work
+    // consistently either :-(
+    if (location.pathname === intraAppState.forRoute && !wasHandled.has(intraAppState)) {
+      wasHandled.add(intraAppState);
       return intraAppState;
     }
   }, [intraAppState, location.pathname]);
