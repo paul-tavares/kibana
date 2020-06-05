@@ -22,11 +22,12 @@ import { PAGE_ROUTING_PATHS } from './constants';
 import { DefaultLayout, WithoutHeaderLayout } from './layouts';
 import { Loading, Error } from './components';
 import { IngestManagerOverview, EPMApp, AgentConfigApp, FleetApp, DataStreamApp } from './sections';
-import { CoreContext, DepsContext, ConfigContext, setHttpClient, useConfig } from './hooks';
+import { DepsContext, ConfigContext, setHttpClient, useConfig } from './hooks';
 import { PackageInstallProvider } from './sections/epm/hooks';
 import { useCore, sendSetup, sendGetPermissionsCheck } from './hooks';
 import { FleetStatusProvider } from './hooks/use_fleet_status';
 import './index.scss';
+import { KibanaContextProvider } from '../../../../../../src/plugins/kibana_react/public';
 import { IntraAppStateProvider } from './hooks/use_intra_app_state';
 
 export interface ProtectedRouteProps extends RouteProps {
@@ -234,7 +235,7 @@ const IngestManagerApp = ({
   const isDarkMode = useObservable<boolean>(coreStart.uiSettings.get$('theme:darkMode'));
   return (
     <coreStart.i18n.Context>
-      <CoreContext.Provider value={coreStart}>
+      <KibanaContextProvider services={{ ...coreStart }}>
         <DepsContext.Provider value={{ setup: setupDeps, start: startDeps }}>
           <ConfigContext.Provider value={config}>
             <EuiThemeProvider darkMode={isDarkMode}>
@@ -242,7 +243,7 @@ const IngestManagerApp = ({
             </EuiThemeProvider>
           </ConfigContext.Provider>
         </DepsContext.Provider>
-      </CoreContext.Provider>
+      </KibanaContextProvider>
     </coreStart.i18n.Context>
   );
 };
