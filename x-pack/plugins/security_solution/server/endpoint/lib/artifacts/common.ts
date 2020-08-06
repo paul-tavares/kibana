@@ -12,6 +12,7 @@ import {
 
 export const ArtifactConstants = {
   GLOBAL_ALLOWLIST_NAME: 'endpoint-exceptionlist',
+  GLOBAL_TRUSTED_APPS_NAME: 'endpoint-trusted-apps-global',
   SAVED_OBJECT_TYPE: 'endpoint:user-artifact',
   SUPPORTED_OPERATING_SYSTEMS: ['macos', 'windows'],
 };

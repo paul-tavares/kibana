@@ -22,6 +22,7 @@ import {
 import {
   InternalArtifactCompleteSchema,
   internalArtifactCompleteSchema,
+  WrappedTranslatedExceptionList,
 } from '../../../schemas/artifacts';
 import { ArtifactClient } from '../artifact_client';
 import { ManifestClient } from '../manifest_client';
@@ -90,6 +91,48 @@ export class ManifestManager {
         artifactSchemaVersion ?? 'v1'
       );
       const artifact = await buildArtifact(exceptionList, os, artifactSchemaVersion ?? 'v1');
+      artifacts.push(artifact);
+    }
+    return artifacts;
+  }
+
+  protected async buildGlobalTrustedAppsArtifacts(): Promise<InternalArtifactCompleteSchema[]> {
+    const artifacts: InternalArtifactCompleteSchema[] = [];
+
+    for (const os of ArtifactConstants.SUPPORTED_OPERATING_SYSTEMS) {
+      // FIXME: retrieve list of all Trusted apps by OS
+      const trustedApps: WrappedTranslatedExceptionList = {
+        entries: [
+          {
+            type: 'simple',
+            entries: [
+              {
+                field: 'actingProcess.file.signer',
+                operator: 'included',
+                type: 'exact_cased',
+                value: 'Microsoft',
+              },
+            ],
+          },
+          {
+            type: 'simple',
+            entries: [
+              {
+                field: 'actingProcess.file.path',
+                operator: 'included',
+                type: 'exact_cased',
+                value: 'c:\\windows\\explorer.exe',
+              },
+            ],
+          },
+        ],
+      };
+      const artifact = await buildArtifact(
+        trustedApps,
+        os,
+        'v1',
+        ArtifactConstants.GLOBAL_TRUSTED_APPS_NAME
+      );
       artifacts.push(artifact);
     }
     return artifacts;
@@ -205,7 +248,10 @@ export class ManifestManager {
    */
   public async buildNewManifest(baselineManifest?: Manifest): Promise<Manifest> {
     // Build new exception list artifacts
-    const artifacts = await this.buildExceptionListArtifacts();
+    const artifacts = await Promise.all([
+      this.buildExceptionListArtifacts(),
+      this.buildGlobalTrustedAppsArtifacts(),
+    ]).then((artifactList) => artifactList.flat());
 
     // Build new manifest
     const manifest = Manifest.fromArtifacts(
