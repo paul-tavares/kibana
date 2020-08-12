@@ -7,8 +7,10 @@
 import { CoreSetup } from 'kibana/server';
 
 import { exceptionListAgnosticType, exceptionListType } from './exception_list';
+import { trustedAppsType } from './trusted_apps';
 
 export const initSavedObjects = (savedObjects: CoreSetup['savedObjects']): void => {
   savedObjects.registerType(exceptionListAgnosticType);
   savedObjects.registerType(exceptionListType);
+  savedObjects.registerType(trustedAppsType);
 };
