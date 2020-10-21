@@ -36,8 +36,8 @@ export function SideNavLinks({ name, version, active }: NavLinkProps) {
       {entries(PanelDisplayNames).map(([panel, display]) => {
         // Don't display usages tab as we haven't implemented this yet
         // FIXME: Restore when we implement usages page
-        if (panel === 'usages' && (true || packageInstallStatus.status !== InstallStatus.installed))
-          return null;
+        // if (panel === 'usages' && (true || packageInstallStatus.status !== InstallStatus.installed))
+        //   return null;
 
         return (
           <div key={panel}>
