@@ -19,13 +19,27 @@ const IntegrationDetailsLink = memo<{
   const { getHref } = useLink();
   return (
     <EuiLink
+      className="eui-textTruncate"
       href={getHref('edit_integration', {
         policyId: integrationPolicy.policy_id,
         packagePolicyId: integrationPolicy.id,
       })}
-      data-test-subj="policyNameLink"
     >
       {integrationPolicy.name}
+    </EuiLink>
+  );
+});
+
+const AgentPolicyDetailLink = memo<{ agentPolicyId: string }>(({ agentPolicyId }) => {
+  const { getHref } = useLink();
+  return (
+    <EuiLink
+      className="eui-textTruncate"
+      href={getHref('policy_details', {
+        policyId: agentPolicyId,
+      })}
+    >
+      {agentPolicyId}
     </EuiLink>
   );
 });
@@ -56,17 +70,38 @@ export const PackagePoliciesPanel = ({ name, version }: PackagePoliciesPanelProp
         },
       },
       {
+        field: 'description',
+        name: i18n.translate('xpack.ingestManager.epm.packageDetails.integrationList.description', {
+          defaultMessage: 'Description',
+        }),
+        truncateText: true,
+      },
+      {
+        field: 'policy_id',
+        name: i18n.translate('xpack.ingestManager.epm.packageDetails.integrationList.agentPolicy', {
+          defaultMessage: 'Agent Policy',
+        }),
+        truncateText: true,
+        render(id) {
+          return <AgentPolicyDetailLink agentPolicyId={id} />;
+        },
+      },
+      {
+        field: '',
+        name: i18n.translate('xpack.ingestManager.epm.packageDetails.integrationList.agentCount', {
+          defaultMessage: 'Agents',
+        }),
+        truncateText: true,
+        render() {
+          return <span>{Math.random().toString().substr(-2)}</span>;
+        },
+      },
+      {
         field: 'created_by',
         name: i18n.translate('xpack.ingestManager.epm.packageDetails.integrationList.createdBy', {
           defaultMessage: 'Created By',
         }),
         truncateText: true,
-      },
-      {
-        field: 'created_at',
-        name: i18n.translate('xpack.ingestManager.epm.packageDetails.integrationList.createdAt', {
-          defaultMessage: 'Created Date',
-        }),
       },
       {
         field: 'updated_by',
@@ -80,15 +115,7 @@ export const PackagePoliciesPanel = ({ name, version }: PackagePoliciesPanelProp
         name: i18n.translate('xpack.ingestManager.epm.packageDetails.integrationList.updatedAt', {
           defaultMessage: 'Last Updated',
         }),
-      },
-      {
-        field: 'package.version',
-        name: i18n.translate(
-          'xpack.ingestManager.epm.packageDetails.integrationList.versionFieldLabel',
-          {
-            defaultMessage: 'Version',
-          }
-        ),
+        truncateText: true,
       },
     ],
     []
