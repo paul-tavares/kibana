@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { ComponentType, FC, LazyExoticComponent } from 'react';
+import { ComponentType, LazyExoticComponent } from 'react';
 import { PackagePolicy } from './models';
 
 // Copy of the type defind for the `React.lazy` function. Copied it here because I need
@@ -14,17 +14,23 @@ type LazyReactComponent<T extends ComponentType<any>> = (
   factory: () => Promise<{ default: T }>
 ) => LazyExoticComponent<T>;
 
-export type IntegrationPolicyEditExtensionComponent = LazyReactComponent<
-  FC<{
-    integrationPolicy: PackagePolicy;
-    onChange: (opts: { isValid: boolean; integrationPolicy: PackagePolicy }) => void;
-  }>
->;
-
-interface ExtensionPoint {
+export interface ExtensionPoint {
   type: 'integration-policy';
   view: 'edit';
-  component: IntegrationPolicyEditExtensionComponent;
+  component: LazyReactComponent<
+    ComponentType<{
+      integrationPolicy: PackagePolicy;
+      onChange: (opts: { isValid: boolean; integrationPolicy: PackagePolicy }) => void;
+    }>
+  >;
 }
 
 export type ExtensionRegistrationCallback = (extensionPoint: ExtensionPoint) => void;
+
+// FIXME:PT this needs to be reworked into a correct typed up structure
+export type ExtensionsStorage = Partial<
+  Record<
+    ExtensionPoint['type'],
+    Partial<Record<ExtensionPoint['view'], ExtensionPoint['component']>>
+  >
+>;

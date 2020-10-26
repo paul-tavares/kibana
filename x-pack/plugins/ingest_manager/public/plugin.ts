@@ -75,6 +75,7 @@ export class IngestManagerPlugin
   public setup(core: CoreSetup, deps: IngestManagerSetupDeps) {
     const config = this.config;
     const kibanaVersion = this.kibanaVersion;
+    const extensions = this.extensions;
 
     // Set up http client
     setHttpClient(core.http);
@@ -96,7 +97,15 @@ export class IngestManagerPlugin
           IngestManagerStart
         ];
         const { renderApp, teardownIngestManager } = await import('./applications/ingest_manager');
-        const unmount = renderApp(coreStart, params, deps, startDeps, config, kibanaVersion);
+        const unmount = renderApp(
+          coreStart,
+          params,
+          deps,
+          startDeps,
+          config,
+          kibanaVersion,
+          extensions
+        );
 
         return () => {
           unmount();
