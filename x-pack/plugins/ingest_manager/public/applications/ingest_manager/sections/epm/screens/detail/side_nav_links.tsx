@@ -9,17 +9,22 @@ import { EuiButtonEmpty } from '@elastic/eui';
 import { PackageInfo, entries, DetailViewPanelName, InstallStatus } from '../../../../types';
 import { useLink } from '../../../../hooks';
 import { useGetPackageInstallStatus } from '../../hooks';
+import { useExtension } from '../../../../hooks/use_extensions';
 
 export type NavLinkProps = Pick<PackageInfo, 'name' | 'version'> & {
   active: DetailViewPanelName;
 };
 
-const PanelDisplayNames: Record<DetailViewPanelName, string> = {
+// FIXME:PT DetailViewPanelName should be updated with new item
+const PanelDisplayNames: Record<DetailViewPanelName & { custom: string }, string> = {
   overview: i18n.translate('xpack.ingestManager.epm.packageDetailsNav.overviewLinkText', {
     defaultMessage: 'Overview',
   }),
   usages: i18n.translate('xpack.ingestManager.epm.packageDetailsNav.packagePoliciesLinkText', {
     defaultMessage: 'Usages',
+  }),
+  custom: i18n.translate('xpack.ingestManager.epm.packageDetailsNav.packageCustomLinkText', {
+    defaultMessage: 'Custom',
   }),
   settings: i18n.translate('xpack.ingestManager.epm.packageDetailsNav.settingsLinkText', {
     defaultMessage: 'Settings',
@@ -30,14 +35,14 @@ export function SideNavLinks({ name, version, active }: NavLinkProps) {
   const { getHref } = useLink();
   const getPackageInstallStatus = useGetPackageInstallStatus();
   const packageInstallStatus = getPackageInstallStatus(name);
+  const CustomView = useExtension(name, 'integration', 'custom');
 
   return (
     <Fragment>
       {entries(PanelDisplayNames).map(([panel, display]) => {
-        // Don't display usages tab as we haven't implemented this yet
-        // FIXME: Restore when we implement usages page
-        // if (panel === 'usages' && (true || packageInstallStatus.status !== InstallStatus.installed))
-        //   return null;
+        if (panel === 'custom' && !CustomView) {
+          return null;
+        }
 
         return (
           <div key={panel}>

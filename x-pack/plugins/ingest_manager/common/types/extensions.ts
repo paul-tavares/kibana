@@ -19,6 +19,8 @@ export type IntegrationPolicyEditExtensionComponent = ComponentType<{
   onChange: (opts: { isValid: boolean; integrationPolicy: PackagePolicy }) => void;
 }>;
 
+export type IntegrationCustomComponent = ComponentType<any>;
+
 export type ExtensionPoint =
   | {
       integration: string;
@@ -30,7 +32,7 @@ export type ExtensionPoint =
       integration: string;
       type: 'integration';
       view: 'custom';
-      component: LazyReactComponent<ComponentType<any>>;
+      component: LazyReactComponent<IntegrationCustomComponent>;
     };
 
 export type ExtensionRegistrationCallback = (extensionPoint: ExtensionPoint) => void;

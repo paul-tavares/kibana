@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
-import React from 'react';
+import { EuiErrorBoundary, EuiFlexGroup, EuiFlexItem, EuiSpacer } from '@elastic/eui';
+import React, { Suspense } from 'react';
 import styled from 'styled-components';
 import { DEFAULT_PANEL, DetailParams } from '.';
 import { PackageInfo } from '../../../../types';
@@ -15,6 +15,8 @@ import { OverviewPanel } from './overview_panel';
 import { SideNavLinks } from './side_nav_links';
 import { PackagePoliciesPanel } from './package_policies_panel';
 import { SettingsPanel } from './settings_panel';
+import { useExtension } from '../../../../hooks/use_extensions';
+import { Loading } from '../../../../components';
 
 type ContentProps = PackageInfo & Pick<DetailParams, 'panel'>;
 
@@ -50,6 +52,8 @@ export function Content(props: ContentProps) {
 type ContentPanelProps = PackageInfo & Pick<DetailParams, 'panel'>;
 export function ContentPanel(props: ContentPanelProps) {
   const { panel, name, version, assets, title, removable, latestVersion } = props;
+  const CustomView = useExtension(name, 'integration', 'custom');
+
   switch (panel) {
     case 'settings':
       return (
@@ -64,6 +68,17 @@ export function ContentPanel(props: ContentPanelProps) {
       );
     case 'usages':
       return <PackagePoliciesPanel name={name} version={version} />;
+    case 'custom':
+      // FIXME:PT A `<Redirect>` should be used case user lands here via handcrafted link and there is no custom view
+      return (
+        CustomView && (
+          <EuiErrorBoundary>
+            <Suspense fallback={<Loading />}>
+              <CustomView />
+            </Suspense>
+          </EuiErrorBoundary>
+        )
+      );
     case 'overview':
     default:
       return <OverviewPanel {...props} />;
