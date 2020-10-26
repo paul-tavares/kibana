@@ -70,7 +70,7 @@ export const EditPackagePolicyPage: React.FunctionComponent = () => {
     version: '',
   });
 
-  const CustomView = useExtension('integration-policy', 'edit');
+  const CustomView = useExtension(packagePolicy.package?.name, 'integration-policy', 'edit');
 
   // Retrieve agent policy, package, and package policy info
   useEffect(() => {

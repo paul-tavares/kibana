@@ -336,6 +336,7 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
       );
 
       plugins.ingestManager.registerExtension({
+        integration: 'endpoint',
         type: 'integration-policy',
         view: 'edit',
         component: IngestEditEndpointPolicy,

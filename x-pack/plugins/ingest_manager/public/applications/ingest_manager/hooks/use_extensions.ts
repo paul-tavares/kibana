@@ -15,29 +15,30 @@ export const ExtensionsContext = React.createContext<ExtensionsStorage>({});
 
 // FIXME:PT Return value here needs to narrow down the type based on `type` ++ `view`
 export const useExtension = (
-  name: ExtensionPoint['type'],
+  integration: ExtensionPoint['integration'],
+  type: ExtensionPoint['type'],
   view: ExtensionPoint['view']
 ): LazyExoticComponent<ComponentType<any>> | undefined => {
   const extensions = useContext(ExtensionsContext);
-  const extension = extensions?.[name];
-
-  if (extension) {
-    return extension[view];
-  }
+  return extensions?.[integration]?.[type]?.[view];
 };
 
 export const createExtensionRegistrationCallback = (
   storage: ExtensionsStorage
 ): ExtensionRegistrationCallback => {
   return (extensionPoint) => {
-    if (storage[extensionPoint.type]?.[extensionPoint.view]) {
+    if (!storage[extensionPoint.integration]) {
+      storage[extensionPoint.integration] = {};
+    }
+    if (storage[extensionPoint.integration][extensionPoint.type]?.[extensionPoint.view]) {
       throw new Error(
-        `Extension point has already been registered: [${extensionPoint.type}][${extensionPoint.view}]`
+        `Extension point has already been registered: [${extensionPoint.integration}][${extensionPoint.type}][${extensionPoint.view}]`
       );
     }
-    if (!storage[extensionPoint.type]) {
-      storage[extensionPoint.type] = {};
+    if (!storage[extensionPoint.integration][extensionPoint.type]) {
+      storage[extensionPoint.integration][extensionPoint.type] = {};
     }
-    storage[extensionPoint.type][extensionPoint.view] = extensionPoint.component;
+    storage[extensionPoint.integration][extensionPoint.type][extensionPoint.view] =
+      extensionPoint.component;
   };
 };

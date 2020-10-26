@@ -20,6 +20,7 @@ export type IntegrationPolicyEditExtensionComponent = ComponentType<{
 }>;
 
 export interface ExtensionPoint {
+  integration: string;
   type: 'integration-policy';
   view: 'edit';
   component: LazyReactComponent<IntegrationPolicyEditExtensionComponent>;
@@ -28,9 +29,11 @@ export interface ExtensionPoint {
 export type ExtensionRegistrationCallback = (extensionPoint: ExtensionPoint) => void;
 
 // FIXME:PT this needs to be reworked into a correct typed up structure
-export type ExtensionsStorage = Partial<
-  Record<
-    ExtensionPoint['type'],
-    Partial<Record<ExtensionPoint['view'], ExtensionPoint['component']>>
-  >
->;
+export interface ExtensionsStorage {
+  [key: string]: Partial<
+    Record<
+      ExtensionPoint['type'],
+      Partial<Record<ExtensionPoint['view'], ExtensionPoint['component']>>
+    >
+  >;
+}
