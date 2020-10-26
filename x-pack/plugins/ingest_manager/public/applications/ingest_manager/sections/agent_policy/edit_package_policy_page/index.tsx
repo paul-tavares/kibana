@@ -3,7 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 import { i18n } from '@kbn/i18n';
 import { FormattedMessage } from '@kbn/i18n/react';
@@ -41,6 +41,7 @@ import {
 } from '../create_package_policy_page/types';
 import { StepConfigurePackagePolicy } from '../create_package_policy_page/step_configure_package';
 import { StepDefinePackagePolicy } from '../create_package_policy_page/step_define_package_policy';
+import { useExtension } from '../../../hooks/use_extensions';
 
 export const EditPackagePolicyPage: React.FunctionComponent = () => {
   const { notifications } = useCore();
@@ -68,6 +69,8 @@ export const EditPackagePolicyPage: React.FunctionComponent = () => {
     inputs: [],
     version: '',
   });
+
+  const CustomView = useExtension('integration-policy', 'edit');
 
   // Retrieve agent policy, package, and package policy info
   useEffect(() => {
@@ -288,16 +291,23 @@ export const EditPackagePolicyPage: React.FunctionComponent = () => {
             validationResults={validationResults!}
             submitAttempted={formState === 'INVALID'}
           />
+
+          {CustomView && (
+            <Suspense fallback={<Loading />}>
+              <CustomView />
+            </Suspense>
+          )}
         </>
       ) : null,
     [
       agentPolicy,
-      formState,
-      packagePolicy,
-      packagePolicyId,
       packageInfo,
+      packagePolicy,
       updatePackagePolicy,
       validationResults,
+      packagePolicyId,
+      formState,
+      CustomView,
     ]
   );
 

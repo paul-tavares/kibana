@@ -62,6 +62,7 @@ import {
   IndexFieldsStrategyResponse,
 } from '../common/search_strategy/index_fields';
 import { SecurityAppStore } from './common/store/store';
+import { IngestEditEndpointPolicy } from './management/components/ingest_edit_endpoint_policy';
 
 export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, StartPlugins> {
   private kibanaVersion: string;
@@ -333,6 +334,12 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
         'endpoint',
         ConfigureEndpointPackagePolicy
       );
+
+      plugins.ingestManager.registerExtension({
+        type: 'integration-policy',
+        view: 'edit',
+        component: IngestEditEndpointPolicy,
+      });
     }
 
     return {};

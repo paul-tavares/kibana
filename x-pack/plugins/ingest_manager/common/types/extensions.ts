@@ -14,15 +14,15 @@ type LazyReactComponent<T extends ComponentType<any>> = (
   factory: () => Promise<{ default: T }>
 ) => LazyExoticComponent<T>;
 
+export type IntegrationPolicyEditExtensionComponent = ComponentType<{
+  integrationPolicy: PackagePolicy;
+  onChange: (opts: { isValid: boolean; integrationPolicy: PackagePolicy }) => void;
+}>;
+
 export interface ExtensionPoint {
   type: 'integration-policy';
   view: 'edit';
-  component: LazyReactComponent<
-    ComponentType<{
-      integrationPolicy: PackagePolicy;
-      onChange: (opts: { isValid: boolean; integrationPolicy: PackagePolicy }) => void;
-    }>
-  >;
+  component: LazyReactComponent<IntegrationPolicyEditExtensionComponent>;
 }
 
 export type ExtensionRegistrationCallback = (extensionPoint: ExtensionPoint) => void;
