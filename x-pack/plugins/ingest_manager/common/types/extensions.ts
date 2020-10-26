@@ -19,12 +19,19 @@ export type IntegrationPolicyEditExtensionComponent = ComponentType<{
   onChange: (opts: { isValid: boolean; integrationPolicy: PackagePolicy }) => void;
 }>;
 
-export interface ExtensionPoint {
-  integration: string;
-  type: 'integration-policy';
-  view: 'edit';
-  component: LazyReactComponent<IntegrationPolicyEditExtensionComponent>;
-}
+export type ExtensionPoint =
+  | {
+      integration: string;
+      type: 'integration-policy';
+      view: 'edit';
+      component: LazyReactComponent<IntegrationPolicyEditExtensionComponent>;
+    }
+  | {
+      integration: string;
+      type: 'integration';
+      view: 'custom';
+      component: LazyReactComponent<ComponentType<any>>;
+    };
 
 export type ExtensionRegistrationCallback = (extensionPoint: ExtensionPoint) => void;
 

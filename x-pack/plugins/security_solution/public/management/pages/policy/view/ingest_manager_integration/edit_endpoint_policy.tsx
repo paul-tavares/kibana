@@ -5,10 +5,26 @@
  */
 
 import React, { memo } from 'react';
+import { EuiEmptyPrompt, EuiHorizontalRule } from '@elastic/eui';
 import { IntegrationPolicyEditExtensionComponent } from '../../../../../../../ingest_manager/common/types/extensions';
 
-export const EditEndpointPolicy: IntegrationPolicyEditExtensionComponent = memo(() => {
-  return <h1>{'Editing Endpoint policy here'}</h1>;
-});
+// FIXME:PT type is not correct
+export const EditEndpointPolicy: IntegrationPolicyEditExtensionComponent = memo(
+  ({ integrationPolicy, onChange }) => {
+    return (
+      <>
+        <EuiHorizontalRule />
+        <EuiEmptyPrompt
+          title={<h2>{'Endpoint Security Policy'}</h2>}
+          body={
+            <>
+              <p>{'Endpoint Specific form goes here'}</p>
+            </>
+          }
+        />
+      </>
+    );
+  }
+);
 
 EditEndpointPolicy.displayName = 'EditEndpointPolicy';

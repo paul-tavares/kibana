@@ -7,8 +7,9 @@
 import React from 'react';
 import { IntegrationPolicyEditExtensionComponent } from '../../../../ingest_manager/common/types/extensions';
 
-export const IngestEditEndpointPolicy = React.lazy<IntegrationPolicyEditExtensionComponent>(() =>
-  /* webpackChunkName: "ingestEditEndpointPolicy" */ import(
-    '../pages/policy/view/ingest_manager_integration/edit_endpoint_policy'
-  ).then((response) => ({ default: response.EditEndpointPolicy }))
+export const IngestEndpointIntegrationCustom = React.lazy<IntegrationPolicyEditExtensionComponent>(
+  () =>
+    /* webpackChunkName: "ingestEndpointIntegrationCustom" */ import(
+      '../pages/policy/view/ingest_manager_integration/edit_endpoint_policy'
+    ).then((response) => ({ default: response.EditEndpointPolicy }))
 );

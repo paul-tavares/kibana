@@ -14,6 +14,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiSpacer,
+  EuiErrorBoundary,
 } from '@elastic/eui';
 import { AgentPolicy, PackageInfo, UpdatePackagePolicy } from '../../../types';
 import {
@@ -293,9 +294,11 @@ export const EditPackagePolicyPage: React.FunctionComponent = () => {
           />
 
           {CustomView && (
-            <Suspense fallback={<Loading />}>
-              <CustomView />
-            </Suspense>
+            <EuiErrorBoundary>
+              <Suspense fallback={<Loading />}>
+                <CustomView />
+              </Suspense>
+            </EuiErrorBoundary>
           )}
         </>
       ) : null,
