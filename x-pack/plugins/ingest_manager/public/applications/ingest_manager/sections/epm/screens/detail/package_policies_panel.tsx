@@ -4,14 +4,17 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import React, { memo, useMemo } from 'react';
+import React, { memo, ReactNode, useMemo } from 'react';
 import { Redirect } from 'react-router-dom';
 import { EuiBasicTable, EuiLink, EuiTableFieldDataColumnType } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { useGetPackageInstallStatus } from '../../hooks';
 import { InstallStatus, PackagePolicy } from '../../../../types';
 import { useGetPackagePolicies, useLink } from '../../../../hooks';
-import { PACKAGE_POLICY_SAVED_OBJECT_TYPE } from '../../../../../../../common/constants';
+import {
+  AGENT_SAVED_OBJECT_TYPE,
+  PACKAGE_POLICY_SAVED_OBJECT_TYPE,
+} from '../../../../../../../common/constants';
 
 const IntegrationDetailsLink = memo<{
   integrationPolicy: PackagePolicy;
@@ -30,19 +33,37 @@ const IntegrationDetailsLink = memo<{
   );
 });
 
-const AgentPolicyDetailLink = memo<{ agentPolicyId: string }>(({ agentPolicyId }) => {
-  const { getHref } = useLink();
-  return (
-    <EuiLink
-      className="eui-textTruncate"
-      href={getHref('policy_details', {
-        policyId: agentPolicyId,
-      })}
-    >
-      {agentPolicyId}
-    </EuiLink>
-  );
-});
+const AgentPolicyDetailLink = memo<{ agentPolicyId: string; children: ReactNode }>(
+  ({ agentPolicyId, children }) => {
+    const { getHref } = useLink();
+    return (
+      <EuiLink
+        className="eui-textTruncate"
+        href={getHref('policy_details', {
+          policyId: agentPolicyId,
+        })}
+      >
+        {children}
+      </EuiLink>
+    );
+  }
+);
+
+const PolicyAgentListLink = memo<{ agentPolicyId: string; children: ReactNode }>(
+  ({ agentPolicyId, children }) => {
+    const { getHref } = useLink();
+    return (
+      <EuiLink
+        className="eui-textTruncate"
+        href={getHref('fleet_agent_list', {
+          kuery: `${AGENT_SAVED_OBJECT_TYPE}.policy_id:%20${agentPolicyId}`,
+        })}
+      >
+        {children}
+      </EuiLink>
+    );
+  }
+);
 
 interface PackagePoliciesPanelProps {
   name: string;
@@ -83,7 +104,7 @@ export const PackagePoliciesPanel = ({ name, version }: PackagePoliciesPanelProp
         }),
         truncateText: true,
         render(id) {
-          return <AgentPolicyDetailLink agentPolicyId={id} />;
+          return <AgentPolicyDetailLink agentPolicyId={id}>{id}</AgentPolicyDetailLink>;
         },
       },
       {
@@ -92,8 +113,13 @@ export const PackagePoliciesPanel = ({ name, version }: PackagePoliciesPanelProp
           defaultMessage: 'Agents',
         }),
         truncateText: true,
-        render() {
-          return <span>{Math.random().toString().substr(-2)}</span>;
+        align: 'center',
+        render(packagePolicy) {
+          return (
+            <PolicyAgentListLink agentPolicyId={packagePolicy.policy_id}>
+              <span>{Math.random().toString().substr(-2)}</span>
+            </PolicyAgentListLink>
+          );
         },
       },
       {
