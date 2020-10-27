@@ -5,10 +5,29 @@
  */
 
 import React from 'react';
+import { CoreStart } from 'kibana/public';
 import { IntegrationPolicyEditExtensionComponent } from '../../../../ingest_manager/common/types/extensions';
+import { StartPlugins } from '../../types';
 
-export const IngestEditEndpointPolicy = React.lazy<IntegrationPolicyEditExtensionComponent>(() =>
-  /* webpackChunkName: "ingestEditEndpointPolicy" */ import(
-    '../pages/policy/view/ingest_manager_integration/edit_endpoint_policy'
-  ).then((response) => ({ default: response.EditEndpointPolicy }))
-);
+export const getIngestEditEndpointPolicyLazyComponent = (
+  coreStart: CoreStart,
+  depsStart: Pick<StartPlugins, 'data' | 'ingestManager'>
+) => {
+  return React.lazy<IntegrationPolicyEditExtensionComponent>(async () => {
+    const [{ withSecurityContext }, { EditEndpointPolicy }] = await Promise.all([
+      import('./with_security_context'),
+
+      /* webpackChunkName: "ingestEditEndpointPolicy" */ import(
+        '../pages/policy/view/ingest_manager_integration/edit_endpoint_policy'
+      ),
+    ]);
+
+    return {
+      default: withSecurityContext({
+        coreStart,
+        depsStart,
+        WrappedComponent: EditEndpointPolicy,
+      }),
+    };
+  });
+};

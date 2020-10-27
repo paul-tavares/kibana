@@ -5,8 +5,9 @@
  */
 
 import React, { memo } from 'react';
-import { EuiEmptyPrompt, EuiHorizontalRule } from '@elastic/eui';
+import { EuiHorizontalRule } from '@elastic/eui';
 import { IntegrationPolicyEditExtensionComponent } from '../../../../../../../ingest_manager/common/types/extensions';
+import { PolicyDetailsForm } from '../policy_details_form';
 
 // FIXME:PT type is not correct
 export const EditEndpointPolicy: IntegrationPolicyEditExtensionComponent = memo(
@@ -14,14 +15,7 @@ export const EditEndpointPolicy: IntegrationPolicyEditExtensionComponent = memo(
     return (
       <>
         <EuiHorizontalRule />
-        <EuiEmptyPrompt
-          title={<h2>{'Endpoint Security Policy'}</h2>}
-          body={
-            <>
-              <p>{'Endpoint Specific form goes here'}</p>
-            </>
-          }
-        />
+        <PolicyDetailsForm />
       </>
     );
   }

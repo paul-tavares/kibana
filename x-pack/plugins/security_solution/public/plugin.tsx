@@ -62,7 +62,7 @@ import {
   IndexFieldsStrategyResponse,
 } from '../common/search_strategy/index_fields';
 import { SecurityAppStore } from './common/store/store';
-import { IngestEditEndpointPolicy } from './management/components/ingest_edit_endpoint_policy';
+import { getIngestEditEndpointPolicyLazyComponent } from './management/components/ingest_edit_endpoint_policy';
 import { IngestEndpointIntegrationCustom } from './management/components/ingest_endpoint_integration_custom';
 
 export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, StartPlugins> {
@@ -340,7 +340,7 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
         integration: 'endpoint',
         type: 'integration-policy',
         view: 'edit',
-        component: IngestEditEndpointPolicy,
+        component: getIngestEditEndpointPolicyLazyComponent(core, plugins),
       });
 
       plugins.ingestManager.registerExtension({
