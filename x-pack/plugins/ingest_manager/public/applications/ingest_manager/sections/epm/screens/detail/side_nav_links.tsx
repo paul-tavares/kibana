@@ -6,7 +6,7 @@
 import React, { Fragment } from 'react';
 import { i18n } from '@kbn/i18n';
 import { EuiButtonEmpty } from '@elastic/eui';
-import { PackageInfo, entries, DetailViewPanelName, InstallStatus } from '../../../../types';
+import { PackageInfo, entries, DetailViewPanelName } from '../../../../types';
 import { useLink } from '../../../../hooks';
 import { useGetPackageInstallStatus } from '../../hooks';
 import { useExtension } from '../../../../hooks/use_extensions';
@@ -15,8 +15,7 @@ export type NavLinkProps = Pick<PackageInfo, 'name' | 'version'> & {
   active: DetailViewPanelName;
 };
 
-// FIXME:PT DetailViewPanelName should be updated with new item
-const PanelDisplayNames: Record<DetailViewPanelName & { custom: string }, string> = {
+const PanelDisplayNames: Record<DetailViewPanelName, string> = {
   overview: i18n.translate('xpack.ingestManager.epm.packageDetailsNav.overviewLinkText', {
     defaultMessage: 'Overview',
   }),

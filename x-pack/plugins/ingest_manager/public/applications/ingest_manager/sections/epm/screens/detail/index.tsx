@@ -236,7 +236,11 @@ export function Detail() {
       ) : isLoading || !packageInfo ? (
         <Loading />
       ) : (
-        <Content {...packageInfo} panel={panel} />
+        <Content
+          {...packageInfo}
+          panel={panel}
+          hideRightColumn={panel === 'custom' || panel === 'usages'}
+        />
       )}
     </WithHeaderLayout>
   );

@@ -18,7 +18,10 @@ import { SettingsPanel } from './settings_panel';
 import { useExtension } from '../../../../hooks/use_extensions';
 import { Loading } from '../../../../components';
 
-type ContentProps = PackageInfo & Pick<DetailParams, 'panel'>;
+type ContentProps = PackageInfo &
+  Pick<DetailParams, 'panel'> & {
+    hideRightColumn?: boolean;
+  };
 
 const SideNavColumn = styled(LeftColumn)`
   /* 🤢🤷 https://www.styled-components.com/docs/faqs#how-can-i-override-styles-with-higher-specificity */
@@ -33,7 +36,7 @@ const ContentFlexGroup = styled(EuiFlexGroup)`
 `;
 
 export function Content(props: ContentProps) {
-  const { name, panel, version } = props;
+  const { name, panel, version, hideRightColumn } = props;
   return (
     <ContentFlexGroup>
       <SideNavColumn>
@@ -42,9 +45,11 @@ export function Content(props: ContentProps) {
       <CenterColumn>
         <ContentPanel {...props} />
       </CenterColumn>
-      <RightColumn>
-        <RightColumnContent {...props} />
-      </RightColumn>
+      {!hideRightColumn && (
+        <RightColumn>
+          <RightColumnContent {...props} />
+        </RightColumn>
+      )}
     </ContentFlexGroup>
   );
 }

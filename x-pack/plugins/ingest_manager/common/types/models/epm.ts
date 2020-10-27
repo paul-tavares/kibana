@@ -24,7 +24,7 @@ export type InstallSource = 'registry' | 'upload';
 
 export type EpmPackageInstallStatus = 'installed' | 'installing';
 
-export type DetailViewPanelName = 'overview' | 'usages' | 'settings';
+export type DetailViewPanelName = 'overview' | 'usages' | 'settings' | 'custom';
 export type ServiceName = 'kibana' | 'elasticsearch';
 export type AssetType = KibanaAssetType | ElasticsearchAssetType | AgentAssetType;
 
