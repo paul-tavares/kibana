@@ -5,7 +5,7 @@
  */
 
 import React, { memo } from 'react';
-import { EuiHorizontalRule } from '@elastic/eui';
+import { EuiHorizontalRule, EuiText } from '@elastic/eui';
 import { IntegrationPolicyEditExtensionComponent } from '../../../../../../../ingest_manager/common/types/extensions';
 import { PolicyDetailsForm } from '../policy_details_form';
 
@@ -15,6 +15,9 @@ export const EditEndpointPolicy: IntegrationPolicyEditExtensionComponent = memo(
     return (
       <>
         <EuiHorizontalRule />
+        <EuiText>
+          <h3>{'Security Policy'}</h3>
+        </EuiText>
         <PolicyDetailsForm />
       </>
     );

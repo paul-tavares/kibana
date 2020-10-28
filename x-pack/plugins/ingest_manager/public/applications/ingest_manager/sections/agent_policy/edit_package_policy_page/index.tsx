@@ -296,7 +296,13 @@ export const EditPackagePolicyPage: React.FunctionComponent = () => {
           {CustomView && (
             <EuiErrorBoundary>
               <Suspense fallback={<Loading />}>
-                <CustomView />
+                <CustomView
+                  integrationPolicy={packagePolicy}
+                  onChange={() => {
+                    // eslint-disable-next-line no-console
+                    console.log('onChange(): ingest called');
+                  }}
+                />
               </Suspense>
             </EuiErrorBoundary>
           )}
