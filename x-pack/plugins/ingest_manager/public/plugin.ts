@@ -33,6 +33,7 @@ import {
 import { registerPackagePolicyComponent } from './applications/ingest_manager/sections/agent_policy/create_package_policy_page/components/custom_package_policy';
 import { createExtensionRegistrationCallback } from './applications/ingest_manager/hooks/use_extensions';
 import { ExtensionRegistrationCallback } from '../common/types/extensions';
+import { EmbeddableStart } from '../../../../src/plugins/embeddable/public';
 
 export { IngestManagerConfigType } from '../common/types';
 
@@ -58,6 +59,7 @@ export interface IngestManagerSetupDeps {
 
 export interface IngestManagerStartDeps {
   data: DataPublicPluginStart;
+  embeddable: EmbeddableStart;
 }
 
 export class IngestManagerPlugin
@@ -139,7 +141,7 @@ export class IngestManagerPlugin
     return {};
   }
 
-  public async start(core: CoreStart): Promise<IngestManagerStart> {
+  public async start(core: CoreStart, plugins): Promise<IngestManagerStart> {
     let successPromise: ReturnType<IngestManagerStart['isInitialized']>;
 
     return {

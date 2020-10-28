@@ -64,6 +64,8 @@ import {
 import { SecurityAppStore } from './common/store/store';
 import { getIngestEditEndpointPolicyLazyComponent } from './management/components/ingest_edit_endpoint_policy';
 import { IngestEndpointIntegrationCustom } from './management/components/ingest_endpoint_integration_custom';
+import { ENDPOINT_POLICY_EMBEDDABLE } from './management/components/embeddables/policy/constants';
+import { EndpointPolicyEmbeddableFactoryDefinition } from './management/components/embeddables/policy/endpoint_policy_embeddable_factory';
 
 export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, StartPlugins> {
   private kibanaVersion: string;
@@ -87,6 +89,11 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
   private _store?: SecurityAppStore;
 
   public setup(core: CoreSetup<StartPlugins, PluginStart>, plugins: SetupPlugins): PluginSetup {
+    plugins.embeddable.registerEmbeddableFactory(
+      ENDPOINT_POLICY_EMBEDDABLE,
+      new EndpointPolicyEmbeddableFactoryDefinition()
+    );
+
     initTelemetry(
       {
         usageCollection: plugins.usageCollection,

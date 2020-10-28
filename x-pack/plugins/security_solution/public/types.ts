@@ -8,7 +8,7 @@ import { AppFrontendLibs } from './common/lib/lib';
 import { CoreStart } from '../../../../src/core/public';
 import { HomePublicPluginSetup } from '../../../../src/plugins/home/public';
 import { DataPublicPluginStart } from '../../../../src/plugins/data/public';
-import { EmbeddableStart } from '../../../../src/plugins/embeddable/public';
+import { EmbeddableSetup, EmbeddableStart } from '../../../../src/plugins/embeddable/public';
 import { NewsfeedPublicPluginStart } from '../../../../src/plugins/newsfeed/public';
 import { Start as InspectorStart } from '../../../../src/plugins/inspector/public';
 import { UiActionsStart } from '../../../../src/plugins/ui_actions/public';
@@ -35,6 +35,7 @@ import { Timelines } from './timelines';
 import { Management } from './management';
 
 export interface SetupPlugins {
+  embeddable: EmbeddableSetup;
   home?: HomePublicPluginSetup;
   security: SecurityPluginSetup;
   triggersActionsUi: TriggersActionsSetup;

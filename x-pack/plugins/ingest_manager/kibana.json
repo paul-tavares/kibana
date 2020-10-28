@@ -4,7 +4,7 @@
   "server": true,
   "ui": true,
   "configPath": ["xpack", "fleet"],
-  "requiredPlugins": ["licensing", "data", "encryptedSavedObjects"],
+  "requiredPlugins": ["licensing", "data", "encryptedSavedObjects", "embeddable"],
   "optionalPlugins": ["security", "features", "cloud", "usageCollection", "home"],
   "extraPublicDirs": ["common"],
   "requiredBundles": ["kibanaReact", "esUiShared", "home"]
