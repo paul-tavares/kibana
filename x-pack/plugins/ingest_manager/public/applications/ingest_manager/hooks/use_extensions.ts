@@ -10,6 +10,7 @@ import {
   ExtensionRegistrationCallback,
   ExtensionsStorage,
 } from '../../../../common/types/extensions';
+import { useStartDeps } from './use_deps';
 
 export const ExtensionsContext = React.createContext<ExtensionsStorage>({});
 
@@ -21,6 +22,11 @@ export const useExtension = (
 ): LazyExoticComponent<ComponentType<any>> | undefined => {
   const extensions = useContext(ExtensionsContext);
   return extensions?.[integration]?.[type]?.[view];
+};
+
+export const useEmbeddable = (embeddableId: string) => {
+  const { embeddable } = useStartDeps();
+  return embeddable.getEmbeddableFactory(embeddableId);
 };
 
 export const createExtensionRegistrationCallback = (

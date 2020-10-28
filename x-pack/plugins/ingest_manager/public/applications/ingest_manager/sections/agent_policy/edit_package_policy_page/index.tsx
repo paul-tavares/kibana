@@ -42,7 +42,8 @@ import {
 } from '../create_package_policy_page/types';
 import { StepConfigurePackagePolicy } from '../create_package_policy_page/step_configure_package';
 import { StepDefinePackagePolicy } from '../create_package_policy_page/step_define_package_policy';
-import { useExtension } from '../../../hooks/use_extensions';
+import { useEmbeddable, useExtension } from '../../../hooks/use_extensions';
+import { EmbeddableRenderer } from '../../../../../../../../../src/plugins/embeddable/public';
 
 export const EditPackagePolicyPage: React.FunctionComponent = () => {
   const { notifications } = useCore();
@@ -72,6 +73,8 @@ export const EditPackagePolicyPage: React.FunctionComponent = () => {
   });
 
   const CustomView = useExtension(packagePolicy.package?.name ?? '', 'integration-policy', 'edit');
+
+  const CustomEmbeddableView = useEmbeddable(`integration-${packagePolicy.package?.name}`);
 
   // Retrieve agent policy, package, and package policy info
   useEffect(() => {
@@ -306,6 +309,24 @@ export const EditPackagePolicyPage: React.FunctionComponent = () => {
               </Suspense>
             </EuiErrorBoundary>
           )}
+          <div
+            style={{
+              height: '1px',
+              margin: '100px 0',
+              borderTop: '1px solid black',
+            }}
+          />
+
+          {CustomEmbeddableView && (
+            <EmbeddableRenderer
+              factory={CustomEmbeddableView}
+              input={{
+                integrationPolicy: packagePolicy,
+                // eslint-disable-next-line no-console
+                onChange: () => console.log('onchange(): ingest called from embeddable'),
+              }}
+            />
+          )}
         </>
       ) : null,
     [
@@ -317,6 +338,7 @@ export const EditPackagePolicyPage: React.FunctionComponent = () => {
       packagePolicyId,
       formState,
       CustomView,
+      CustomEmbeddableView,
     ]
   );
 

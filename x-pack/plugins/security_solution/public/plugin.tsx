@@ -91,7 +91,7 @@ export class Plugin implements IPlugin<PluginSetup, PluginStart, SetupPlugins, S
   public setup(core: CoreSetup<StartPlugins, PluginStart>, plugins: SetupPlugins): PluginSetup {
     plugins.embeddable.registerEmbeddableFactory(
       ENDPOINT_POLICY_EMBEDDABLE,
-      new EndpointPolicyEmbeddableFactoryDefinition()
+      new EndpointPolicyEmbeddableFactoryDefinition(core)
     );
 
     initTelemetry(
