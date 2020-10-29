@@ -20,7 +20,7 @@ const PanelDisplayNames: Record<DetailViewPanelName, string> = {
     defaultMessage: 'Overview',
   }),
   usages: i18n.translate('xpack.ingestManager.epm.packageDetailsNav.packagePoliciesLinkText', {
-    defaultMessage: 'Usages',
+    defaultMessage: 'Policies',
   }),
   custom: i18n.translate('xpack.ingestManager.epm.packageDetailsNav.packageCustomLinkText', {
     defaultMessage: 'Custom',
