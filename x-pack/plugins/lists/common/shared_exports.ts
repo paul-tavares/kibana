@@ -47,4 +47,4 @@ export {
   OsTypeArray,
 } from './schemas';
 
-export { ENDPOINT_LIST_ID } from './constants';
+export { ENDPOINT_LIST_ID, EXCEPTION_LIST_NAMESPACE_AGNOSTIC } from './constants';
