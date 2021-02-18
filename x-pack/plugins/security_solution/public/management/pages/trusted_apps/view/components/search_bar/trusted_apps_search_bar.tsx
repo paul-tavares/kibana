@@ -13,6 +13,7 @@ import {
   IIndexPattern,
   IFieldType,
   SearchBarProps,
+  esKuery,
 } from '../../../../../../../../../../src/plugins/data/public';
 import { Storage } from '../../../../../../../../../../src/plugins/kibana_utils/public';
 import { useKibana } from '../../../../../../common/lib/kibana';
@@ -33,6 +34,8 @@ export const TrustedAppsSearchBar = memo(() => {
   const handleOnQuerySubmit: SearchBarProps['onQuerySubmit'] = useCallback((props) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     props;
+    // eslint-disable-next-line no-console
+    console.log(esKuery.fromKueryExpression(props.query?.query || ''));
   }, []);
 
   // Retrieve the fields for the Index pattern where trusted apps are stored
