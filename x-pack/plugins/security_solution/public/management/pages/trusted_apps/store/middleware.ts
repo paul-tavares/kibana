@@ -74,9 +74,12 @@ const createTrustedAppsListResourceStateChangedAction = (
 
 const refreshListIfNeeded = async (
   store: ImmutableMiddlewareAPI<TrustedAppsListPageState, AppAction>,
-  trustedAppsService: TrustedAppsService
+  trustedAppsService: TrustedAppsService,
+  kuery?: string
 ) => {
-  if (needsRefreshOfListData(store.getState())) {
+  // FIMXE: yeah - don't do this!
+  if (true) {
+    // if (needsRefreshOfListData(store.getState())) {
     store.dispatch(
       createTrustedAppsListResourceStateChangedAction({
         type: 'LoadingResourceState',
@@ -93,6 +96,7 @@ const refreshListIfNeeded = async (
       const response = await trustedAppsService.getTrustedAppsList({
         page: pageIndex + 1,
         per_page: pageSize,
+        ...(kuery ? { kuery } : {}),
       });
 
       store.dispatch(
@@ -434,8 +438,17 @@ export const createTrustedAppsPageMiddleware = (
     next(action);
 
     // TODO: need to think if failed state is a good condition to consider need for refresh
-    if (action.type === 'userChangedUrl' || action.type === 'trustedAppsListDataOutdated') {
-      await refreshListIfNeeded(store, trustedAppsService);
+    if (
+      action.type === 'userChangedUrl' ||
+      action.type === 'trustedAppsListDataOutdated' ||
+      action.type === 'trustedAppsListKueryUpdated'
+    ) {
+      await refreshListIfNeeded(
+        store,
+        trustedAppsService,
+        (action.type === 'trustedAppsListKueryUpdated' && (action.payload.query as string)) ||
+          undefined
+      );
       await checkTrustedAppsExistIfNeeded(store, trustedAppsService);
     }
 

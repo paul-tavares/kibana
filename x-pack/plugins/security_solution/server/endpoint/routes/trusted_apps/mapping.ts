@@ -256,3 +256,8 @@ export const updatedTrustedAppToUpdateExceptionListItemOptions = (
     type,
   };
 };
+
+export const kueryToExceptionsFilter = (kuery: string): string => {
+  // FIXME: should use const for SO type in search below
+  return kuery.replace(/exception-list-agnostic\./g, 'exception-list-agnostic.attributes.');
+};

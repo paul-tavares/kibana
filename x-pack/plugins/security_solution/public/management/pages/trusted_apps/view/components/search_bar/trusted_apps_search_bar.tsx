@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import {
   SearchBar,
   TimeHistory,
@@ -13,7 +13,6 @@ import {
   IIndexPattern,
   IFieldType,
   SearchBarProps,
-  esKuery,
 } from '../../../../../../../../../../src/plugins/data/public';
 import { Storage } from '../../../../../../../../../../src/plugins/kibana_utils/public';
 import { useKibana } from '../../../../../../common/lib/kibana';
@@ -22,7 +21,9 @@ import {
   TRUSTED_APPS_INDEX_PATTERN,
 } from '../../../../../../../common/endpoint/constants';
 
-export const TrustedAppsSearchBar = memo(() => {
+export type TrustedAppsSearchBarProps = Pick<SearchBarProps, 'onQuerySubmit'>;
+
+export const TrustedAppsSearchBar = memo<TrustedAppsSearchBarProps>(({ onQuerySubmit }) => {
   const {
     services: { data },
   } = useKibana();
@@ -31,12 +32,18 @@ export const TrustedAppsSearchBar = memo(() => {
 
   const [patterns, setPatterns] = useState<IIndexPattern[]>([]);
 
-  const handleOnQuerySubmit: SearchBarProps['onQuerySubmit'] = useCallback((props) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    props;
-    // eslint-disable-next-line no-console
-    console.log(esKuery.fromKueryExpression(props.query?.query || ''));
-  }, []);
+  // NOT what I want.
+  // This adds predefined "filters" to the search bar, visible
+  // when the `showFilterBar` prop is true
+  // ------------------
+  // const suggestionFilters: Filter[] = useMemo(() => {
+  //   return [
+  //     {
+  //       meta: { alias: 'hello', disabled: false, negate: false, index: '.kibana' },
+  //       query: { match_phrase: { src: 'test' } },
+  //     },
+  //   ];
+  // }, []);
 
   // Retrieve the fields for the Index pattern where trusted apps are stored
   useEffect(() => {
@@ -61,7 +68,7 @@ export const TrustedAppsSearchBar = memo(() => {
         query={decodedQuery}
         indexPatterns={patterns}
         timeHistory={timeHistory}
-        onQuerySubmit={handleOnQuerySubmit}
+        onQuerySubmit={onQuerySubmit}
         isLoading={patterns.length === 0}
         showFilterBar={false}
         showDatePicker={false}

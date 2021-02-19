@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { FormattedMessage } from '@kbn/i18n/react';
@@ -20,6 +20,7 @@ import {
   EuiSpacer,
 } from '@elastic/eui';
 
+import { useDispatch } from 'react-redux';
 import { ViewType } from '../state';
 import {
   checkingIfEntriesExist,
@@ -39,9 +40,12 @@ import { TrustedAppsListPageRouteState } from '../../../../../common/endpoint/ty
 import { useNavigateToAppEventHandler } from '../../../../common/hooks/endpoint/use_navigate_to_app_event_handler';
 import { ABOUT_TRUSTED_APPS } from './translations';
 import { EmptyState } from './components/empty_state';
-import { TrustedAppsSearchBar } from './components/search_bar';
+import { TrustedAppsSearchBar, TrustedAppsSearchBarProps } from './components/search_bar';
+import { esKuery } from '../../../../../../../../src/plugins/data/public';
+import { AppAction } from '../../../../common/store/actions';
 
 export const TrustedAppsPage = memo(() => {
+  const dispatch = useDispatch<(action: AppAction) => void>();
   const { state: routeState } = useLocation<TrustedAppsListPageRouteState | undefined>();
   const location = useTrustedAppsSelector(getCurrentLocation);
   const totalItemsCount = useTrustedAppsSelector(getListTotalItemsCount);
@@ -67,6 +71,21 @@ export const TrustedAppsPage = memo(() => {
     }
     return null;
   }, [routeState]);
+
+  const handleOnQuerySubmit: TrustedAppsSearchBarProps['onQuerySubmit'] = useCallback(
+    (props) => {
+      dispatch({
+        type: 'trustedAppsListKueryUpdated',
+        payload: props.query,
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      props;
+      // eslint-disable-next-line no-console
+      console.log(esKuery.fromKueryExpression(props.query?.query || ''));
+    },
+    [dispatch]
+  );
 
   const addButton = (
     <EuiButton
@@ -102,7 +121,7 @@ export const TrustedAppsPage = memo(() => {
           data-test-subj="trustedAppsListPageContent"
         >
           <EuiFlexItem grow={false}>
-            <TrustedAppsSearchBar />
+            <TrustedAppsSearchBar onQuerySubmit={handleOnQuerySubmit} />
             <ControlPanel
               totalItemCount={totalItemsCount}
               currentViewType={location.view_type}

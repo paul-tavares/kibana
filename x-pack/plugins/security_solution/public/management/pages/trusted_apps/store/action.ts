@@ -11,6 +11,8 @@ import { NewTrustedApp, TrustedApp } from '../../../../../common/endpoint/types'
 import { AsyncResourceState, TrustedAppsListData } from '../state';
 import { GetPolicyListResponse } from '../../policy/types';
 
+import { Query } from '../../../../../../../../src/plugins/data/public';
+
 export type TrustedAppsListDataOutdated = Action<'trustedAppsListDataOutdated'>;
 
 interface ResourceStateChanged<T, D = null> extends Action<T> {
@@ -68,9 +70,14 @@ export type TrustedAppsPoliciesStateChanged = Action<'trustedAppsPoliciesStateCh
   payload: AsyncResourceState<GetPolicyListResponse>;
 };
 
+export type TrustedAppsListKueryUpdated = Action<'trustedAppsListKueryUpdated'> & {
+  payload: Query;
+};
+
 export type TrustedAppsPageAction =
   | TrustedAppsListDataOutdated
   | TrustedAppsListResourceStateChanged
+  | TrustedAppsListKueryUpdated
   | TrustedAppDeletionSubmissionResourceStateChanged
   | TrustedAppDeletionDialogStarted
   | TrustedAppDeletionDialogConfirmed

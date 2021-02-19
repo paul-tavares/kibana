@@ -22,6 +22,7 @@ import {
 
 import {
   exceptionListItemToTrustedApp,
+  kueryToExceptionsFilter,
   newTrustedAppToCreateExceptionListItemOptions,
   osFromExceptionItem,
   updatedTrustedAppToUpdateExceptionListItemOptions,
@@ -74,7 +75,7 @@ export const getTrustedAppsList = async (
     listId: ENDPOINT_TRUSTED_APPS_LIST_ID,
     page,
     perPage,
-    filter: kuery,
+    filter: kuery ? kueryToExceptionsFilter(kuery) : undefined,
     namespaceType: 'agnostic',
     sortField: 'name',
     sortOrder: 'asc',
