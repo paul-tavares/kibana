@@ -30,6 +30,7 @@ export const TRUSTED_APPS_INDEX_FILTER_FIELDS = Object.freeze([
   `${TRUSTED_APPS_INDEX_NAMESPACE}.entries.value`,
   `${TRUSTED_APPS_INDEX_NAMESPACE}.name`,
   `${TRUSTED_APPS_INDEX_NAMESPACE}.os_types`,
+  `${TRUSTED_APPS_INDEX_NAMESPACE}.tags`,
 ]);
 
 export const TRUSTED_APPS_GET_API = '/api/endpoint/trusted_apps/{id}';

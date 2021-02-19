@@ -81,8 +81,13 @@ export const TrustedAppsPage = memo(() => {
 
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       props;
-      // eslint-disable-next-line no-console
-      console.log(esKuery.fromKueryExpression(props.query?.query || ''));
+      try {
+        // eslint-disable-next-line no-console
+        console.log(esKuery.fromKueryExpression(props.query?.query || ''));
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+      }
     },
     [dispatch]
   );

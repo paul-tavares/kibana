@@ -56,6 +56,12 @@ export const TrustedAppsSearchBar = memo<TrustedAppsSearchBarProps>(({ onQuerySu
         {
           title: TRUSTED_APPS_INDEX_PATTERN,
           fields: fields.filter((field) => TRUSTED_APPS_INDEX_FILTER_FIELDS.includes(field.name)),
+          // Change the display name of the attributes keys on the UI
+          // --- it works, but breaks suggestions for values
+          // .map((field) => {
+          //   field.name = field.name.replace(`exception-list-agnostic.`, '');
+          //   return field;
+          // }),
         },
       ]);
     })();
