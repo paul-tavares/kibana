@@ -17,6 +17,7 @@ export const telemetryIndexPattern = 'metrics-endpoint.telemetry-*';
 export const LIMITED_CONCURRENCY_ENDPOINT_ROUTE_TAG = 'endpoint:limited-concurrency';
 export const LIMITED_CONCURRENCY_ENDPOINT_COUNT = 100;
 
+// FIXME:PT maybe move these to a UI only file?
 export const TRUSTED_APPS_INDEX_PATTERN = '.kibana';
 export const TRUSTED_APPS_INDEX_NAMESPACE = EXCEPTION_LIST_NAMESPACE_AGNOSTIC;
 export const TRUSTED_APPS_INDEX_FILTER_FIELDS = Object.freeze([
