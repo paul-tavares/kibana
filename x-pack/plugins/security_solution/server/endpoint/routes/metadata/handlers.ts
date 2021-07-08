@@ -141,7 +141,9 @@ export const getMetadataRequestHandler = function (
       endpointAppContextService: endpointAppContext.service,
       logger,
       requestHandlerContext: context,
-      savedObjectsClient: context.core.savedObjects.client,
+      // POC ONLY
+      // FIXME: Refactor this. the internal client should be used ONLY for retrieving the package data
+      savedObjectsClient: endpointAppContext.service.makeDangerousInternalSOClient(),
     };
 
     try {

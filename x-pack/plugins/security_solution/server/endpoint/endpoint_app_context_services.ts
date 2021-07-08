@@ -204,4 +204,20 @@ export class EndpointAppContextService {
     }
     return this.cases.getCasesClientWithRequest(req);
   }
+
+  public makeDangerousInternalSOClient(): SavedObjectsClientContract {
+    if (!this.savedObjectsStart) {
+      throw new Error(`must call start on ${EndpointAppContextService.name} to call getter`);
+    }
+
+    const fakeRequest = ({
+      headers: {},
+      getBasePath: () => '',
+      path: '/',
+      route: { settings: {} },
+      url: { href: {} },
+      raw: { req: { url: '/' } },
+    } as unknown) as KibanaRequest;
+    return this.savedObjectsStart.getScopedClient(fakeRequest, { excludedWrappers: ['security'] });
+  }
 }
