@@ -8,6 +8,7 @@
 import pMap from 'p-map';
 import semver from 'semver';
 import LRU from 'lru-cache';
+import { v4 as uuidV4 } from 'uuid';
 import { isEqual, isEmpty } from 'lodash';
 import { Logger, SavedObjectsClientContract } from '@kbn/core/server';
 import {
@@ -58,10 +59,12 @@ const iterateArtifactsBuildResult = async (
   result: ArtifactsBuildResult,
   callback: (artifact: InternalArtifactCompleteSchema, policyId?: string) => Promise<void>
 ) => {
+  // Process the global artifacts
   for (const artifact of result.defaultArtifacts) {
     await callback(artifact);
   }
 
+  // Process the policy specific artifacts
   for (const policyId of Object.keys(result.policySpecificArtifacts)) {
     for (const artifact of result.policySpecificArtifacts[policyId]) {
       await callback(artifact, policyId);
@@ -474,6 +477,9 @@ export class ManifestManager {
   public async buildNewManifest(
     baselineManifest: Manifest = ManifestManager.createDefaultManifest(this.schemaVersion)
   ): Promise<Manifest> {
+    const runId = uuidV4();
+    this.logger.debug(`buildNewManifest(${runId}): Started`);
+
     const results = await Promise.all([
       this.buildExceptionListArtifacts(),
       this.buildTrustedAppsArtifacts(),
@@ -482,15 +488,21 @@ export class ManifestManager {
       this.buildBlocklistArtifacts(),
     ]);
 
+    this.logger.debug(`buildNewManifest(${runId}): Done building artifacts for all types`);
+
     const manifest = new Manifest({
       schemaVersion: this.schemaVersion,
       semanticVersion: baselineManifest.getSemanticVersion(),
       soVersion: baselineManifest.getSavedObjectVersion(),
     });
 
+    // Process each of the new artifact build results and add them to the new Manifest
     for (const result of results) {
       await iterateArtifactsBuildResult(result, async (artifact, policyId) => {
+        // FIXME:PT IMPROVE - this is too many calls to ES for each single artifact
+        //        AND: this seems to be executed several times if there are policies, which is not good. can we improve by bulk-retrieve them?
         const artifactToAdd = baselineManifest.getArtifact(getArtifactId(artifact)) || artifact;
+
         if (!internalArtifactCompleteSchema.is(artifactToAdd)) {
           throw new EndpointError(
             `Incomplete artifact detected: ${getArtifactId(artifactToAdd)}`,
@@ -502,6 +514,7 @@ export class ManifestManager {
       });
     }
 
+    this.logger.debug(`buildNewManifest(${runId}): Completed`);
     return manifest;
   }
 

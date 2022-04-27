@@ -121,23 +121,23 @@ export class ManifestTask {
     }
 
     try {
-      let oldManifest: Manifest | null;
+      let oldManifest: Manifest | null = null;
 
       try {
         // Last manifest we computed, which was saved to ES
         oldManifest = await manifestManager.getLastComputedManifest();
       } catch (e) {
+        this.logger.error(e);
+
         // Lets recover from a failure in getting the internal manifest map by creating an empty default manifest
         if (e instanceof InvalidInternalManifestError) {
-          this.logger.error(e);
           this.logger.info('recovering from invalid internal manifest');
           oldManifest = ManifestManager.createDefaultManifest();
         }
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (oldManifest! == null) {
-        this.logger.debug('Last computed manifest not available yet');
+      if (!oldManifest) {
+        this.logger.debug('Last computed manifest not available yet. Nothing to do.');
         return;
       }
 
@@ -150,9 +150,10 @@ export class ManifestTask {
         diff.additions as InternalArtifactCompleteSchema[],
         newManifest
       );
+
       if (persistErrors.length) {
         reportErrors(this.logger, persistErrors);
-        throw new Error('Unable to persist new artifacts.');
+        throw new EndpointError('Unable to persist new artifacts.');
       }
 
       if (!isEmptyManifestDiff(diff)) {
@@ -161,20 +162,22 @@ export class ManifestTask {
         await manifestManager.commit(newManifest);
       }
 
-      // Try dispatching to ingest-manager package policies
+      // Try dispatching to Fleet endpoint package policies
       const dispatchErrors = await manifestManager.tryDispatch(newManifest);
       if (dispatchErrors.length) {
         reportErrors(this.logger, dispatchErrors);
-        throw new Error('Error dispatching manifest.');
+        throw new EndpointError('Error dispatching new manifest to fleet endpoint policies');
       }
 
       // Try to clean up superceded artifacts
       const deleteErrors = await manifestManager.deleteArtifacts(
         diff.removals.map((artifact) => getArtifactId(artifact))
       );
+
       if (deleteErrors.length) {
         reportErrors(this.logger, deleteErrors);
       }
+
       await manifestManager.cleanup(newManifest);
     } catch (err) {
       this.logger.error(wrapErrorIfNeeded(err));
