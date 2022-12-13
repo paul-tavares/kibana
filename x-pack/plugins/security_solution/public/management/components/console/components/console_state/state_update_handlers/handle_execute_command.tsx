@@ -161,7 +161,7 @@ export const handleExecuteCommand: ConsoleStoreReducer<
     );
   }
 
-  const command = {
+  const command: Command = {
     input: parsedInput.input,
     args: parsedInput,
     commandDefinition,

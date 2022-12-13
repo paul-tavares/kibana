@@ -189,8 +189,8 @@ export interface CommandArgumentValueSelectorProps<
   /** The metadata defined on the Command Definition */
   TMeta = any
 > {
-  /** The command entered thus far by the user */
-  command: Command; // FIXME:PT add generics to this
+  /** The current value that is selected */
+  value: TSelection | undefined;
 
   /**
    * callback for the Value Selector to call and provide the selection value.
@@ -198,7 +198,10 @@ export interface CommandArgumentValueSelectorProps<
    * component.
    * @param value
    */
-  onChange: (value: TSelection) => void;
+  onChange: (newValue: TSelection | undefined) => void;
+
+  /** The command entered thus far by the user */
+  command: Command; // FIXME:PT add generics to this
 }
 
 /**
