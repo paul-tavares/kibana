@@ -5,11 +5,46 @@
  * 2.0.
  */
 
+import type { CommandArgs } from '../../../types';
+import type { ParsedCommandInterface } from '../../../service/parsed_command_input';
+import type { CommandDefinition } from '../../..';
+
 /**
  * Class that manages the command entered and how that is displayed to the left and right of the cursor
  */
 export class EnteredInput {
-  constructor(private leftOfCursorText: string, private rightOfCursorText: string) {}
+  private readonly argsWithValueSelectors: CommandArgs | undefined;
+  private readonly hasValueSelectorArgs: boolean;
+  private leftContent: string[];
+  private rightContent: string[];
+
+  constructor(
+    private leftOfCursorText: string,
+    private rightOfCursorText: string,
+    private readonly parsedCommand?: ParsedCommandInterface,
+    private readonly commandDef?: CommandDefinition
+  ) {
+    this.leftContent = leftOfCursorText.split('');
+    this.rightContent = leftOfCursorText.split('');
+
+    if (commandDef) {
+      const argsWithSelectors: CommandArgs = {};
+      let hasValueSelectors: boolean = false;
+
+      for (const [argName, argDef] of Object.entries(commandDef.args ?? {})) {
+        if (argDef.SelectorComponent) {
+          hasValueSelectors = true;
+          argsWithSelectors[argName] = argDef;
+        }
+      }
+
+      this.hasValueSelectorArgs = hasValueSelectors;
+
+      if (hasValueSelectors) {
+        this.argsWithValueSelectors = argsWithSelectors;
+      }
+    }
+  }
 
   private replaceSelection(selection: string, newValue: string) {
     const prevFullTextEntered = this.leftOfCursorText + this.rightOfCursorText;
