@@ -30,10 +30,12 @@ export interface CommandArgs {
      */
     validate?: (argData: ParsedArgData) => true | string;
 
-    // Selector: Idea is that the schema can plugin in a rich component for the
-    // user to select something (ex. a file)
-    // FIXME: implement selector
-    selector?: ComponentType;
+    /**
+     * If defined, the provided Component will be rendered in place of this argument's value and
+     * it will be up to the Selector to provide the desired interface to the user for selecting
+     * the argument's value.
+     */
+    SelectorComponent?: ComponentType;
   };
 }
 
@@ -176,6 +178,34 @@ export type CommandExecutionComponent<
   /** The metadata defined on the Command Definition */
   TMeta = any
 > = ComponentType<CommandExecutionComponentProps<TArgs, TStore, TMeta>>;
+
+/**
+ * The component props for an argument `SelectorComponent`
+ */
+export interface CommandArgumentValueSelectorProps<
+  TSelection = any,
+  /** The arguments that could have been entered by the user */
+  TArgs extends SupportedArguments = any,
+  /** The metadata defined on the Command Definition */
+  TMeta = any
+> {
+  /** The command entered thus far by the user */
+  command: Command; // FIXME:PT add generics to this
+
+  /**
+   * callback for the Value Selector to call and provide the selection value.
+   * This selection value will then be passed along with the argument to the command execution
+   * component.
+   * @param value
+   */
+  onChange: (value: TSelection) => void;
+}
+
+/**
+ * Component for rendering an argument's value selector
+ */
+export type CommandArgumentValueSelectorComponent =
+  ComponentType<CommandArgumentValueSelectorProps>;
 
 export interface ConsoleProps extends CommonProps {
   /**
