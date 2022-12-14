@@ -6,6 +6,7 @@
  */
 
 import React, { type ReactNode, useMemo } from 'react';
+import type { CommandArgDefinition } from '../../../types';
 import { parseCommandInput } from '../../../service/parsed_command_input';
 import { useWithInputCommandEntered } from '../../../hooks/state_selectors/use_with_input_command_entered';
 import { useWithCommandList } from '../../../hooks/state_selectors/use_with_command_list';
@@ -32,14 +33,16 @@ export const useParsedDisplayInput = (): ParsedDisplayInput => {
     }
   }, [commandEntered, commandList]);
 
-  const { hasArgSelectors, argSelectors } = useMemo((): {
+  interface ArgsWithSelectorsMap {
     hasArgSelectors: boolean;
-    argSelectors: Required<CommandDefinition>['args'];
-  } => {
-    const valueSelectors: {
-      hasArgSelectors: boolean;
-      argSelectors: Required<CommandDefinition>['args'];
-    } = {
+    argSelectors: Record<
+      string,
+      Omit<CommandArgDefinition, 'SelectorComponent'> &
+        Pick<Required<CommandArgDefinition>, 'SelectorComponent'>
+    >;
+  }
+  const { hasArgSelectors, argSelectors } = useMemo(() => {
+    const valueSelectors: ArgsWithSelectorsMap = {
       hasArgSelectors: false,
       argSelectors: {},
     };
@@ -63,29 +66,55 @@ export const useParsedDisplayInput = (): ParsedDisplayInput => {
     };
 
     if (hasArgSelectors && parsedInput.hasArgs) {
-      const inputPieces: ReactNode[] = fullTextEntered.split('');
       const suppressFromDisplay = Symbol('suppressed');
 
+      interface InputPieces {
+        input: string;
+        items: ReactNode[];
+      }
+
+      const leftOfCursorItems: InputPieces = {
+        input: leftOfCursor,
+        items: leftOfCursor.split(''),
+      };
+      const rightOfCursorItems: InputPieces = {
+        input: rightOfCursor.text,
+        items: rightOfCursor.text.split(''),
+      };
+
+      const inputPieces: InputPieces[] = [leftOfCursorItems, rightOfCursorItems];
+
       for (const [argName, argDef] of Object.entries(argSelectors)) {
-        const { SelectorComponent } = argDef;
+        // Loop through the input pieces (left and right side of cursor) looking for the Argument name
+        for (const { input, items } of inputPieces) {
+          // TODO:PT Support multiple occurrences of the argument
+          const argNameMatch = `--${argName}`;
+          const pos = input.indexOf(argNameMatch);
 
-        if (parsedInput.hasArg(argName)) {
-          const pos = fullTextEntered.indexOf(`--${argName}`);
-          const argChrLength = argName.length + 2;
-          const replaceValues: Array<symbol | ReactNode> = Array.from(
-            { length: argChrLength },
-            () => suppressFromDisplay
-          );
-          replaceValues[0] = <SelectorComponent />;
+          if (parsedInput.hasArg(argName) && pos !== -1) {
+            const { SelectorComponent } = argDef;
 
-          inputPieces.splice(pos, argChrLength, ...replaceValues);
+            const argChrLength = argNameMatch.length;
+            const replaceValues: Array<symbol | ReactNode> = Array.from(
+              { length: argChrLength },
+              () => suppressFromDisplay
+            );
+
+            replaceValues[0] = <SelectorComponent />;
+
+            items.splice(pos, argChrLength, ...replaceValues);
+          }
         }
       }
 
-      response.leftOfCursor = inputPieces.filter((piece) => piece !== suppressFromDisplay);
-      response.rightOfCursor = ''; // FIXME:PT
+      response.leftOfCursor = leftOfCursorItems.items.filter(
+        (piece) => piece !== suppressFromDisplay
+      );
+      response.rightOfCursor = rightOfCursorItems.items.filter(
+        (piece) => piece !== suppressFromDisplay
+      );
     }
 
     return response;
-  }, [argSelectors, fullTextEntered, hasArgSelectors, leftOfCursor, parsedInput, rightOfCursor]);
+  }, [argSelectors, hasArgSelectors, leftOfCursor, parsedInput, rightOfCursor]);
 };

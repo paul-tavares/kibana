@@ -18,25 +18,27 @@ import type {
   PossibleArgDataTypes,
 } from './service/parsed_command_input';
 
-export interface CommandArgs {
-  [longName: string]: {
-    required: boolean;
-    allowMultiples: boolean;
-    exclusiveOr?: boolean;
-    about: string;
-    /**
-     * Validate the individual values given to this argument.
-     * Should return `true` if valid or a string with the error message
-     */
-    validate?: (argData: ParsedArgData) => true | string;
+export interface CommandArgDefinition {
+  required: boolean;
+  allowMultiples: boolean;
+  exclusiveOr?: boolean;
+  about: string;
+  /**
+   * Validate the individual values given to this argument.
+   * Should return `true` if valid or a string with the error message
+   */
+  validate?: (argData: ParsedArgData) => true | string;
 
-    /**
-     * If defined, the provided Component will be rendered in place of this argument's value and
-     * it will be up to the Selector to provide the desired interface to the user for selecting
-     * the argument's value.
-     */
-    SelectorComponent?: ComponentType;
-  };
+  /**
+   * If defined, the provided Component will be rendered in place of this argument's value and
+   * it will be up to the Selector to provide the desired interface to the user for selecting
+   * the argument's value.
+   */
+  SelectorComponent?: ComponentType;
+}
+
+export interface CommandArgs {
+  [longName: string]: CommandArgDefinition;
 }
 
 export interface CommandDefinition<TMeta = any> {
