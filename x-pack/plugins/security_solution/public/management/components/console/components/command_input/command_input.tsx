@@ -12,6 +12,7 @@ import { EuiFlexGroup, EuiFlexItem, EuiButtonIcon, EuiResizeObserver } from '@el
 import styled from 'styled-components';
 import classNames from 'classnames';
 import type { EuiResizeObserverProps } from '@elastic/eui/src/components/observer/resize_observer/resize_observer';
+import { useParsedDisplayInput } from './hooks/use_input_command_info';
 import { useWithInputShowPopover } from '../../hooks/state_selectors/use_with_input_show_popover';
 import { EnteredInput } from './lib/entered_input';
 import type { InputCaptureProps } from './components/input_capture';
@@ -96,6 +97,7 @@ export const CommandInput = memo<CommandInputProps>(({ prompt = '', focusRef, ..
   const isPopoverOpen = !!useWithInputShowPopover();
   const [commandToExecute, setCommandToExecute] = useState('');
   const [popoverWidth, setPopoverWidth] = useState('94vw');
+  const displayInput = useParsedDisplayInput();
 
   const _focusRef: InputCaptureProps['focusRef'] = useRef(null);
   const keyCaptureFocusRef = focusRef || _focusRef;
@@ -250,14 +252,16 @@ export const CommandInput = memo<CommandInputProps>(({ prompt = '', focusRef, ..
                   >
                     <EuiFlexGroup responsive={false} alignItems="center" gutterSize="none">
                       <EuiFlexItem grow={false}>
-                        <div data-test-subj={getTestId('cmdInput-leftOfCursor')}>{textEntered}</div>
+                        <div data-test-subj={getTestId('cmdInput-leftOfCursor')}>
+                          {displayInput.leftOfCursor}
+                        </div>
                       </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <span className="cursor essentialAnimation" />
                       </EuiFlexItem>
                       <EuiFlexItem>
                         <div data-test-subj={getTestId('cmdInput-rightOfCursor')}>
-                          {rightOfCursor.text}
+                          {displayInput.rightOfCursor}
                         </div>
                       </EuiFlexItem>
                     </EuiFlexGroup>
