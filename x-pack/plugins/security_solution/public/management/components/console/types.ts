@@ -191,8 +191,18 @@ export interface CommandArgumentValueSelectorProps<
   /** The metadata defined on the Command Definition */
   TMeta = any
 > {
-  /** The current value that is selected */
+  /**
+   * The current value that was selected. This will not be displayed in the UI, but will
+   * be passed on to the command execution as part of the argument's value
+   */
   value: TSelection | undefined;
+
+  /**
+   * A string value for display purposes only that describes the selected value. This
+   * will be used when the command is entered and displayed in the console as well as in
+   * the command input history popover
+   */
+  valueText: string;
 
   /**
    * callback for the Value Selector to call and provide the selection value.

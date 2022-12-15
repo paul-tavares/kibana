@@ -51,11 +51,22 @@ export interface ConsoleDataState {
      * The text the user is typing into the console input area. By default, this
      * value goes into the left of the cursor position
      */
-    textEntered: string; // FIXME:PT convert this to same structure as `rightOfCursor`
+    textEntered: string;
 
     rightOfCursor: {
       text: string;
     };
+
+    // Properties needed be saved to store:
+    //
+    // leftOfCursorText
+    // rightOfCursorText
+    // fullEnteredText
+    // commandEntered: CommandDefinition
+    // parsedInput
+    //
+    //
+    //
 
     /** The command name that was entered (derived from `textEntered` */
     commandEntered: string;

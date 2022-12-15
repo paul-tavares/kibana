@@ -6,6 +6,7 @@
  */
 
 import React, { type ReactNode, useMemo } from 'react';
+import { ArgumentSelector } from '../components/argument_selector';
 import type { CommandArgDefinition } from '../../../types';
 import { parseCommandInput } from '../../../service/parsed_command_input';
 import { useWithInputCommandEntered } from '../../../hooks/state_selectors/use_with_input_command_entered';
@@ -19,6 +20,9 @@ interface ParsedDisplayInput {
 }
 
 export const useParsedDisplayInput = (): ParsedDisplayInput => {
+  //
+  // TODO:PT can most of this be moved to the EnteredInput class? and just store the input to that class in state?
+  //
   const { textEntered: leftOfCursor, rightOfCursor, fullTextEntered } = useWithInputTextEntered();
   const commandEntered = useWithInputCommandEntered();
   const commandList = useWithCommandList();
@@ -33,13 +37,12 @@ export const useParsedDisplayInput = (): ParsedDisplayInput => {
     }
   }, [commandEntered, commandList]);
 
+  type ArgDefinitionWithRequiredSelector = Omit<CommandArgDefinition, 'SelectorComponent'> &
+    Pick<Required<CommandArgDefinition>, 'SelectorComponent'>;
+
   interface ArgsWithSelectorsMap {
     hasArgSelectors: boolean;
-    argSelectors: Record<
-      string,
-      Omit<CommandArgDefinition, 'SelectorComponent'> &
-        Pick<Required<CommandArgDefinition>, 'SelectorComponent'>
-    >;
+    argSelectors: Record<string, ArgDefinitionWithRequiredSelector>;
   }
   const { hasArgSelectors, argSelectors } = useMemo(() => {
     const valueSelectors: ArgsWithSelectorsMap = {
@@ -51,7 +54,7 @@ export const useParsedDisplayInput = (): ParsedDisplayInput => {
       for (const [argName, argDef] of Object.entries(commandDefinition.args ?? {})) {
         if (argDef.SelectorComponent) {
           valueSelectors.hasArgSelectors = true;
-          valueSelectors.argSelectors[argName] = argDef;
+          valueSelectors.argSelectors[argName] = argDef as ArgDefinitionWithRequiredSelector;
         }
       }
     }
@@ -85,22 +88,21 @@ export const useParsedDisplayInput = (): ParsedDisplayInput => {
       const inputPieces: InputPieces[] = [leftOfCursorItems, rightOfCursorItems];
 
       for (const [argName, argDef] of Object.entries(argSelectors)) {
-        // Loop through the input pieces (left and right side of cursor) looking for the Argument name
+        // Loop through the input pieces (left and right side of cursor) looking for the
+        // Argument name and if found, replace it with the argument value selector defined
         for (const { input, items } of inputPieces) {
           // TODO:PT Support multiple occurrences of the argument
           const argNameMatch = `--${argName}`;
           const pos = input.indexOf(argNameMatch);
 
           if (parsedInput.hasArg(argName) && pos !== -1) {
-            const { SelectorComponent } = argDef;
-
             const argChrLength = argNameMatch.length;
             const replaceValues: Array<symbol | ReactNode> = Array.from(
               { length: argChrLength },
               () => suppressFromDisplay
             );
 
-            replaceValues[0] = <SelectorComponent />;
+            replaceValues[0] = <ArgumentSelector argName={argName} argDefinition={argDef} />;
 
             items.splice(pos, argChrLength, ...replaceValues);
           }
