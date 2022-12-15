@@ -6,6 +6,7 @@
  */
 
 import { i18n } from '@kbn/i18n';
+import { ArgumentFileSelector } from '../../console_argument_selectors';
 import { ExecuteFileAction } from '../command_render_components/execute_file_action';
 import { ExperimentalFeaturesService } from '../../../../common/experimental_features_service';
 import type {
@@ -372,7 +373,7 @@ export const getEndpointConsoleCommands = ({
     {
       name: 'execute-file',
       about: 'Upload and execute a file on host machine',
-      RenderComponent: GetProcessesActionResult,
+      RenderComponent: ExecuteFileAction,
       meta: {
         endpointId: endpointAgentId,
         capabilities: endpointCapabilities,
@@ -389,7 +390,7 @@ export const getEndpointConsoleCommands = ({
             // FIXME:PT Validate File was selected
             return true;
           },
-          SelectorComponent: ExecuteFileAction,
+          SelectorComponent: ArgumentFileSelector,
         },
         comment: {
           required: false,

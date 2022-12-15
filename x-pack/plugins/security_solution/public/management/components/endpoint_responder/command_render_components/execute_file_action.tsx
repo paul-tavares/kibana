@@ -9,6 +9,6 @@ import React, { memo } from 'react';
 import type { ActionRequestComponentProps } from '../types';
 
 export const ExecuteFileAction = memo<ActionRequestComponentProps>((props) => {
-  return <span>{'[click to select file]'}</span>;
+  return <span>{'ExecuteFileAction todo'}</span>;
 });
 ExecuteFileAction.displayName = 'ExecuteFileAction';

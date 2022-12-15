@@ -34,7 +34,7 @@ export interface CommandArgDefinition {
    * it will be up to the Selector to provide the desired interface to the user for selecting
    * the argument's value.
    */
-  SelectorComponent?: ComponentType;
+  SelectorComponent?: CommandArgumentValueSelectorComponent;
 }
 
 export interface CommandArgs {
@@ -210,7 +210,7 @@ export interface CommandArgumentValueSelectorProps<
    * component.
    * @param value
    */
-  onChange: (newValue: TSelection | undefined) => void;
+  onChange: (newData: { value: TSelection | undefined; valueText: string }) => void;
 
   /** The command entered thus far by the user */
   command: Command; // FIXME:PT add generics to this
