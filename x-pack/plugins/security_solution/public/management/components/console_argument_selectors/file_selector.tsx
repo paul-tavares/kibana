@@ -6,9 +6,8 @@
  */
 
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { EuiButtonIcon, EuiFilePicker, EuiPopover } from '@elastic/eui';
+import { EuiButtonIcon, EuiFilePicker, EuiPopover, htmlIdGenerator } from '@elastic/eui';
 import type { EuiFilePickerProps } from '@elastic/eui/src/components/form/file_picker/file_picker';
-import { v4 as uuidV4 } from 'uuid';
 import type { CommandArgumentValueSelectorProps } from '../console/types';
 
 // FIXME:PT support props for: file size limit, single
@@ -18,7 +17,7 @@ export const ArgumentFileSelector = memo<CommandArgumentValueSelectorProps>(
     const [isPopoverOpen, setIsPopoverOpen] = useState(true);
 
     const filePickerUUID = useMemo(() => {
-      return uuidV4();
+      return htmlIdGenerator('console')();
     }, []);
 
     const handleOpenPopover = useCallback(() => {
