@@ -8,7 +8,7 @@
 import { i18n } from '@kbn/i18n';
 import { v4 as uuidV4 } from 'uuid';
 import { getCommandNameFromTextInput } from '../../../service/parsed_command_input';
-import type { ConsoleDataAction, ConsoleStoreReducer } from '../types';
+import type { ConsoleDataAction, ConsoleDataState, ConsoleStoreReducer } from '../types';
 
 export const INPUT_DEFAULT_PLACEHOLDER_TEXT = i18n.translate(
   'xpack.securitySolution.handleInputAreaState.inputPlaceholderText',
@@ -84,6 +84,20 @@ export const handleInputAreaState: ConsoleStoreReducer<InputAreaStateAction> = (
             ? getCommandNameFromTextInput(fullCommandText)
             : '';
 
+        let enteredCommand: ConsoleDataState['input']['enteredCommand'] =
+          state.input.enteredCommand;
+
+        if (commandEntered && commandEntered !== state.input.commandEntered) {
+          const commandDefinition = state.commands.find((def) => def.name === commandEntered);
+
+          if (commandDefinition) {
+            enteredCommand = {
+              argState: {},
+              commandDefinition,
+            };
+          }
+        }
+
         return {
           ...state,
           input: {
@@ -91,6 +105,7 @@ export const handleInputAreaState: ConsoleStoreReducer<InputAreaStateAction> = (
             textEntered: newTextEntered,
             rightOfCursor: newRightOfCursor,
             commandEntered,
+            enteredCommand,
           },
         };
       }

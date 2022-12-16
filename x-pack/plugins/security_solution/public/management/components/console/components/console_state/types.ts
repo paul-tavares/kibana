@@ -57,18 +57,14 @@ export interface ConsoleDataState {
       text: string;
     };
 
-    // Properties needed be saved to store:
-    //
-    // leftOfCursorText
-    // rightOfCursorText
-    // fullEnteredText
-    // commandEntered: CommandDefinition
-    // parsedInput
-    //
-    //
-    //
+    /** The entered command. Only defined if the command is "known" */
+    enteredCommand: undefined | EnteredCommand;
 
-    /** The command name that was entered (derived from `textEntered` */
+    // FIXME:PT Delete `commandEntered` below
+    /**
+     * The command name that was entered (derived from `textEntered`
+     * @deprecated
+     */
     commandEntered: string;
 
     /** Placeholder text for the input area **/
@@ -82,6 +78,19 @@ export interface ConsoleDataState {
 
     /** The state of the input area. Set to `error` if wanting to show it as being in error state */
     visibleState: 'error' | undefined;
+  };
+}
+
+export interface EnteredCommand {
+  commandDefinition: CommandDefinition;
+  argState: {
+    // Each arg has an array (just like the parsed input) and keeps the
+    // state that is provided to that instance of the argument on the input.
+    [argName: string]: Array<{
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      value: any;
+      valueText: string | undefined;
+    }>;
   };
 }
 
