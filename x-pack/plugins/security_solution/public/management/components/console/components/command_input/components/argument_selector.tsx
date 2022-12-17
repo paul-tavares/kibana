@@ -5,8 +5,10 @@
  * 2.0.
  */
 
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback } from 'react';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { useWithCommandArgumentState } from '../../../hooks/state_selectors/use_with_command_argument_state';
+import { useConsoleStateDispatch } from '../../../hooks/state_selectors/use_console_state_dispatch';
 import type { CommandArgDefinition, CommandArgumentValueSelectorProps } from '../../../types';
 
 type ArgDefinitionWithRequiredSelector = Omit<CommandArgDefinition, 'SelectorComponent'> &
@@ -18,27 +20,31 @@ export interface ArgumentSelectorProps {
 }
 
 /**
- * handles displaying a custom argument value selector.
+ * handles displaying a custom argument value selector and manages its state
  */
 export const ArgumentSelector = memo<ArgumentSelectorProps>(
   ({ argName, argDefinition: { SelectorComponent } }) => {
-    // FIXME:PT this should be persisted to store
-    const [{ valueText, value }, setSelection] = useState<
-      Parameters<CommandArgumentValueSelectorProps['onChange']>[0]
-    >({
-      value: undefined,
-      valueText: '',
-    });
+    const dispatch = useConsoleStateDispatch();
+    const { valueText, value } = useWithCommandArgumentState(argName);
 
-    // FIXME:PT get `Command` from store
+    // FIXME:PT get `Command` (the interface that is normally passed to the execute command) from store
 
     const handleSelectorComponentOnChange = useCallback<
       CommandArgumentValueSelectorProps['onChange']
-    >((updates) => {
-      setSelection({ ...updates });
-    }, []);
+    >(
+      (updates) => {
+        dispatch({
+          type: 'updateInputCommandArgState',
+          payload: {
+            name: argName,
+            state: updates,
+          },
+        });
+      },
+      [argName, dispatch]
+    );
 
-    // FIXME:PT wrapper component needs to have bounds on width and overflow
+    // FIXME:PT wrapper component needs to have bounds on width and overflow so that it does not disrupt the Input UI
     return (
       <span className="eui-displayInlineBlock">
         <EuiFlexGroup responsive={false} gutterSize="none">

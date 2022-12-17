@@ -81,16 +81,18 @@ export interface ConsoleDataState {
   };
 }
 
+export interface CommandArgumentState {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+  valueText: string | undefined;
+}
+
 export interface EnteredCommand {
   commandDefinition: CommandDefinition;
   argState: {
     // Each arg has an array (just like the parsed input) and keeps the
     // state that is provided to that instance of the argument on the input.
-    [argName: string]: Array<{
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      value: any;
-      valueText: string | undefined;
-    }>;
+    [argName: string]: CommandArgumentState[];
   };
 }
 

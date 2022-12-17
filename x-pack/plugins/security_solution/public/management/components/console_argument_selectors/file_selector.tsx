@@ -10,7 +10,9 @@ import { EuiButtonIcon, EuiFilePicker, EuiPopover, htmlIdGenerator } from '@elas
 import type { EuiFilePickerProps } from '@elastic/eui/src/components/form/file_picker/file_picker';
 import type { CommandArgumentValueSelectorProps } from '../console/types';
 
-// FIXME:PT support props for: file size limit, single
+// FIXME:PT support prop: maxFileSize
+// FIXME:PT support prop `openOnFirstRender`
+// FIXME:PT support prop `allowMultiples`
 
 export const ArgumentFileSelector = memo<CommandArgumentValueSelectorProps>(
   ({ value, valueText, onChange }) => {
@@ -52,7 +54,13 @@ export const ArgumentFileSelector = memo<CommandArgumentValueSelectorProps>(
           closePopover={handleClosePopover}
           anchorPosition="upCenter"
           initialFocus={`#${filePickerUUID}`}
-          button={<EuiButtonIcon iconType="folderOpen" onClick={handleOpenPopover} />}
+          button={
+            <EuiButtonIcon
+              iconType="folderOpen"
+              onClick={handleOpenPopover}
+              aria-label={'Open file picker'}
+            />
+          }
         >
           {isPopoverOpen && (
             <EuiFilePicker
