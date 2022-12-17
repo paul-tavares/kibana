@@ -170,6 +170,18 @@ export type ConsoleDataAction =
       };
     }
   | {
+      type: 'updateInputCommandArgState';
+      payload: {
+        /** Name of argument */
+        name: string;
+        state: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          value: any;
+          valueText: string;
+        };
+      };
+    }
+  | {
       type: 'clearInputHistoryState';
       payload?: never;
     };
