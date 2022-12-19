@@ -9,6 +9,13 @@ import React, { memo } from 'react';
 import type { ActionRequestComponentProps } from '../types';
 
 export const ExecuteFileAction = memo<ActionRequestComponentProps>((props) => {
-  return <span>{'ExecuteFileAction todo'}</span>;
+  return (
+    <div>
+      <div>{`ExecuteFileAction todo`}</div>
+      <div>
+        <strong>{`Will be downloading file: ${props.command.args.args.file[0].name}`}</strong>
+      </div>
+    </div>
+  );
 });
 ExecuteFileAction.displayName = 'ExecuteFileAction';

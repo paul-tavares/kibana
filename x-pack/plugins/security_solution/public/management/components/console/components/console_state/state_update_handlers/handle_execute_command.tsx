@@ -161,6 +161,15 @@ export const handleExecuteCommand: ConsoleStoreReducer<
     );
   }
 
+  // If any argument used an Argument Selector component, then update the `parsedInput` with its values
+  if (state.input.enteredCommand?.argState) {
+    // FIXME:PT this should not be done here - it shoudl be closer to the parsing of the value
+    const argState = state.input.enteredCommand?.argState;
+    for (const [argName, argStateValues] of Object.entries(argState)) {
+      parsedInput.args[argName] = argStateValues.map((argStateValue) => argStateValue.value);
+    }
+  }
+
   const command: Command = {
     input: parsedInput.input,
     args: parsedInput,

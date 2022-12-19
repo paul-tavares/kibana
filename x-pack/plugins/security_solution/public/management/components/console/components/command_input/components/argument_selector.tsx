@@ -52,9 +52,8 @@ export const ArgumentSelector = memo<ArgumentSelectorProps>(
           <EuiFlexItem grow={false}>
             <SelectorComponent
               value={value}
-              valueText={valueText}
+              valueText={valueText ?? ''}
               onChange={handleSelectorComponentOnChange}
-              command={{}}
             />
           </EuiFlexItem>
         </EuiFlexGroup>

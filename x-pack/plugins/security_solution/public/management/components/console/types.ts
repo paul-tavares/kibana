@@ -211,9 +211,6 @@ export interface CommandArgumentValueSelectorProps<
    * @param value
    */
   onChange: (newData: { value: TSelection | undefined; valueText: string }) => void;
-
-  /** The command entered thus far by the user */
-  command: Command; // FIXME:PT add generics to this
 }
 
 /**
