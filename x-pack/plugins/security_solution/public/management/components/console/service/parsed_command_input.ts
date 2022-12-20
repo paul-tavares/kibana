@@ -9,7 +9,7 @@
 
 import type { CommandDefinition } from '..';
 
-export type PossibleArgDataTypes = string | boolean;
+export type PossibleArgDataTypes = string | boolean | unknown;
 
 export type ParsedArgData<T = PossibleArgDataTypes> = Array<
   T extends PossibleArgDataTypes ? T : never
