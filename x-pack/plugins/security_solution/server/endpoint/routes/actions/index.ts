@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+import { registerActionFileUploadRoutes } from './file_upload_handler';
 import { registerActionFileInfoRoute } from './file_info_handler';
 import { registerActionFileDownloadRoutes } from './file_download_handler';
 import { registerActionDetailsRoutes } from './details';
@@ -31,5 +32,6 @@ export function registerActionRoutes(
   if (endpointContext.experimentalFeatures.responseActionGetFileEnabled) {
     registerActionFileDownloadRoutes(router, endpointContext);
     registerActionFileInfoRoute(router, endpointContext);
+    registerActionFileUploadRoutes(router, endpointContext);
   }
 }
