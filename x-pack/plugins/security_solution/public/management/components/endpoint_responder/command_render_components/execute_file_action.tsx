@@ -5,77 +5,102 @@
  * 2.0.
  */
 
-import React, { memo, useEffect, useState } from 'react';
-import { EuiSpacer } from '@elastic/eui';
-import { useHttp } from '../../../../common/lib/kibana';
+import React, { memo, useMemo } from 'react';
+import {
+  EuiAccordion,
+  EuiButtonEmpty,
+  EuiPanel,
+  EuiSpacer,
+  EuiText,
+  useGeneratedHtmlId,
+} from '@elastic/eui';
+import { i18n } from '@kbn/i18n';
+import { resolvePathVariables } from '../../../../common/utils/resolve_path_variables';
+import type { ResponseActionGetFileRequestBody } from '../../../../../common/endpoint/schema/actions';
+import { useConsoleActionSubmitter } from '../hooks/use_console_action_submitter';
+import { useSendExecuteFileRequest } from '../../../hooks/response_actions/use_send_execute_file_request';
 import type { ActionRequestComponentProps } from '../types';
-import { ResponseActionFileDownloadLink } from '../../response_action_file_download_link';
+import { ACTION_AGENT_FILE_DOWNLOAD_ROUTE } from '../../../../../common/endpoint/constants';
 
 export const ExecuteFileAction = memo<
   ActionRequestComponentProps<{
     file: File;
   }>
->(({ command, setStore, store, setStatus }) => {
-  const file = command.args.args.file[0];
-  const http = useHttp();
+>(({ command, setStore, store, status, setStatus, ResultComponent }) => {
+  const actionCreator = useSendExecuteFileRequest();
+  const stdOutId = useGeneratedHtmlId({ prefix: 'stdout' });
+  const stdErrId = useGeneratedHtmlId({ prefix: 'stderr' });
 
-  const [newFileInfo, setNewFileInfo] = useState<undefined | object>(undefined);
+  const actionRequestBody = useMemo<undefined | ResponseActionGetFileRequestBody>(() => {
+    const endpointId = command.commandDefinition?.meta?.endpointId;
+    const { file, comment } = command.args.args;
 
-  useEffect(() => {
-    (async () => {
-      const actionApiState = store.actionApiState ?? {
-        request: {
-          sent: false,
-        },
-      };
+    return endpointId
+      ? {
+          endpoint_ids: [endpointId],
+          comment: comment?.[0],
+          file: file[0],
+        }
+      : undefined;
+  }, [command.args.args, command.commandDefinition?.meta?.endpointId]);
 
-      if (!actionApiState.request.sent) {
-        actionApiState.request.sent = true;
-        setStore({
-          ...store,
-          actionApiState,
-        });
+  const { result, actionDetails } = useConsoleActionSubmitter<ResponseActionGetFileRequestBody>({
+    ResultComponent,
+    setStore,
+    store,
+    status,
+    setStatus,
+    actionCreator,
+    actionRequestBody,
+    dataTestSubj: 'executeFile',
+    pendingMessage: i18n.translate('xpack.securitySolution.getFileAction.pendingMessage', {
+      defaultMessage: 'Uploading file and creating action.',
+    }),
+  });
 
-        const uploadedFile = await http.post('/api/endpoint/action/upload', {
-          body: file,
-          headers: {
-            'Content-Type': 'application/octet-stream',
-          },
-        });
+  if (actionDetails?.isCompleted && actionDetails.wasSuccessful) {
+    const fileId = actionDetails.parameters.file.id;
+    const downloadUrl = resolvePathVariables(ACTION_AGENT_FILE_DOWNLOAD_ROUTE, {
+      action_id: 'kbn_upload',
+      agent_id: fileId.substring(fileId.indexOf('.') + 1),
+    });
 
-        setNewFileInfo(uploadedFile);
-        setStatus('success');
-      }
-    })();
-  }, [file, http, setStatus, setStore, store]);
+    return (
+      <ResultComponent
+        showAs="success"
+        data-test-subj="getFileSuccess"
+        title={i18n.translate(
+          'xpack.securitySolution.endpointResponseActions.getFileAction.successTitle',
+          { defaultMessage: 'File execution was successful.' }
+        )}
+      >
+        <EuiAccordion id={stdOutId} buttonContent="Execution output (STDOUT)">
+          <EuiSpacer size="s" />
+          <EuiPanel hasShadow={false} color="transparent" hasBorder style={{ marginLeft: '2em' }}>
+            <pre>{JSON.stringify(actionDetails, null, 2)}</pre>
+            <EuiSpacer size="l" />
+          </EuiPanel>
+        </EuiAccordion>
 
-  return (
-    <div>
-      <div>
-        <strong>{`Uploading file: ${file.name}`}</strong>
-      </div>
-      {newFileInfo && (
-        <>
-          <div>
-            <pre>{JSON.stringify(newFileInfo, null, 2)}</pre>
-          </div>
+        <EuiSpacer size="xl" />
 
-          <EuiSpacer size="xxl" />
+        <EuiAccordion id={stdErrId} buttonContent="Execution errors (STDERR)">
+          <EuiSpacer />
+          <EuiPanel>
+            <pre>{'somw errors here if any'}</pre>
+            <EuiSpacer size="l" />
+          </EuiPanel>
+        </EuiAccordion>
 
-          <div>
-            <ResponseActionFileDownloadLink
-              action={{
-                isCompleted: true,
-                wasSuccessful: true,
-                agents: [newFileInfo.data.id.substring(newFileInfo.data.id.indexOf('.') + 1)],
-                id: 'kbn_upload',
-              }}
-              agentId={newFileInfo.data.id.substring(newFileInfo.data.id.indexOf('.') + 1)}
-            />
-          </div>
-        </>
-      )}
-    </div>
-  );
+        <EuiSpacer size="xxl" />
+
+        <EuiButtonEmpty href={downloadUrl} iconType="download" flush="left" iconSize="s" download>
+          <EuiText size="s">{'DEV: Download file that was just uploaded'}</EuiText>
+        </EuiButtonEmpty>
+      </ResultComponent>
+    );
+  }
+
+  return result;
 });
 ExecuteFileAction.displayName = 'ExecuteFileAction';
