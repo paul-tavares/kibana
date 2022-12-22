@@ -16,7 +16,7 @@ import type { CommandArgumentValueSelectorProps } from '../console/types';
 
 export const ArgumentFileSelector = memo<CommandArgumentValueSelectorProps>(
   ({ value, valueText, onChange }) => {
-    const [isPopoverOpen, setIsPopoverOpen] = useState(true);
+    const [isPopoverOpen, setIsPopoverOpen] = useState(!value);
 
     const filePickerUUID = useMemo(() => {
       return htmlIdGenerator('console')();
