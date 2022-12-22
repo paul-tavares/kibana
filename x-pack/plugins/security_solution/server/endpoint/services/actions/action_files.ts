@@ -146,14 +146,17 @@ const doesFileHaveChunks = async (
  */
 export const createNewFile = async (
   esClient: ElasticsearchClient,
-  logger: Logger
+  logger: Logger,
+  fileInfo: {
+    filename: string;
+  }
 ): Promise<File> => {
   const fileClient = getFileClient(esClient, logger);
 
   return fileClient.create({
     id: `kbn_upload.${uuidV4()}`,
     metadata: {
-      name: `a-file--${Math.random()}`,
+      name: fileInfo.filename,
     },
   });
 };

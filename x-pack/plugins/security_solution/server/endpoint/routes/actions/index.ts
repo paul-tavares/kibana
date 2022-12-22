@@ -32,6 +32,7 @@ export function registerActionRoutes(
   if (endpointContext.experimentalFeatures.responseActionGetFileEnabled) {
     registerActionFileDownloadRoutes(router, endpointContext);
     registerActionFileInfoRoute(router, endpointContext);
+
     registerActionFileUploadRoutes(router, endpointContext);
   }
 }
