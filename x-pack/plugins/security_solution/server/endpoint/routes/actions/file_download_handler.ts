@@ -6,6 +6,7 @@
  */
 
 import type { RequestHandler } from '@kbn/core/server';
+import type { ActionDetails } from '../../../../common/endpoint/types';
 import { getFileDownloadId } from '../../../../common/endpoint/service/response_actions/get_file_download_id';
 import { getActionDetailsById } from '../../services';
 import { errorHandler } from '../error_handler';
@@ -58,7 +59,15 @@ export const getActionFileDownloadRouteHandler = (
 
     try {
       // Ensure action id is valid and that it was sent to the Agent ID requested.
-      const actionDetails = await getActionDetailsById(esClient, endpointMetadataService, actionId);
+      // FIXME:PT remove POC code
+      // Changed code below to be able to download a file that was uploaded via kibana for testing purposes only
+      const actionDetails =
+        actionId === 'kbn_upload'
+          ? ({
+              id: 'kbn_upload',
+              agents: [agentId],
+            } as ActionDetails)
+          : await getActionDetailsById(esClient, endpointMetadataService, actionId);
 
       if (!actionDetails.agents.includes(agentId)) {
         throw new CustomHttpRequestError(`Action was not sent to agent id [${agentId}]`, 400);

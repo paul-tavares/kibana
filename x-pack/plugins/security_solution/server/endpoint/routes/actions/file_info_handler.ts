@@ -6,6 +6,7 @@
  */
 
 import type { RequestHandler } from '@kbn/core/server';
+import type { ActionDetails } from '../../../../common/endpoint/types';
 import { getFileInfo } from '../../services/actions/action_files';
 import { getActionDetailsById } from '../../services';
 import { ACTION_AGENT_FILE_INFO_ROUTE } from '../../../../common/endpoint/constants';
@@ -38,7 +39,13 @@ export const getActionFileInfoRouteHandler = (
 
     try {
       // Ensure action id is valid and that it was sent to the Agent ID requested.
-      const actionDetails = await getActionDetailsById(esClient, endpointMetadataService, actionId);
+      const actionDetails =
+        actionId === 'kbn_upload'
+          ? ({
+              id: 'kbn_upload',
+              agents: [agentId],
+            } as ActionDetails)
+          : await getActionDetailsById(esClient, endpointMetadataService, actionId);
 
       if (!actionDetails.agents.includes(agentId)) {
         throw new CustomHttpRequestError(`Action was not sent to agent id [${agentId}]`, 400);
