@@ -86,8 +86,8 @@ export const ExecuteFileAction = memo<
 
         <EuiAccordion id={stdErrId} buttonContent="Execution errors (STDERR)">
           <EuiSpacer />
-          <EuiPanel>
-            <pre>{'somw errors here if any'}</pre>
+          <EuiPanel hasShadow={false} color="transparent" hasBorder style={{ marginLeft: '2em' }}>
+            <pre>{'errors (if any) would be shown here'}</pre>
             <EuiSpacer size="l" />
           </EuiPanel>
         </EuiAccordion>
