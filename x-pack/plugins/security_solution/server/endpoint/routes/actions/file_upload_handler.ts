@@ -61,6 +61,11 @@ export const getActionFileUploadRouteHandler = (
     const file = await createNewFile(esClient, logger);
     await file.uploadContent(fileStream);
 
+    // FIXME:PT remove this await. Only needed for POC.
+    // Need this because there seems to be a delay in the file chunks being saved/propogated in ES,
+    // which was causing the download link for the file uploaded to report DELETED
+    await new Promise((r) => setTimeout(r, 2000));
+
     return res.ok({
       body: {
         message: `File with id [${file.id}] was created successfully`,

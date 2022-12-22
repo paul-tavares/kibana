@@ -15,28 +15,39 @@ export const ExecuteFileAction = memo<
   ActionRequestComponentProps<{
     file: File;
   }>
->((props) => {
-  const file = props.command.args.args.file[0];
+>(({ command, setStore, store, setStatus }) => {
+  const file = command.args.args.file[0];
   const http = useHttp();
 
   const [newFileInfo, setNewFileInfo] = useState<undefined | object>(undefined);
 
   useEffect(() => {
     (async () => {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const uploadedFile = await http.post('/api/endpoint/action/upload', {
-        body: file,
-        headers: {
-          'Content-Type': 'application/octet-stream',
+      const actionApiState = store.actionApiState ?? {
+        request: {
+          sent: false,
         },
-      });
+      };
 
-      setNewFileInfo(uploadedFile);
-      props.setStatus('success');
+      if (!actionApiState.request.sent) {
+        actionApiState.request.sent = true;
+        setStore({
+          ...store,
+          actionApiState,
+        });
+
+        const uploadedFile = await http.post('/api/endpoint/action/upload', {
+          body: file,
+          headers: {
+            'Content-Type': 'application/octet-stream',
+          },
+        });
+
+        setNewFileInfo(uploadedFile);
+        setStatus('success');
+      }
     })();
-  }, [file, http, props]);
+  }, [file, http, setStatus, setStore, store]);
 
   return (
     <div>
