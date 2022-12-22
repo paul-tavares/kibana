@@ -7,6 +7,8 @@
 
 import type { RequestHandler } from '@kbn/core/server';
 import { schema } from '@kbn/config-schema';
+import type stream from 'stream';
+import { createNewFile } from '../../services/actions/action_files';
 import type {
   SecuritySolutionPluginRouter,
   SecuritySolutionRequestHandlerContext,
@@ -53,12 +55,16 @@ export const getActionFileUploadRouteHandler = (
   const logger = endpointContext.logFactory.get('actionFileUpload');
 
   return async (context, req, res) => {
-    // (request.body.file as HapiReadableStream)
-    const fileStream = req.body as ReadableStream;
+    const esClient = (await context.core).elasticsearch.client.asInternalUser;
+    const fileStream = req.body as stream.Readable;
+
+    const file = await createNewFile(esClient, logger);
+    await file.uploadContent(fileStream);
 
     return res.ok({
       body: {
-        message: `api not yet operational`,
+        message: `File with id [${file.id}] was created successfully`,
+        data: file.toJSON(),
       },
     });
   };

@@ -11,6 +11,8 @@ import type { FileClient } from '@kbn/files-plugin/server';
 import { createEsFileClient } from '@kbn/files-plugin/server';
 import { errors } from '@elastic/elasticsearch';
 import type { SearchTotalHits } from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
+import type { File } from '@kbn/files-plugin/common';
+import { v4 as uuidV4 } from 'uuid';
 import type { UploadedFileInfo } from '../../../../common/endpoint/types';
 import { NotFoundError } from '../../errors';
 import {
@@ -130,4 +132,21 @@ const doesFileHaveChunks = async (
   });
 
   return Boolean((chunks.hits?.total as SearchTotalHits)?.value);
+};
+
+/**
+ * Creates a new file record (file metadata only - no actual file content)
+ */
+export const createNewFile = async (
+  esClient: ElasticsearchClient,
+  logger: Logger
+): Promise<File> => {
+  const fileClient = getFileClient(esClient, logger);
+
+  return fileClient.create({
+    id: `kbn_upload.${uuidV4()}`,
+    metadata: {
+      name: `a-file--${Math.random()}`,
+    },
+  });
 };
