@@ -51,9 +51,8 @@ export const ExecuteFileAction = memo<
 
   return (
     <div>
-      <div>{`ExecuteFileAction todo`}</div>
       <div>
-        <strong>{`Will be downloading file: ${file.name}`}</strong>
+        <strong>{`Uploading file: ${file.name}`}</strong>
       </div>
       {newFileInfo && (
         <>

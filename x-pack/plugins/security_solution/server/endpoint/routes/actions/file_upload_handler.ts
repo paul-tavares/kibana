@@ -32,7 +32,8 @@ export const registerActionFileUploadRoutes = (
         // and also from: src/plugins/files/server/routes/file_kind/upload.ts:98
         body: {
           output: 'stream',
-          maxBytes: 9000000,
+          // FIXME:PT `maxBytes` should be defined in the Plugin's config like other plugins do it
+          maxBytes: 26214400, // 25MB payload limit
           accepts: 'application/octet-stream',
           parse: false,
         },
