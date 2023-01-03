@@ -74,6 +74,8 @@ export const ExecuteFileAction = memo<
           { defaultMessage: 'File execution was successful.' }
         )}
       >
+        <EuiSpacer size="m" />
+
         <EuiAccordion id={stdOutId} buttonContent="Execution output (STDOUT)">
           <EuiSpacer size="s" />
           <EuiPanel hasShadow={false} color="transparent" hasBorder style={{ marginLeft: '2em' }}>
@@ -82,20 +84,22 @@ export const ExecuteFileAction = memo<
           </EuiPanel>
         </EuiAccordion>
 
-        <EuiSpacer size="xl" />
+        <EuiSpacer size="l" />
 
         <EuiAccordion id={stdErrId} buttonContent="Execution errors (STDERR)">
-          <EuiSpacer />
+          <EuiSpacer size="s" />
           <EuiPanel hasShadow={false} color="transparent" hasBorder style={{ marginLeft: '2em' }}>
             <pre>{'errors (if any) would be shown here'}</pre>
             <EuiSpacer size="l" />
           </EuiPanel>
         </EuiAccordion>
 
-        <EuiSpacer size="xxl" />
+        <EuiSpacer size="xl" />
 
         <EuiButtonEmpty href={downloadUrl} iconType="download" flush="left" iconSize="s" download>
-          <EuiText size="s">{'DEV: Download file that was just uploaded'}</EuiText>
+          <EuiText size="s">
+            {'Download a zip file containing the full output of the execution'}
+          </EuiText>
         </EuiButtonEmpty>
       </ResultComponent>
     );
