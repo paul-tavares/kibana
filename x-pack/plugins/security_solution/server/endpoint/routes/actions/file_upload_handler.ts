@@ -11,7 +11,7 @@ import { schema } from '@kbn/config-schema';
 import type stream from 'stream';
 import type { CasesByAlertId } from '@kbn/cases-plugin/common/api';
 import { CommentType } from '@kbn/cases-plugin/common/api';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment/moment';
 import { AGENT_ACTIONS_INDEX } from '@kbn/fleet-plugin/common';
 import { getActionDetailsById, getMetadataForEndpoints } from '../../services';
@@ -148,7 +148,7 @@ export const getActionExecuteFileRouteHandler = (
     const command = 'execute-file';
     const esClient = (await context.core).elasticsearch.client.asInternalUser;
     const user = endpointContext.service.security?.authc.getCurrentUser(req);
-    const actionID = uuid.v4();
+    const actionID = uuidv4();
 
     const { file } = req.body;
 
