@@ -7,10 +7,15 @@
 
 import React, { memo, useMemo } from 'react';
 import { EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
+import styled from 'styled-components';
 import type {
   HostPolicyResponse,
   HostPolicyResponseAppliedArtifact,
 } from '../../../../common/endpoint/types';
+
+const ShaContainer = styled.div`
+  max-width: 15ch;
+`;
 
 export interface PolicyResponseArtifactsProps {
   appliedArtifacts: HostPolicyResponse['Endpoint']['policy']['applied']['artifacts'];
@@ -29,7 +34,7 @@ export const PolicyResponseArtifacts = memo<PolicyResponseArtifactsProps>(
     return (
       <EuiText>
         {items.map((artifact) => (
-          <AppliedArtifact artifact={artifact} key={artifact.sha256} />
+          <AppliedArtifactItem artifact={artifact} key={artifact.sha256} />
         ))}
       </EuiText>
     );
@@ -41,12 +46,19 @@ interface AppliedArtifactProps {
   artifact: HostPolicyResponseAppliedArtifact;
 }
 
-const AppliedArtifact = memo<AppliedArtifactProps>(({ artifact: { name, sha256 } }) => {
+/**
+ * A single artifact item that was applied to a host running endpoint
+ */
+export const AppliedArtifactItem = memo<AppliedArtifactProps>(({ artifact: { name, sha256 } }) => {
   return (
-    <EuiFlexGroup>
-      <EuiFlexItem>{name}</EuiFlexItem>
-      <EuiFlexItem grow={false}>{sha256}</EuiFlexItem>
-    </EuiFlexGroup>
+    <EuiText>
+      <EuiFlexGroup>
+        <EuiFlexItem>{name}</EuiFlexItem>
+        <EuiFlexItem grow={false}>
+          <ShaContainer className="eui-textTruncate">{sha256}</ShaContainer>
+        </EuiFlexItem>
+      </EuiFlexGroup>
+    </EuiText>
   );
 });
-AppliedArtifact.displayName = 'AppliedArtifact';
+AppliedArtifactItem.displayName = 'AppliedArtifact';

@@ -9,7 +9,7 @@ import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import { FormattedMessage } from '@kbn/i18n-react';
 import { EuiHealth, EuiText, EuiTreeView, EuiNotificationBadge } from '@elastic/eui';
-import { PolicyResponseArtifacts } from './policy_response_artifacts';
+import { AppliedArtifactItem } from './policy_response_artifacts';
 import { useKibana } from '../../../common/lib/kibana';
 import type {
   HostPolicyResponseAppliedAction,
@@ -214,7 +214,8 @@ export const PolicyResponse = memo(
                 {
                   <FormattedMessage
                     id="xpack.securitySolution.endpoint.policyResponse.artifactsGlobalTitle"
-                    defaultMessage="Global"
+                    defaultMessage="Global (v{version})"
+                    values={{ version: policyResponseArtifacts.global.version }}
                   />
                 }
               </EuiText>
@@ -228,26 +229,22 @@ export const PolicyResponse = memo(
                 className="policyResponseStatusHealth"
               />
             ),
-            children: [
-              {
-                label: (
-                  <PolicyResponseArtifacts
-                    appliedArtifacts={policyResponseArtifacts}
-                    type="global"
-                  />
-                ),
-                id: 'globalArtifactsContent',
-                className: 'something',
+            children: policyResponseArtifacts.global.identifiers.map((artifact) => {
+              return {
+                label: <AppliedArtifactItem artifact={artifact} />,
+                id: 'globalArtifactItem',
+                className: '',
                 isExpanded: true,
-              },
-            ],
+              };
+            }),
           },
           {
             label: (
               <EuiText size="s" data-test-subj="endpointPolicyResponseConfig">
                 <FormattedMessage
                   id="xpack.securitySolution.endpoint.policyResponse.artifactsUserTitle"
-                  defaultMessage="User"
+                  defaultMessage="User (v{version})"
+                  values={{ version: policyResponseArtifacts.user.version }}
                 />
               </EuiText>
             ),
@@ -260,16 +257,14 @@ export const PolicyResponse = memo(
                 className="policyResponseStatusHealth"
               />
             ),
-            children: [
-              {
-                label: (
-                  <PolicyResponseArtifacts appliedArtifacts={policyResponseArtifacts} type="user" />
-                ),
-                id: 'userGeneratedContent',
-                className: 'something',
+            children: policyResponseArtifacts.user.identifiers.map((artifact) => {
+              return {
+                label: <AppliedArtifactItem artifact={artifact} />,
+                id: 'userArtifactItem',
+                className: '',
                 isExpanded: true,
-              },
-            ],
+              };
+            }),
           },
         ],
       });
