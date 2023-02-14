@@ -6,15 +6,17 @@
  */
 
 import React, { memo, useMemo } from 'react';
-import { EuiFlexGroup, EuiFlexItem, EuiText } from '@elastic/eui';
+import { EuiBadge, EuiButtonIcon, EuiFlexGroup, EuiFlexItem, EuiText, EuiCopy } from '@elastic/eui';
 import styled from 'styled-components';
+import { i18n } from '@kbn/i18n';
 import type {
   HostPolicyResponse,
   HostPolicyResponseAppliedArtifact,
 } from '../../../../common/endpoint/types';
 
-const ShaContainer = styled.div`
-  max-width: 15ch;
+const ShaContainer = styled.span`
+  display: inline-block;
+  max-width: 12ch;
 `;
 
 export interface PolicyResponseArtifactsProps {
@@ -52,13 +54,49 @@ interface AppliedArtifactProps {
 export const AppliedArtifactItem = memo<AppliedArtifactProps>(({ artifact: { name, sha256 } }) => {
   return (
     <EuiText>
-      <EuiFlexGroup>
-        <EuiFlexItem>{name}</EuiFlexItem>
+      <EuiFlexGroup wrap={false} responsive={false} gutterSize="s">
+        <EuiFlexItem className="eui-textTruncate">
+          <div className="eui-TextTruncate" title={name}>
+            {name}
+          </div>
+        </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <ShaContainer className="eui-textTruncate">{sha256}</ShaContainer>
+          <HashDisplay value={sha256} />
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiText>
   );
 });
 AppliedArtifactItem.displayName = 'AppliedArtifact';
+
+export interface HashDisplayProps {
+  value: string;
+  type?: string;
+}
+
+const HashDisplay = memo<HashDisplayProps>(({ value, type = 'sha256' }) => {
+  return (
+    <EuiFlexGroup responsive={false} wrap={false} gutterSize="xs" alignItems="center">
+      <EuiFlexItem grow={false}>
+        <EuiBadge color="hollow">{type}</EuiBadge>
+      </EuiFlexItem>
+      <EuiFlexItem grow={false}>
+        <ShaContainer className="eui-textTruncate">{value}</ShaContainer>
+      </EuiFlexItem>
+      <EuiFlexItem>
+        <EuiCopy
+          textToCopy={value}
+          beforeMessage={i18n.translate(
+            'xpack.securitySolution.policyResponseArtifacts.copyBeforeMessage',
+            { defaultMessage: 'Copy artifact hash' }
+          )}
+        >
+          {(copy) => {
+            return <EuiButtonIcon iconType="copy" onClick={copy} />;
+          }}
+        </EuiCopy>
+      </EuiFlexItem>
+    </EuiFlexGroup>
+  );
+});
+HashDisplay.displayName = 'HashDisplay';
