@@ -1903,22 +1903,94 @@ export class EndpointDocGenerator extends BaseDataGenerator {
             },
             artifacts: {
               global: {
-                version: '1.4.0',
                 identifiers: [
                   {
-                    name: 'endpointpe-model',
-                    sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+                    sha256: '451f390dae62f3f1431134d8486614905912f01dda4810fb71844cc4a4bcfdf0',
+                    name: 'diagnostic-configuration-v1',
+                  },
+                  {
+                    sha256: '39fecb66f9337eb33f5c0359f51ad37761ff13e4a7c4be390e03d2c227ac7cf6',
+                    name: 'diagnostic-endpointelf-v1-blocklist',
+                  },
+                  {
+                    sha256: 'e3eb12da99e044ecc7d50cea407bf17f33c546e5309aa7ee661234baed2b7750',
+                    name: 'diagnostic-endpointelf-v1-exceptionlist',
+                  },
+                  {
+                    sha256: '885020b5bb99b3b875f51678efae67874bae37bfcc0036ad86bd2f7cbf767824',
+                    name: 'diagnostic-endpointelf-v1-model',
+                  },
+                  {
+                    sha256: '2cf723d7634769ca82139a6212f811aa2e0979d9ac1fd2fa8623a983b2ddcf64',
+                    name: 'diagnostic-malware-signature-v1-linux',
+                  },
+                  {
+                    sha256: '1d2d3da9fd01f5cae43615f6f0f6a8c4a4b72e83aa35221c368c9d34a0a560b6',
+                    name: 'diagnostic-rules-linux-v1',
+                  },
+                  {
+                    sha256: '0d4754c43a899fb1e8389d36e95c87b1ed852661fc007041d41b45929a3b34f4',
+                    name: 'endpointelf-v1-blocklist',
+                  },
+                  {
+                    sha256: 'eb9689f4e89f0b8b88f6fde235f1d5d9329c3056a21e6f451e36f23604ff8394',
+                    name: 'endpointelf-v1-exceptionlist',
+                  },
+                  {
+                    sha256: 'ae9943982909af94f2bef6f2418b103935ac731db362dd74de9bfe4b490c61cf',
+                    name: 'endpointelf-v1-model',
+                  },
+                  {
+                    sha256: '813d2417933f073db4c31e84c0f9ab449ed9e106b4c839391ba055ba10c89430',
+                    name: 'global-configuration-v1',
+                  },
+                  {
+                    sha256: 'd309bfb8fb555c9d3fba65ce7db66f46a0a14021db0cdc8c015eaf35c011e2dc',
+                    name: 'global-eventfilterlist-linux-v1',
+                  },
+                  {
+                    sha256: 'f7b656e62d927b5adad3cb2071adfe7b87f999842a913ff0891c31bf58131732',
+                    name: 'global-exceptionlist-linux',
+                  },
+                  {
+                    sha256: '9365c603590018c969300dfaec7f8758443f03b0e07a29087cfa19dd78298593',
+                    name: 'global-trustlist-linux-v1',
+                  },
+                  {
+                    sha256: 'c482d65d71f87d376a15e56c6ccb37874571a85c8b8de6df4ff95117af921154',
+                    name: 'production-malware-signature-v1-linux',
+                  },
+                  {
+                    sha256: '59abf0e7bf66548fe54d2dc4c9006fc45df528e568c24ee980ee1c5c8803d920',
+                    name: 'production-rules-linux-v1',
                   },
                 ],
+                version: '1.0.500',
               },
               user: {
-                version: '1.4.0',
                 identifiers: [
                   {
-                    name: 'user-model',
-                    sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+                    sha256: 'd801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658',
+                    name: 'endpoint-blocklist-linux-v1',
+                  },
+                  {
+                    sha256: 'd801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658',
+                    name: 'endpoint-eventfilterlist-linux-v1',
+                  },
+                  {
+                    sha256: 'd801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658',
+                    name: 'endpoint-exceptionlist-linux-v1',
+                  },
+                  {
+                    sha256: 'd801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658',
+                    name: 'endpoint-hostisolationexceptionlist-linux-v1',
+                  },
+                  {
+                    sha256: 'd801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658',
+                    name: 'endpoint-trustlist-linux-v1',
                   },
                 ],
+                version: '1.0.6',
               },
             },
             status: this.commonInfo.Endpoint.policy.applied.status,
