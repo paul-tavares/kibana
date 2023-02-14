@@ -56,6 +56,11 @@ const StyledEuiTreeView = styled(EuiTreeView)`
       }
     }
   }
+
+  #globalArtifactItem .euiTreeView__nodeLabel,
+  #userArtifactItem .euiTreeView__nodeLabel {
+    width: 100%;
+  }
 `;
 
 interface PolicyResponseProps {
