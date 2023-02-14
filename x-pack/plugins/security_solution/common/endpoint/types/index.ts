@@ -1174,7 +1174,7 @@ interface HostPolicyResponseConfigurationStatus {
 /**
  * Host Policy Response Applied Artifact
  */
-interface HostPolicyResponseAppliedArtifact {
+export interface HostPolicyResponseAppliedArtifact {
   name: string;
   sha256: string;
 }

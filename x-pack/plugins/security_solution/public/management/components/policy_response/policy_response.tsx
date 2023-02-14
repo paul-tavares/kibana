@@ -9,6 +9,7 @@ import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import { FormattedMessage } from '@kbn/i18n-react';
 import { EuiHealth, EuiText, EuiTreeView, EuiNotificationBadge } from '@elastic/eui';
+import { PolicyResponseArtifacts } from './policy_response_artifacts';
 import { useKibana } from '../../../common/lib/kibana';
 import type {
   HostPolicyResponseAppliedAction,
@@ -16,6 +17,7 @@ import type {
   Immutable,
   ImmutableArray,
   ImmutableObject,
+  HostPolicyResponse,
 } from '../../../../common/endpoint/types';
 import { HostPolicyResponseActionStatus } from '../../../../common/endpoint/types';
 import { formatResponse, PolicyResponseActionFormatter } from './policy_response_friendly_names';
@@ -60,6 +62,7 @@ interface PolicyResponseProps {
   hostOs: string;
   policyResponseConfig: Immutable<HostPolicyResponseConfiguration>;
   policyResponseActions: Immutable<HostPolicyResponseAppliedAction[]>;
+  policyResponseArtifacts: HostPolicyResponse['Endpoint']['policy']['applied']['artifacts'];
   policyResponseAttentionCount: Map<string, number>;
 }
 
@@ -72,6 +75,7 @@ export const PolicyResponse = memo(
     policyResponseConfig,
     policyResponseActions,
     policyResponseAttentionCount,
+    policyResponseArtifacts,
   }: PolicyResponseProps) => {
     const { docLinks } = useKibana().services;
     const getEntryIcon = useCallback(
@@ -155,37 +159,128 @@ export const PolicyResponse = memo(
       ]
     );
 
-    const getResponseConfigs = useCallback(
-      () =>
-        Object.entries(policyResponseConfig).map(([key, val]) => {
-          const attentionCount = policyResponseAttentionCount.get(key);
-          return {
+    const getResponseConfigs = useCallback(() => {
+      const configSections = Object.entries(policyResponseConfig).map(([key, val]) => {
+        const attentionCount = policyResponseAttentionCount.get(key);
+        return {
+          label: (
+            <EuiText
+              color={attentionCount ? 'danger' : 'default'}
+              size="s"
+              data-test-subj="endpointPolicyResponseConfig"
+            >
+              {formatResponse(key)}
+            </EuiText>
+          ),
+          id: key,
+          icon: attentionCount ? (
+            <EuiNotificationBadge data-test-subj="endpointPolicyResponseStatusAttentionHealth">
+              {attentionCount}
+            </EuiNotificationBadge>
+          ) : (
+            <EuiHealth
+              color="success"
+              data-test-subj="endpointPolicyResponseStatusSuccessHealth"
+              className="policyResponseStatusHealth"
+            />
+          ),
+          children: getConcernedActions(val.concerned_actions),
+        };
+      });
+
+      configSections.push({
+        label: (
+          <EuiText size="s" data-test-subj="endpointPolicyResponseConfig">
+            {
+              <FormattedMessage
+                id="xpack.securitySolution.endpoint.policyResponse.artifacts"
+                defaultMessage="Artifacts"
+              />
+            }
+          </EuiText>
+        ),
+        id: 'appliedArtifacts',
+        icon: (
+          <EuiHealth
+            color="success"
+            data-test-subj="endpointPolicyResponseStatusSuccessHealth"
+            className="policyResponseStatusHealth"
+          />
+        ),
+        children: [
+          {
             label: (
-              <EuiText
-                color={attentionCount ? 'danger' : 'default'}
-                size="s"
-                data-test-subj="endpointPolicyResponseConfig"
-              >
-                {formatResponse(key)}
+              <EuiText size="s" data-test-subj="endpointPolicyResponseConfig">
+                {
+                  <FormattedMessage
+                    id="xpack.securitySolution.endpoint.policyResponse.artifactsGlobalTitle"
+                    defaultMessage="Global"
+                  />
+                }
               </EuiText>
             ),
-            id: key,
-            icon: attentionCount ? (
-              <EuiNotificationBadge data-test-subj="endpointPolicyResponseStatusAttentionHealth">
-                {attentionCount}
-              </EuiNotificationBadge>
-            ) : (
+            id: 'globalArtifacts',
+            className: '',
+            icon: (
               <EuiHealth
                 color="success"
                 data-test-subj="endpointPolicyResponseStatusSuccessHealth"
                 className="policyResponseStatusHealth"
               />
             ),
-            children: getConcernedActions(val.concerned_actions),
-          };
-        }),
-      [getConcernedActions, policyResponseAttentionCount, policyResponseConfig]
-    );
+            children: [
+              {
+                label: (
+                  <PolicyResponseArtifacts
+                    appliedArtifacts={policyResponseArtifacts}
+                    type="global"
+                  />
+                ),
+                id: 'globalArtifactsContent',
+                className: 'something',
+                isExpanded: true,
+              },
+            ],
+          },
+          {
+            label: (
+              <EuiText size="s" data-test-subj="endpointPolicyResponseConfig">
+                <FormattedMessage
+                  id="xpack.securitySolution.endpoint.policyResponse.artifactsUserTitle"
+                  defaultMessage="User"
+                />
+              </EuiText>
+            ),
+            id: 'userGenerated',
+            className: '',
+            icon: (
+              <EuiHealth
+                color="success"
+                data-test-subj="endpointPolicyResponseStatusSuccessHealth"
+                className="policyResponseStatusHealth"
+              />
+            ),
+            children: [
+              {
+                label: (
+                  <PolicyResponseArtifacts appliedArtifacts={policyResponseArtifacts} type="user" />
+                ),
+                id: 'userGeneratedContent',
+                className: 'something',
+                isExpanded: true,
+              },
+            ],
+          },
+        ],
+      });
+
+      return configSections;
+    }, [
+      getConcernedActions,
+      policyResponseArtifacts,
+      policyResponseAttentionCount,
+      policyResponseConfig,
+    ]);
 
     const generateTreeView = useCallback(() => {
       let policyTotalErrors = 0;

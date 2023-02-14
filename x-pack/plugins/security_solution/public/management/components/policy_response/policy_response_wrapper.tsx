@@ -34,6 +34,8 @@ export const PolicyResponseWrapper = memo<PolicyResponseWrapperProps>(
       useState<HostPolicyResponse['Endpoint']['policy']['applied']['response']['configurations']>();
     const [policyResponseActions, setPolicyResponseActions] =
       useState<HostPolicyResponse['Endpoint']['policy']['applied']['actions']>();
+    const [policyResponseArtifacts, setPolicyResponseArtifacts] =
+      useState<HostPolicyResponse['Endpoint']['policy']['applied']['artifacts']>();
     const [policyResponseAttentionCount, setPolicyResponseAttentionCount] = useState<
       Map<string, number>
     >(new Map<string, number>());
@@ -49,6 +51,7 @@ export const PolicyResponseWrapper = memo<PolicyResponseWrapperProps>(
             data.policy_response.Endpoint.policy.applied
           )
         );
+        setPolicyResponseArtifacts(data.policy_response.Endpoint.policy.applied.artifacts);
       }
     }, [data, isLoading, isFetching, isError]);
 
@@ -125,23 +128,26 @@ export const PolicyResponseWrapper = memo<PolicyResponseWrapperProps>(
           />
         )}
         {isLoading && <EuiLoadingSpinner size="m" />}
-        {policyResponseConfig !== undefined && policyResponseActions !== undefined && (
-          <>
-            <PolicyResponse
-              hostOs={endpointDetails?.metadata.host.os.name.toLowerCase() ?? ''}
-              policyResponseConfig={policyResponseConfig}
-              policyResponseActions={policyResponseActions}
-              policyResponseAttentionCount={policyResponseAttentionCount}
-            />
-            <EuiSpacer size="m" />
-            {genericErrors?.map((genericActionError) => (
-              <React.Fragment key={genericActionError.key}>
-                <PolicyResponseActionItem policyResponseActionFormatter={genericActionError} />
-                <EuiSpacer size="m" />
-              </React.Fragment>
-            ))}
-          </>
-        )}
+        {policyResponseConfig !== undefined &&
+          policyResponseActions !== undefined &&
+          policyResponseArtifacts !== undefined && (
+            <>
+              <PolicyResponse
+                hostOs={endpointDetails?.metadata.host.os.name.toLowerCase() ?? ''}
+                policyResponseConfig={policyResponseConfig}
+                policyResponseActions={policyResponseActions}
+                policyResponseAttentionCount={policyResponseAttentionCount}
+                policyResponseArtifacts={policyResponseArtifacts}
+              />
+              <EuiSpacer size="m" />
+              {genericErrors?.map((genericActionError) => (
+                <React.Fragment key={genericActionError.key}>
+                  <PolicyResponseActionItem policyResponseActionFormatter={genericActionError} />
+                  <EuiSpacer size="m" />
+                </React.Fragment>
+              ))}
+            </>
+          )}
       </>
     );
   }
