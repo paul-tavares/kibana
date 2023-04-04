@@ -16,7 +16,7 @@ import type { IRuleDataClient } from '@kbn/rule-registry-plugin/server';
 import { Dataset } from '@kbn/rule-registry-plugin/server';
 import type { ListPluginSetup } from '@kbn/lists-plugin/server';
 import type { ILicense } from '@kbn/licensing-plugin/server';
-import LRU from '../node_modules/lru-cache';
+import LRU from 'lru-cache';
 
 import { siemGuideId, siemGuideConfig } from '../common/guided_onboarding/siem_guide_config';
 import {

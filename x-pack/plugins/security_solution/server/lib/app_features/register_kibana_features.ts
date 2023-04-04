@@ -39,7 +39,7 @@ const filterSecurityFeature = (
   if (!securityFeature.privileges) {
     return securityFeature;
   }
-  const privileges = {
+  const privileges: KibanaFeatureConfig['privileges'] = {
     ...securityFeature.privileges,
   };
 
@@ -54,8 +54,25 @@ const filterSecurityFeature = (
 
   // we'll be able to add/remove sub-features here based on allowed features
 
+  if (appFeatures.get('endpoint_essentials')) {
+    adjustEndpointFeaturesForEssentials(securityFeature);
+  }
+
   // console.log('privileges all api', privileges.all.api);
   return { ...securityFeature, privileges };
+};
+
+const adjustEndpointFeaturesForEssentials = (kbnFeature: KibanaFeatureConfig) => {
+  if (!kbnFeature.subFeatures) {
+    return;
+  }
+
+  // POC: Endpoint essentials only allows access to Endpoint List and Policy list
+  kbnFeature.subFeatures = kbnFeature.subFeatures.filter((subFeature) => {
+    return (
+      subFeature.name === 'Endpoint List' || subFeature.name === 'Elastic Defend Policy Management'
+    );
+  });
 };
 
 const filterSecurityCasesFeature = (

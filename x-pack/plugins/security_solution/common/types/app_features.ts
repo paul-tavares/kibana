@@ -18,6 +18,8 @@ export interface AppFeatureKeys {
    * Enables the ability to add response actions to rules
    */
   rules_response_actions: boolean;
+
+  endpoint_essentials: boolean;
 }
 
 export type AppFeatureKey = keyof AppFeatureKeys;

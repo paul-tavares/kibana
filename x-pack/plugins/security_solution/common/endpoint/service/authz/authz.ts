@@ -66,7 +66,8 @@ export const calculateEndpointAuthz = (
 ): EndpointAuthz => {
   const isPlatinumPlusLicense = licenseService.isPlatinumPlus();
   const isEnterpriseLicense = licenseService.isEnterprise();
-  const hasEndpointManagementAccess = userRoles.includes('superuser');
+  // FIXME:PT remove hard coded `false` below. POC code only.
+  const hasEndpointManagementAccess = false; // userRoles.includes('superuser');
 
   const canWriteSecuritySolution = hasKibanaPrivilege(
     fleetAuthz,
