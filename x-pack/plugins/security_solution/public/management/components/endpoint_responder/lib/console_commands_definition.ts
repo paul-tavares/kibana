@@ -523,7 +523,7 @@ export const getEndpointConsoleCommands = ({
               defaultMessage: 'The file that will be sent to the host',
             }
           ),
-          mustHaveValue: true,
+          mustHaveValue: 'truthy',
           SelectorComponent: ArgumentFileSelector,
         },
         overwrite: {
