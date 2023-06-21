@@ -99,6 +99,7 @@ export default function ({ getService }: FtrProviderContext) {
         method: 'post',
         path: UNISOLATE_HOST_ROUTE_V2,
         body: { endpoint_ids: ['one'] },
+        version: '2023-10-31',
       },
     ];
 
