@@ -402,6 +402,7 @@ describe('Response actions', () => {
     it('sends the suspend-process command payload from the suspend process route', async () => {
       const ctx = await callRoute(SUSPEND_PROCESS_ROUTE, {
         body: { endpoint_ids: ['XYZ'] },
+        version: '2023-10-31',
       });
       const actionDoc: EndpointAction = (
         ctx.core.elasticsearch.client.asInternalUser.index.mock
@@ -538,6 +539,7 @@ describe('Response actions', () => {
           SUSPEND_PROCESS_ROUTE,
           {
             body: { endpoint_ids: ['XYZ'], parameters },
+            version: '2023-10-31',
           },
           { endpointDsExists: true }
         );
