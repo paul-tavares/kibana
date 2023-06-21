@@ -414,6 +414,7 @@ describe('Response actions', () => {
     it('sends the running-processes command payload from the running processes route', async () => {
       const ctx = await callRoute(GET_PROCESSES_ROUTE, {
         body: { endpoint_ids: ['XYZ'] },
+        version: '2023-10-31',
       });
       const actionDoc: EndpointAction = (
         ctx.core.elasticsearch.client.asInternalUser.index.mock
@@ -568,6 +569,7 @@ describe('Response actions', () => {
           GET_PROCESSES_ROUTE,
           {
             body: { endpoint_ids: ['XYZ'] },
+            version: '2023-10-31',
           },
           { endpointDsExists: true }
         );
