@@ -18,6 +18,12 @@ export enum AppFeatureSecurityKey {
    * Enables Endpoint Exceptions like isolate host, trusted apps, blocklist, etc.
    */
   endpointExceptions = 'endpoint_exceptions',
+
+  endpointManagement = 'endpoint_management',
+
+  endpointPolicyManagement = 'endpoint_policy_management',
+
+  endpointPolicyProtections = 'endpoint_policy_protections',
 }
 
 export enum AppFeatureCasesKey {

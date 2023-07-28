@@ -155,6 +155,16 @@ export const getSecurityAppFeaturesConfig = (
       },
     },
 
+    [AppFeatureSecurityKey.endpointPolicyManagement]: {
+      subFeatureIds: [SecuritySubFeatureId.policyManagement],
+    },
+
+    [AppFeatureSecurityKey.endpointManagement]: {
+      subFeatureIds: [SecuritySubFeatureId.endpointList],
+    },
+
+    [AppFeatureSecurityKey.endpointPolicyProtections]: {},
+
     [AppFeatureSecurityKey.endpointResponseActions]: {
       subFeatureIds: [
         SecuritySubFeatureId.processOperations,
