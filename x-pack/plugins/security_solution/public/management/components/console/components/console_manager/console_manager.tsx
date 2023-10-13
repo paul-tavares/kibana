@@ -24,6 +24,7 @@ interface ManagedConsole
     | 'PageBodyComponent'
     | 'ActionComponents'
     | 'showCloseButton'
+    | 'onHide'
   > {
   client: RegisteredConsoleClient;
   console: JSX.Element; // actual console component
@@ -113,6 +114,12 @@ export const ConsoleManager = memo<ConsoleManagerProps>(({ storage = {}, childre
       validateIdOrThrow(id);
 
       setConsoleStorage((prevState) => {
+        const onHideCallback = prevState[id].onHide;
+
+        if (onHideCallback) {
+          onHideCallback();
+        }
+
         return {
           ...prevState,
           [id]: {

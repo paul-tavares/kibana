@@ -13,8 +13,13 @@ import type { ConsoleProps } from '../../types';
 export interface ConsoleRegistrationInterface<TMeta extends object = any> {
   /** Unique ID for the console. Probably should be set to the `agent.id` or the host name */
   id: string;
+
   /** The actual console component props */
   consoleProps: ConsoleProps;
+
+  /** Called when console is closed/hidden */
+  onHide?: () => void;
+
   /**
    * Any additional metadata about the console. Helpful for when consuming Registered consoles
    * (ex. could hold the details data for the Host that the console is opened against)

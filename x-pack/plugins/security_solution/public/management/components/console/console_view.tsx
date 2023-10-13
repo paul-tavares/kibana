@@ -11,10 +11,12 @@ import React, { memo, useEffect, useState } from 'react';
 import { useConsoleManager } from './components/console_manager';
 import type { ConsoleRegistrationInterface } from './components/console_manager/types';
 
-export interface ConsoleViewProps<TMeta extends object = any>
-  extends ConsoleRegistrationInterface<TMeta> {
-  onClose?: () => void;
-}
+export type ConsoleViewProps<TMeta extends object = any> = Omit<
+  ConsoleRegistrationInterface<TMeta>,
+  'onHide'
+> &
+  // OnHide is required
+  Pick<Required<ConsoleRegistrationInterface<TMeta>>, 'onHide'>;
 
 /**
  * Displays the full console page view (full page overlay).
@@ -23,7 +25,7 @@ export interface ConsoleViewProps<TMeta extends object = any>
  * since state for it is managed by that component. `<ConsoleManager>` is already included globally
  * within Security Solution.
  */
-export const ConsoleView = memo<ConsoleViewProps>(({ onClose, ...props }) => {
+export const ConsoleView = memo<ConsoleViewProps>((props) => {
   const consoleManager = useConsoleManager();
   const [runningConsole, setRunningConsole] = useState(consoleManager.getOne(props.id));
 
@@ -42,12 +44,8 @@ export const ConsoleView = memo<ConsoleViewProps>(({ onClose, ...props }) => {
       if (runningConsole && runningConsole.isVisible()) {
         runningConsole.hide();
       }
-
-      if (onClose) {
-        onClose();
-      }
     };
-  }, [onClose, runningConsole]);
+  }, [runningConsole]);
 
   return <></>;
 });
