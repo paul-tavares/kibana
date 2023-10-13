@@ -11,7 +11,9 @@ import type { ComponentType } from 'react';
 import type { ConsoleProps } from '../../types';
 
 export interface ConsoleRegistrationInterface<TMeta extends object = any> {
+  /** Unique ID for the console. Probably should be set to the `agent.id` or the host name */
   id: string;
+  /** The actual console component props */
   consoleProps: ConsoleProps;
   /**
    * Any additional metadata about the console. Helpful for when consuming Registered consoles
