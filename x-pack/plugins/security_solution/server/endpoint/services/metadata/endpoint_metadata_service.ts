@@ -5,17 +5,14 @@
  * 2.0.
  */
 import { uniq } from 'lodash';
-import type {
-  ElasticsearchClient,
-  Logger,
-  SavedObjectsClientContract,
-  SavedObjectsServiceStart,
-} from '@kbn/core/server';
+import type { ElasticsearchClient, Logger, SavedObjectsClientContract } from '@kbn/core/server';
 
 import type { SearchResponse, SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import type { Agent, AgentPolicy, PackagePolicy } from '@kbn/fleet-plugin/common';
 import type { AgentPolicyServiceInterface, PackagePolicyClient } from '@kbn/fleet-plugin/server';
 import { AgentNotFoundError } from '@kbn/fleet-plugin/server';
+import { DEFAULT_SPACE_ID } from '@kbn/spaces-plugin/common';
+import { stringify } from '../../utils/stringify';
 import type {
   HostInfo,
   HostMetadata,
@@ -48,7 +45,6 @@ import {
   fleetAgentStatusToEndpointHostStatus,
   wrapErrorIfNeeded,
 } from '../../utils';
-import { createInternalReadonlySoClient } from '../../utils/create_internal_readonly_so_client';
 import { getAllEndpointPackagePolicies } from '../../routes/metadata/support/endpoint_package_policies';
 import type { GetMetadataListRequestQuery } from '../../../../common/api/endpoint';
 import { EndpointError } from '../../../../common/endpoint/errors';
@@ -72,10 +68,11 @@ export class EndpointMetadataService {
   private __DANGEROUS_INTERNAL_SO_CLIENT: SavedObjectsClientContract | undefined;
 
   constructor(
-    private savedObjectsStart: SavedObjectsServiceStart,
+    private soClient: SavedObjectsClientContract,
     private readonly agentPolicyService: AgentPolicyServiceInterface,
     private readonly packagePolicyService: PackagePolicyClient,
-    private readonly logger?: Logger
+    private readonly logger?: Logger,
+    private readonly spaceId: string = DEFAULT_SPACE_ID
   ) {}
 
   /**
@@ -88,14 +85,18 @@ export class EndpointMetadataService {
    * @private
    */
   private get DANGEROUS_INTERNAL_SO_CLIENT() {
+    return this.soClient;
+
     // The INTERNAL SO client must be created during the first time its used. This is because creating it during
     // instance initialization (in `constructor(){}`) causes the SO Client to be invalid (perhaps because this
     // instantiation is happening during the plugin's the start phase)
-    if (!this.__DANGEROUS_INTERNAL_SO_CLIENT) {
-      this.__DANGEROUS_INTERNAL_SO_CLIENT = createInternalReadonlySoClient(this.savedObjectsStart);
-    }
 
-    return this.__DANGEROUS_INTERNAL_SO_CLIENT;
+    // FIXME:PT cleanup - probably delete this ensure property
+    // if (!this.__DANGEROUS_INTERNAL_SO_CLIENT) {
+    //   this.__DANGEROUS_INTERNAL_SO_CLIENT = createInternalReadonlySoClient(this.savedObjectsStart);
+    // }
+    //
+    // return this.__DANGEROUS_INTERNAL_SO_CLIENT;
   }
 
   /**
@@ -379,6 +380,10 @@ export class EndpointMetadataService {
     const endpointPolicies = await this.getAllEndpointPackagePolicies();
     const endpointPolicyIds = uniq(endpointPolicies.flatMap((policy) => policy.policy_ids));
     const unitedIndexQuery = await buildUnitedIndexQuery(soClient, queryOptions, endpointPolicyIds);
+
+    this.logger?.debug(
+      () => `Searching for host metadata using:\n${stringify(unitedIndexQuery, 15)}`
+    );
 
     let unitedMetadataQueryResponse: SearchResponse<UnitedAgentMetadataPersistedData>;
 

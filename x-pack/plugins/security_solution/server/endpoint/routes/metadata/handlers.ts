@@ -9,6 +9,7 @@ import type { TypeOf } from '@kbn/config-schema';
 import type { Logger, RequestHandler } from '@kbn/core/server';
 import { FLEET_ENDPOINT_PACKAGE } from '@kbn/fleet-plugin/common';
 
+import { stringify } from '../../utils/stringify';
 import type {
   MetadataListResponse,
   EndpointSortableField,
@@ -45,10 +46,14 @@ export function getMetadataListRequestHandler(
   SecuritySolutionRequestHandlerContext
 > {
   return async (context, request, response) => {
-    const endpointMetadataService = endpointAppContext.service.getEndpointMetadataService();
+    logger.debug(() => `host metedata list request:\n${stringify(request.query)}`);
+
+    const core = await context.core;
     const fleetServices = endpointAppContext.service.getInternalFleetServices();
-    const esClient = (await context.core).elasticsearch.client.asInternalUser;
-    const soClient = (await context.core).savedObjects.client;
+    const esClient = core.elasticsearch.client.asInternalUser;
+    const soClient = core.savedObjects.client;
+    const spaceId = (await context.securitySolution).getSpaceId();
+    const endpointMetadataService = endpointAppContext.service.getEndpointMetadataService(spaceId);
 
     try {
       const { data, total } = await endpointMetadataService.getHostMetadataList(

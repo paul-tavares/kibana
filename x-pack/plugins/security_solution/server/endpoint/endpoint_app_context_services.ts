@@ -12,6 +12,8 @@ import type {
   LoggerFactory,
   SavedObjectsClientContract,
   SecurityServiceStart,
+  SavedObjectsServiceStart,
+  HttpServiceSetup,
 } from '@kbn/core/server';
 import type { ExceptionListClient, ListsServerExtensionRegistrar } from '@kbn/lists-plugin/server';
 import type { CasesClient, CasesServerStart } from '@kbn/cases-plugin/server';
@@ -24,6 +26,9 @@ import type { PluginStartContract as AlertsPluginStartContract } from '@kbn/aler
 import type { CloudSetup } from '@kbn/cloud-plugin/server';
 import type { FleetActionsClientInterface } from '@kbn/fleet-plugin/server/services/actions/types';
 import type { PluginStartContract as ActionsPluginStartContract } from '@kbn/actions-plugin/server';
+import { DEFAULT_SPACE_ID } from '@kbn/spaces-plugin/common';
+import { wrapErrorIfNeeded } from './utils';
+import { createInternalSoClient } from './utils/create_internal_so_client';
 import type { ResponseActionsClient } from './services';
 import { getResponseActionsClient, NormalizedExternalConnectorClient } from './services';
 import {
@@ -38,7 +43,7 @@ import type { ManifestManager } from './services/artifacts';
 import type { ConfigType } from '../config';
 import type { IRequestContextFactory } from '../request_context_factory';
 import type { LicenseService } from '../../common/license';
-import type { EndpointMetadataService } from './services/metadata';
+import { EndpointMetadataService } from './services/metadata';
 import {
   EndpointAppContentServicesNotSetUpError,
   EndpointAppContentServicesNotStartedError,
@@ -54,10 +59,13 @@ import type { FeatureUsageService } from './services/feature_usage/service';
 import type { ExperimentalFeatures } from '../../common/experimental_features';
 import type { ProductFeaturesService } from '../lib/product_features_service/product_features_service';
 import type { ResponseActionAgentType } from '../../common/endpoint/service/response_actions/constants';
+import { createInternalReadonlySoClient } from './utils/create_internal_readonly_so_client';
+
 export interface EndpointAppContextServiceSetupContract {
   securitySolutionRequestContextFactory: IRequestContextFactory;
   cloud: CloudSetup;
   loggerFactory: LoggerFactory;
+  httpServiceSetup: HttpServiceSetup;
 }
 
 export interface EndpointAppContextServiceStartContract {
@@ -65,7 +73,6 @@ export interface EndpointAppContextServiceStartContract {
   createFleetFilesClient: FleetStartContract['createFilesClient'];
   createFleetActionsClient: FleetStartContract['createFleetActionsClient'];
   logger: Logger;
-  endpointMetadataService: EndpointMetadataService;
   endpointFleetServicesFactory: EndpointFleetServicesFactoryInterface;
   manifestManager?: ManifestManager;
   security: SecurityServiceStart;
@@ -82,6 +89,7 @@ export interface EndpointAppContextServiceStartContract {
   esClient: ElasticsearchClient;
   productFeaturesService: ProductFeaturesService;
   savedObjectsClient: SavedObjectsClientContract;
+  savedObjectsServiceStart: SavedObjectsServiceStart;
   connectorActions: ActionsPluginStartContract;
 }
 
@@ -209,11 +217,24 @@ export class EndpointAppContextService {
     );
   }
 
-  public getEndpointMetadataService(): EndpointMetadataService {
+  public getEndpointMetadataService(spaceId?: string = DEFAULT_SPACE_ID): EndpointMetadataService {
     if (this.startDependencies == null) {
       throw new EndpointAppContentServicesNotStartedError();
     }
-    return this.startDependencies.endpointMetadataService;
+
+    try {
+      const { agentPolicy, packagePolicy } = this.getInternalFleetServices();
+
+      return new EndpointMetadataService(
+        this.createInternalSoClient(true, spaceId),
+        agentPolicy,
+        packagePolicy,
+        this.createLogger('endpointMetadata'),
+        spaceId
+      );
+    } catch (e) {
+      throw wrapErrorIfNeeded(e);
+    }
   }
 
   public getInternalFleetServices(): EndpointInternalFleetServicesInterface {
@@ -338,5 +359,35 @@ export class EndpointAppContextService {
     }
 
     return this.startDependencies.createFleetActionsClient('endpoint');
+  }
+
+  private getHttpServiceSetup(): HttpServiceSetup {
+    if (!this.setupDependencies?.httpServiceSetup) {
+      throw new EndpointAppContentServicesNotStartedError();
+    }
+
+    return this.setupDependencies.httpServiceSetup;
+  }
+
+  private getSavedObjectsServiceStart(): SavedObjectsServiceStart {
+    if (!this.startDependencies?.savedObjectsServiceStart) {
+      throw new EndpointAppContentServicesNotStartedError();
+    }
+
+    return this.startDependencies.savedObjectsServiceStart;
+  }
+
+  public createInternalSoClient(
+    readOnly: boolean = true,
+    spaceId: string = DEFAULT_SPACE_ID
+  ): SavedObjectsClientContract {
+    const savedObjectsServiceStart = this.getSavedObjectsServiceStart();
+    const httpServiceSetup = this.getHttpServiceSetup();
+
+    if (readOnly) {
+      return createInternalReadonlySoClient(savedObjectsServiceStart, httpServiceSetup, spaceId);
+    }
+
+    return createInternalSoClient(savedObjectsServiceStart, httpServiceSetup, spaceId);
   }
 }

@@ -76,7 +76,6 @@ import { PolicyWatcher } from './endpoint/lib/policy/license_watch';
 import previewPolicy from './lib/detection_engine/routes/index/preview_policy.json';
 import type { IRuleMonitoringService } from './lib/detection_engine/rule_monitoring';
 import { createRuleMonitoringService } from './lib/detection_engine/rule_monitoring';
-import { EndpointMetadataService } from './endpoint/services/metadata';
 import type {
   CreateQueryRuleAdditionalOptions,
   CreateRuleOptions,
@@ -235,6 +234,7 @@ export class Plugin implements ISecuritySolutionPlugin {
       securitySolutionRequestContextFactory: requestContextFactory,
       cloud: plugins.cloud,
       loggerFactory: this.pluginContext.logger,
+      httpServiceSetup: core.http,
     });
 
     initUsageCollectors({
@@ -611,12 +611,6 @@ export class Plugin implements ISecuritySolutionPlugin {
     this.endpointAppContextService.start({
       fleetAuthzService: authz,
       createFleetFilesClient: createFilesClient,
-      endpointMetadataService: new EndpointMetadataService(
-        core.savedObjects,
-        agentPolicyService,
-        packagePolicyService,
-        logger
-      ),
       endpointFleetServicesFactory,
       security: core.security,
       alerting: plugins.alerting,
@@ -635,6 +629,7 @@ export class Plugin implements ISecuritySolutionPlugin {
       esClient: core.elasticsearch.client.asInternalUser,
       productFeaturesService,
       savedObjectsClient,
+      savedObjectsServiceStart: core.savedObjects,
       connectorActions: plugins.actions,
     });
 
