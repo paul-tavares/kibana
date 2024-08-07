@@ -5,7 +5,12 @@
  * 2.0.
  */
 
-import type { SavedObjectsClientContract, SavedObjectsServiceStart } from '@kbn/core/server';
+import type {
+  SavedObjectsClientContract,
+  SavedObjectsServiceStart,
+  HttpServiceSetup,
+} from '@kbn/core/server';
+import { DEFAULT_SPACE_ID } from '@kbn/spaces-plugin/common';
 import { createInternalSoClient } from './create_internal_so_client';
 import { EndpointError } from '../../../common/endpoint/errors';
 
@@ -31,9 +36,16 @@ export class InternalReadonlySoClientMethodNotAllowedError extends EndpointError
  * operations.
  */
 export const createInternalReadonlySoClient = (
-  savedObjectsServiceStart: SavedObjectsServiceStart
+  savedObjectsServiceStart: SavedObjectsServiceStart,
+  /** Required if `spaceId` is used */
+  httpServiceSetup?: HttpServiceSetup,
+  spaceId: string = DEFAULT_SPACE_ID
 ): SavedObjectsClientContract => {
-  const internalSoClient = createInternalSoClient(savedObjectsServiceStart);
+  const internalSoClient = createInternalSoClient(
+    savedObjectsServiceStart,
+    httpServiceSetup,
+    spaceId
+  );
 
   return new Proxy(internalSoClient, {
     get(
