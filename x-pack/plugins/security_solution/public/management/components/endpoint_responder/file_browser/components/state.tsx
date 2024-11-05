@@ -5,27 +5,57 @@
  * 2.0.
  */
 
-import React, { memo, createContext, type PropsWithChildren, useState, useContext } from 'react';
+import React, {
+  memo,
+  createContext,
+  type PropsWithChildren,
+  useState,
+  useContext,
+  useEffect,
+} from 'react';
+import type { ResponseActionAgentType } from '../../../../../../common/endpoint/service/response_actions/constants';
 import type { FileBrowserState } from '../types';
 
 type CurrentState = [FileBrowserState, React.Dispatch<React.SetStateAction<FileBrowserState>>];
 
 const FileBrowserStateContext = createContext<null | CurrentState>(null);
 
-export type FileBrowserStateProviderProps = PropsWithChildren<{}>;
+export type FileBrowserStateProviderProps = PropsWithChildren<{
+  agentId: string;
+  agentType: ResponseActionAgentType;
+}>;
 
-export const FileBrowserStateProvider = memo<FileBrowserStateProviderProps>(({ children }) => {
-  const state = useState<FileBrowserState>({
-    filesystem: {
-      type: 'directory',
-      loaded: false,
-    },
-  });
+export const FileBrowserStateProvider = memo<FileBrowserStateProviderProps>(
+  ({ children, agentId, agentType }) => {
+    const state = useState<FileBrowserState>({
+      agentId,
+      agentType,
+      filesystem: {
+        type: 'directory',
+        loaded: false,
+      },
+    });
 
-  return (
-    <FileBrowserStateContext.Provider value={state}>{children}</FileBrowserStateContext.Provider>
-  );
-});
+    useEffect(() => {
+      // If there was a change in agentId (should not happen), then reset state
+      if (state[0].agentId !== agentId) {
+        state[1]({
+          agentId,
+          agentType,
+          filesystem: {
+            type: 'directory',
+            loaded: false,
+            fullPath: '/',
+          },
+        });
+      }
+    }, [agentId, agentType, state]);
+
+    return (
+      <FileBrowserStateContext.Provider value={state}>{children}</FileBrowserStateContext.Provider>
+    );
+  }
+);
 FileBrowserStateProvider.displayName = 'FileBrowserStateProvider';
 
 export const useFileBrowserState = (): CurrentState => {

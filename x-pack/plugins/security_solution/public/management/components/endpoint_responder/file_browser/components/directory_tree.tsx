@@ -6,12 +6,16 @@
  */
 
 import React, { memo } from 'react';
+import { useFileBrowserState } from './state';
+import { Directory } from './directory';
 
 export interface DirectoryTreeProps {
   foo?: string;
 }
 
 export const DirectoryTree = memo<DirectoryTreeProps>((props) => {
-  return <div>{'DirectoryTree placeholder'}</div>;
+  const [state] = useFileBrowserState();
+
+  return <Directory item={state.filesystem} />;
 });
 DirectoryTree.displayName = 'DirectoryTree';

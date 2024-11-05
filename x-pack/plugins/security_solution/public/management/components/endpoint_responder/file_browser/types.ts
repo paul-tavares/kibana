@@ -5,14 +5,16 @@
  * 2.0.
  */
 
+import type { ResponseActionAgentType } from '../../../../../common/endpoint/service/response_actions/constants';
+
 export interface FilesystemItem {
   loaded: boolean;
   type: 'file' | 'directory';
+  fullPath: string;
 
   /** Defined when `loaded === true` */
   meta?: {
     name: string;
-    fullPath: string;
     size: number;
     modified: string;
   };
@@ -30,5 +32,7 @@ export interface FilesystemItem {
 }
 
 export interface FileBrowserState {
+  agentId: string;
+  agentType: ResponseActionAgentType;
   filesystem: FilesystemItem;
 }

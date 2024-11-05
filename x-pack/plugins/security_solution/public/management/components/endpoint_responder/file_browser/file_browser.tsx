@@ -6,7 +6,7 @@
  */
 
 import React, { memo } from 'react';
-import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { EuiCallOut, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { FileBrowserStateProvider } from './components/state';
 import { DirectoryTree } from './components/directory_tree';
 import { DirectoryContent } from './components/directory_content';
@@ -17,12 +17,20 @@ export interface FileBrowserProps {
   agentType: ResponseActionAgentType;
 }
 
-export const FileBrowser = memo<FileBrowserProps>((props) => {
+export const FileBrowser = memo<FileBrowserProps>(({ agentType, agentId }) => {
+  if (agentType !== 'endpoint') {
+    return (
+      <EuiCallOut color="primary">
+        {'File browser is only currently supported by hosts running Elastic Defend'}
+      </EuiCallOut>
+    );
+  }
+
   return (
-    <FileBrowserStateProvider>
+    <FileBrowserStateProvider agentId={agentId} agentType={agentType}>
       <EuiFlexGroup wrap={false} responsive={false} gutterSize="s">
         {/* FIXME:PT add styles and remove `style` tag */}
-        <EuiFlexItem grow={false} style={{ maxWidth: '30%' }}>
+        <EuiFlexItem grow={false} style={{ width: '30%' }}>
           <DirectoryTree />
         </EuiFlexItem>
         <EuiFlexItem>

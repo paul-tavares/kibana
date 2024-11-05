@@ -52,6 +52,7 @@ export const getFileBrowserRouteHandler = (
   const logger = endpointContext.logFactory.get('actionFileBrowser');
 
   return async (context, req, res) => {
+    logger.debug(``);
     return res.noContent({ body: 'still working on it' });
   };
 };
