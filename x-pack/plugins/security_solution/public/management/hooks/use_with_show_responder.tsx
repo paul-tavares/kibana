@@ -6,6 +6,7 @@
  */
 
 import React, { useCallback } from 'react';
+import { FileBrowserButton } from '../components/endpoint_responder/file_browser';
 import { useLicense } from '../../common/hooks/use_license';
 import type { MaybeImmutable } from '../../../common/endpoint/types';
 import type { EndpointCapabilities } from '../../../common/endpoint/service/response_actions/constants';
@@ -100,7 +101,7 @@ export const useWithShowResponder = (): ShowResponseActionsConsole => {
               return <>{RESPONDER_PAGE_TITLE}</>;
             },
             ActionComponents: endpointPrivileges.canReadActionsLogManagement
-              ? [ActionLogButton]
+              ? [FileBrowserButton, ActionLogButton]
               : undefined,
             PageBodyComponent: () => (
               <>

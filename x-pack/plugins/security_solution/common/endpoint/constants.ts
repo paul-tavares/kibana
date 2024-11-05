@@ -114,6 +114,7 @@ export const ACTION_DETAILS_ROUTE = `${BASE_ENDPOINT_ACTION_ROUTE}/{action_id}`;
 export const ACTION_AGENT_FILE_INFO_ROUTE = `${BASE_ENDPOINT_ACTION_ROUTE}/{action_id}/file/{file_id}`;
 export const ACTION_AGENT_FILE_DOWNLOAD_ROUTE = `${BASE_ENDPOINT_ACTION_ROUTE}/{action_id}/file/{file_id}/download`;
 export const ACTION_STATE_ROUTE = `${BASE_ENDPOINT_ACTION_ROUTE}/state`;
+export const ACTION_FILE_BROWSER_ROUTE = `/internal${BASE_ENDPOINT_ACTION_ROUTE}/file_browser`;
 
 /** Endpoint Agent Routes */
 export const AGENT_STATUS_ROUTE = `/internal${BASE_ENDPOINT_ROUTE}/agent_status`;
