@@ -33,6 +33,7 @@ export const FileBrowserStateProvider = memo<FileBrowserStateProviderProps>(
       filesystem: {
         type: 'directory',
         loaded: false,
+        fullPath: '/',
       },
     });
 
