@@ -5,11 +5,12 @@
  * 2.0.
  */
 
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import { useIsMounted } from '@kbn/securitysolution-hook-utils';
 import { EuiLoadingSpinner, EuiText } from '@elastic/eui';
 import { get } from 'lodash';
 import { set } from '@kbn/safer-lodash-set';
+import { useFetchDirectoryContent } from '../hooks/use_fetch_directory_content';
 import { useGetActionDetails } from '../../../../hooks/response_actions/use_get_action_details';
 import { useFileBrowserState } from './state';
 import { useSendExecuteEndpoint } from '../../../../hooks/response_actions/use_send_execute_endpoint_request';
@@ -28,6 +29,42 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
     enabled: Boolean(item.action && item.action.isPending && item.action?.actionId),
     refetchInterval: 5000, // 5s
   });
+  const directoryContent = useFetchDirectoryContent(item.action?.actionId ?? '', {
+    enabled: Boolean(
+      item.action &&
+        !item.action.isPending &&
+        item.action?.actionId &&
+        (!item.loaded || item.loadedFromActionId !== item.action.actionId)
+    ),
+  });
+
+  const dirStoreKeyPath = useMemo(() => {
+    return item.fullPath === '/' ? 'filesystem' : item.fullPath.replace(/\//, '.');
+  }, [item.fullPath]);
+
+  useEffect(() => {
+    if (
+      item.action &&
+      directoryContent.data &&
+      (!item.loaded || item.loadedFromActionId !== item.action.actionId)
+    ) {
+      // populate directory structure into state
+
+      setState((prevState) => {
+        const newState = cloneObjectPath(prevState, dirStoreKeyPath);
+        set(newState, `${dirStoreKeyPath}.loaded`, true);
+        set(newState, `${dirStoreKeyPath}.loadedFromActionId`, item.action.actionId); // FIXME:PT need to use actionID from response
+        return newState;
+      });
+    }
+  }, [
+    dirStoreKeyPath,
+    directoryContent.data,
+    item.action,
+    item.loaded,
+    item.loadedFromActionId,
+    setState,
+  ]);
 
   useEffect(() => {
     if (!item.loaded && !item.action) {
@@ -42,36 +79,31 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
         .then((response) => {
           if (isMounted()) {
             setState((prevState) => {
-              return {
-                ...prevState,
-                filesystem: {
-                  ...state.filesystem,
-                  action: {
-                    actionId: response.data.id,
-                    isPending: true,
-                    retrieved: '',
-                  },
-                },
-              };
+              const newState = cloneObjectPath(prevState, dirStoreKeyPath);
+              set(newState, `${dirStoreKeyPath}.action`, {
+                actionId: response.data.id,
+                isPending: true,
+                retrieved: '',
+              });
+
+              return newState;
             });
           }
         });
 
       setState((prevState) => {
-        return {
-          ...prevState,
-          filesystem: {
-            ...prevState.filesystem,
-            action: {
-              actionId: '',
-              isPending: true,
-              retrieved: '',
-            },
-          },
-        };
+        const newState = cloneObjectPath(prevState, dirStoreKeyPath);
+        set(newState, `${dirStoreKeyPath}.action`, {
+          actionId: '',
+          isPending: true,
+          retrieved: '',
+        });
+
+        return newState;
       });
     }
   }, [
+    dirStoreKeyPath,
     executeResponseAction,
     isMounted,
     item.action,
@@ -87,13 +119,6 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
 
   useEffect(() => {
     if (actionDetails.data?.data.isCompleted && state.filesystem.action?.isPending) {
-      let dirStoreKeyPath = item.fullPath.replace(/\//, '.');
-
-      // If we are working with the root directory (`/`) the set the store key to `filesystem`
-      if (dirStoreKeyPath === '.') {
-        dirStoreKeyPath = 'filesystem';
-      }
-
       setState((prevState) => {
         const newState = cloneObjectPath(prevState, dirStoreKeyPath);
         set(newState, `${dirStoreKeyPath}.action.isPending`, false);
@@ -104,6 +129,7 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
   }, [
     actionDetails.data?.data.completedAt,
     actionDetails.data?.data.isCompleted,
+    dirStoreKeyPath,
     item.fullPath,
     setState,
     state.filesystem.action?.isPending,

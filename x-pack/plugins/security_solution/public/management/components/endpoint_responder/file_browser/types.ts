@@ -9,6 +9,7 @@ import type { ResponseActionAgentType } from '../../../../../common/endpoint/ser
 
 export interface FilesystemItem {
   loaded: boolean;
+  loadedFromActionId: string;
   type: 'file' | 'directory';
   fullPath: string;
 

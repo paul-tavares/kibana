@@ -14,11 +14,20 @@ import React, {
   useEffect,
 } from 'react';
 import type { ResponseActionAgentType } from '../../../../../../common/endpoint/service/response_actions/constants';
-import type { FileBrowserState } from '../types';
+import type { FileBrowserState, FilesystemItem } from '../types';
 
 type CurrentState = [FileBrowserState, React.Dispatch<React.SetStateAction<FileBrowserState>>];
 
 const FileBrowserStateContext = createContext<null | CurrentState>(null);
+
+const createFilesystemItem = (): FilesystemItem => {
+  return {
+    type: 'directory',
+    loaded: false,
+    loadedFromActionId: '',
+    fullPath: '/',
+  };
+};
 
 export type FileBrowserStateProviderProps = PropsWithChildren<{
   agentId: string;
@@ -30,11 +39,7 @@ export const FileBrowserStateProvider = memo<FileBrowserStateProviderProps>(
     const state = useState<FileBrowserState>({
       agentId,
       agentType,
-      filesystem: {
-        type: 'directory',
-        loaded: false,
-        fullPath: '/',
-      },
+      filesystem: createFilesystemItem(),
     });
 
     useEffect(() => {
@@ -43,11 +48,7 @@ export const FileBrowserStateProvider = memo<FileBrowserStateProviderProps>(
         state[1]({
           agentId,
           agentType,
-          filesystem: {
-            type: 'directory',
-            loaded: false,
-            fullPath: '/',
-          },
+          filesystem: createFilesystemItem(),
         });
       }
     }, [agentId, agentType, state]);
