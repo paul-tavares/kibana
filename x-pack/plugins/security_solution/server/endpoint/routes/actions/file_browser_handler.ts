@@ -6,6 +6,17 @@
  */
 
 import type { RequestHandler } from '@kbn/core/server';
+import { schema } from '@kbn/config-schema';
+import AdmZip from 'adm-zip';
+import { errorHandler } from '../error_handler';
+import { stringify } from '../../utils/stringify';
+import { getFileDownloadId } from '../../../../common/endpoint/service/response_actions/get_file_download_id';
+import {
+  getActionDetailsById,
+  getResponseActionsClient,
+  NormalizedExternalConnectorClient,
+  type ResponseActionsClient,
+} from '../../services';
 import type {
   SecuritySolutionPluginRouter,
   SecuritySolutionRequestHandlerContext,
@@ -30,8 +41,13 @@ export const registerFileBrowserRoutes = (
     .addVersion(
       {
         version: '1',
-        // FIXME:PT implement schema validation
-        validate: false,
+        validate: {
+          request: {
+            query: schema.object({
+              actionId: schema.string(),
+            }),
+          },
+        },
       },
       withEndpointAuthz(
         { any: ['canWriteExecuteOperations'] },
@@ -52,7 +68,74 @@ export const getFileBrowserRouteHandler = (
   const logger = endpointContext.logFactory.get('actionFileBrowser');
 
   return async (context, req, res) => {
-    logger.debug(``);
-    return res.noContent({ body: 'still working on it' });
+    logger.debug(`retrieving file browser data: ${stringify(req.query)}`);
+
+    try {
+      const actionId = req.query.actionId;
+      const coreContext = await context.core;
+      const esClient = endpointContext.service.getInternalEsClient();
+      const metadataClient = endpointContext.service.getEndpointMetadataService();
+      const user = coreContext.security.authc.getCurrentUser();
+      const casesClient = await endpointContext.service.getCasesClient(req);
+      const connectorActions = (await context.actions).getActionsClient();
+      const responseActionsClient: ResponseActionsClient = getResponseActionsClient('endpoint', {
+        esClient,
+        casesClient,
+        endpointService: endpointContext.service,
+        username: user?.username || 'unknown',
+        connectorActions: new NormalizedExternalConnectorClient(connectorActions, logger),
+      });
+
+      // get action and ensure it is complete. if not, return 204
+      const actionDetails = await getActionDetailsById(esClient, metadataClient, actionId);
+
+      if (!actionDetails.isCompleted) {
+        return res.notFound();
+      }
+
+      // Retrieve action file and write it to tmp folder
+      const { stream } = await responseActionsClient.getFileDownload(
+        actionId,
+        getFileDownloadId(actionDetails, actionDetails.agents[0])
+      );
+      const fileBuffer = await readStreamToBuffer(stream);
+
+      const zipFile = new AdmZip(fileBuffer, {});
+      const stdoutContent = zipFile.getEntry('stdout').getData('elastic').toString('utf-8');
+
+      logger.debug(`Content of stdout file in zip file: \n${stdoutContent}`);
+
+      const stdOutJson = JSON.parse(stdoutContent);
+
+      return res.ok({
+        body: {
+          data: {
+            actionId: 'some action',
+            contents: stdOutJson,
+          },
+        },
+      });
+    } catch (e) {
+      return errorHandler(logger, res, e);
+    }
   };
 };
+
+function readStreamToBuffer(readableStream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+
+    readableStream.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+
+    readableStream.on('end', () => {
+      const buffer = Buffer.concat(chunks);
+      resolve(buffer);
+    });
+
+    readableStream.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
