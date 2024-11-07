@@ -21,7 +21,7 @@ export interface FilesystemItem {
   };
 
   /** Only defined for `type === directory` */
-  contents?: FilesystemItem;
+  contents?: Record<string, FilesystemItem>;
 
   /** Only present for `type === directory`. The action state that retrieved the directory's content */
   action?: {

@@ -110,7 +110,7 @@ export const getFileBrowserRouteHandler = (
       return res.ok({
         body: {
           data: {
-            actionId: 'some action',
+            actionId,
             contents: stdOutJson,
           },
         },

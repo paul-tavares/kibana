@@ -10,19 +10,19 @@ import { useQuery } from '@tanstack/react-query';
 import type { IHttpFetchError } from '@kbn/core-http-browser';
 import { useHttp } from '../../../../../common/lib/kibana';
 import { ACTION_FILE_BROWSER_ROUTE } from '../../../../../../common/endpoint/constants';
-import type { ActionDetailsApiResponse } from '../../../../../../common/endpoint/types';
+import type { HostDirectoryContentResponse } from '../../../../../../common/endpoint/types';
 
 export const useFetchDirectoryContent = (
   actionId: string,
-  options: UseQueryOptions<{}, IHttpFetchError> = {}
-): UseQueryResult<{}, IHttpFetchError> => {
+  options: UseQueryOptions<HostDirectoryContentResponse, IHttpFetchError> = {}
+): UseQueryResult<HostDirectoryContentResponse, IHttpFetchError> => {
   const http = useHttp();
 
-  return useQuery<ActionDetailsApiResponse, IHttpFetchError>({
+  return useQuery<HostDirectoryContentResponse, IHttpFetchError>({
     queryKey: ['get-directory-content', actionId],
     ...options,
     queryFn: () => {
-      return http.get(ACTION_FILE_BROWSER_ROUTE, {
+      return http.get<HostDirectoryContentResponse>(ACTION_FILE_BROWSER_ROUTE, {
         query: { actionId },
         version: 1,
       });

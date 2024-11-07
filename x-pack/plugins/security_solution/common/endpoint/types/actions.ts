@@ -571,3 +571,20 @@ export interface ResponseActionUploadOutputContent {
   /** The free space available (after saving the file) of the drive where the file was saved to, In Bytes  */
   disk_free_space: number;
 }
+
+export interface HostDirectoryItem {
+  type: 'directory' | 'file';
+  name: string;
+  full_path: string;
+  /** Onlu applicable to files */
+  size: number;
+  /** Onlu applicable to files */
+  modified: string;
+}
+
+export interface HostDirectoryContentResponse {
+  data: {
+    actionId: string;
+    contents: HostDirectoryItem[];
+  };
+}

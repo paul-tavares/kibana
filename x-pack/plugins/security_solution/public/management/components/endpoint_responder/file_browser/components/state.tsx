@@ -20,12 +20,13 @@ type CurrentState = [FileBrowserState, React.Dispatch<React.SetStateAction<FileB
 
 const FileBrowserStateContext = createContext<null | CurrentState>(null);
 
-const createFilesystemItem = (): FilesystemItem => {
+export const createFilesystemItem = (overrides: Partial<FilesystemItem> = {}): FilesystemItem => {
   return {
     type: 'directory',
     loaded: false,
     loadedFromActionId: '',
     fullPath: '/',
+    ...overrides,
   };
 };
 
