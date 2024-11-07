@@ -56,14 +56,15 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
   }, [item.contents]);
 
   const handleDirOnClick = useCallback(() => {
-    setIsOpen((prevState) => !prevState);
+    const newOpenState = !isOpen;
+    setIsOpen(newOpenState);
     setState((prevState) => {
       return {
         ...prevState,
-        showDetailsFor: item,
+        showDetailsFor: newOpenState ? item : undefined,
       };
     });
-  }, [item, setState]);
+  }, [isOpen, item, setState]);
 
   // When directory content is received, process it and add content to the store
   useEffect(() => {
