@@ -5,9 +5,9 @@
  * 2.0.
  */
 
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useIsMounted } from '@kbn/securitysolution-hook-utils';
-import { EuiIcon, EuiLoadingChart, EuiText } from '@elastic/eui';
+import { EuiButtonEmpty, EuiIcon, EuiLoadingChart, EuiText } from '@elastic/eui';
 import { cloneDeep, get } from 'lodash';
 import { set } from '@kbn/safer-lodash-set';
 import styled from 'styled-components';
@@ -48,12 +48,22 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
         (!item.loaded || item.loadedFromActionId !== item.action.actionId)
     ),
   });
-  const dirStoreKeyPath = useMemo(() => {
+  const dirStoreKeyPath: string[] = useMemo(() => {
     return getStoreKeyPathForFilePath(item.fullPath);
   }, [item.fullPath]);
   const dirChildren = useMemo(() => {
     return Object.values(item.contents ?? {}).filter((dirItem) => dirItem.type === 'directory');
   }, [item.contents]);
+
+  const handleDirOnClick = useCallback(() => {
+    setIsOpen((prevState) => !prevState);
+    setState((prevState) => {
+      return {
+        ...prevState,
+        showDetailsFor: item,
+      };
+    });
+  }, [item, setState]);
 
   // When directory content is received, process it and add content to the store
   useEffect(() => {
@@ -114,12 +124,25 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
           }
         }
 
-        // set(newState, dirStoreKeyPath.concat('loaded'), true);
-        // set(
-        //   newState,
-        //   dirStoreKeyPath.concat('loadedFromActionId'),
-        //   directoryContent.data.data.actionId
-        // );
+        // If there is a directory whose content is currently being displayed, ensure it is
+        // still valid based on this latest update to the filesystem
+        if (newState.showDetailsFor) {
+          newState.showDetailsFor = get(
+            newState,
+            getStoreKeyPathForFilePath(newState.showDetailsFor.fullPath)
+          );
+        }
+
+        // ensure that the folder that triggered the retrieval of content is marked as loaded - this
+        // takes care of directories that may not have any content since the process above will set
+        // them to now show as loaded
+        set(newState, dirStoreKeyPath.concat('loaded'), true);
+        set(
+          newState,
+          dirStoreKeyPath.concat('loadedFromActionId'),
+          directoryContent.data.data.actionId
+        );
+        set(newState, dirStoreKeyPath.concat('action'), { ...item.action });
 
         return newState;
       });
@@ -148,7 +171,7 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
           if (isMounted()) {
             setState((prevState) => {
               const newState = cloneObjectPath(prevState, dirStoreKeyPath);
-              set(newState, `${dirStoreKeyPath}.action`, {
+              set(newState, dirStoreKeyPath.concat('action'), {
                 actionId: response.data.id,
                 isPending: true,
                 retrieved: '',
@@ -161,7 +184,7 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
 
       setState((prevState) => {
         const newState = cloneObjectPath(prevState, dirStoreKeyPath);
-        set(newState, `${dirStoreKeyPath}.action`, {
+        set(newState, dirStoreKeyPath.concat('action'), {
           actionId: '',
           isPending: true,
           retrieved: '',
@@ -181,18 +204,19 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
     setState,
     state.agentId,
     state.agentType,
-    state.filesystem,
-    state.filesystem.action,
-    state.filesystem.loaded,
   ]);
 
   // When the Execute action completes, update the store with its info.
   useEffect(() => {
-    if (actionDetails.data?.data.isCompleted && state.filesystem.action?.isPending) {
+    if (actionDetails.data?.data.isCompleted && item.action?.isPending) {
       setState((prevState) => {
         const newState = cloneObjectPath(prevState, dirStoreKeyPath);
-        set(newState, `${dirStoreKeyPath}.action.isPending`, false);
-        set(newState, `${dirStoreKeyPath}.action.retrieved`, actionDetails.data.data.completedAt);
+        set(newState, dirStoreKeyPath.concat('action', 'isPending'), false);
+        set(
+          newState,
+          dirStoreKeyPath.concat('action', 'retrieved'),
+          actionDetails.data.data.completedAt
+        );
         return newState;
       });
     }
@@ -200,29 +224,30 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
     actionDetails.data?.data.completedAt,
     actionDetails.data?.data.isCompleted,
     dirStoreKeyPath,
+    item.action?.isPending,
     item.fullPath,
     setState,
-    state.filesystem.action?.isPending,
   ]);
 
   return (
     <DirectoryContainer>
-      <EuiText>
-        <EuiIcon type={isOpen ? 'folderOpen' : item.loaded ? 'folderCheck' : 'folderClose'} />
-        &nbsp;
-        {item.meta?.name || item.fullPath}&nbsp;
-        {!state.filesystem.loaded && state.filesystem.action?.isPending && (
-          <EuiLoadingChart size="m" mono />
-        )}
-        {isOpen && dirChildren.length > 0 ? (
-          <div className={'dir-children'}>
-            {dirChildren.map((childItem) => {
-              return <Directory item={childItem} key={childItem.fullPath} />;
-            })}
-          </div>
-        ) : null}
-        <div />
-      </EuiText>
+      <EuiButtonEmpty onClick={handleDirOnClick}>
+        <EuiText>
+          <EuiIcon type={isOpen ? 'folderOpen' : item.loaded ? 'folderCheck' : 'folderClosed'} />
+          &nbsp;
+          {item.meta?.name || item.fullPath}&nbsp;
+          {!item.loaded && item.action?.isPending && <EuiLoadingChart size="m" mono />}
+          <div />
+        </EuiText>
+      </EuiButtonEmpty>
+
+      {isOpen && dirChildren.length > 0 ? (
+        <EuiText className={'dir-children'}>
+          {dirChildren.map((childItem) => {
+            return <Directory item={childItem} key={childItem.fullPath} />;
+          })}
+        </EuiText>
+      ) : null}
     </DirectoryContainer>
   );
 });

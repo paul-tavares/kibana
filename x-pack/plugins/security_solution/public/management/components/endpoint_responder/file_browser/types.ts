@@ -36,4 +36,5 @@ export interface FileBrowserState {
   agentId: string;
   agentType: ResponseActionAgentType;
   filesystem: FilesystemItem;
+  showDetailsFor?: FilesystemItem;
 }
