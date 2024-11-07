@@ -5,17 +5,24 @@
  * 2.0.
  */
 
-import React, { memo, useEffect, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { useIsMounted } from '@kbn/securitysolution-hook-utils';
-import { EuiLoadingSpinner, EuiText } from '@elastic/eui';
+import { EuiIcon, EuiLoadingChart, EuiText } from '@elastic/eui';
 import { cloneDeep, get } from 'lodash';
 import { set } from '@kbn/safer-lodash-set';
+import styled from 'styled-components';
 import { useFetchDirectoryContent } from '../hooks/use_fetch_directory_content';
 import { useGetActionDetails } from '../../../../hooks/response_actions/use_get_action_details';
-import { createFilesystemItem, useFileBrowserState } from './state';
+import { createFilesystemItem, isFilesystemItem, useFileBrowserState } from './state';
 import { useSendExecuteEndpoint } from '../../../../hooks/response_actions/use_send_execute_endpoint_request';
 import { POC_HOST_SCRIPT_PATH } from '../constants';
 import type { FilesystemItem } from '../types';
+
+const DirectoryContainer = styled.div`
+  .dir-children {
+    margin-left: 1em;
+  }
+`;
 
 export interface DirectoryProps {
   item: FilesystemItem;
@@ -23,6 +30,10 @@ export interface DirectoryProps {
 
 export const Directory = memo<DirectoryProps>(({ item }) => {
   const isMounted = useIsMounted();
+  const [isOpen, setIsOpen] = useState(
+    // Root directory is always initially opened, so that we can retrieve the initial content
+    item.fullPath === '/'
+  );
   const [state, setState] = useFileBrowserState();
   const executeResponseAction = useSendExecuteEndpoint();
   const actionDetails = useGetActionDetails(item.action?.actionId ?? '', {
@@ -38,8 +49,11 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
     ),
   });
   const dirStoreKeyPath = useMemo(() => {
-    return item.fullPath === '/' ? 'filesystem' : item.fullPath.replace(/\//, '.');
+    return getStoreKeyPathForFilePath(item.fullPath);
   }, [item.fullPath]);
+  const dirChildren = useMemo(() => {
+    return Object.values(item.contents ?? {}).filter((dirItem) => dirItem.type === 'directory');
+  }, [item.contents]);
 
   // When directory content is received, process it and add content to the store
   useEffect(() => {
@@ -55,7 +69,7 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
         };
 
         for (const dirItem of directoryContent.data.data.contents) {
-          const { pathTokens } = getStoreKeyPathForFilePath(dirItem.full_path);
+          const pathTokens = getStoreKeyPathForFilePath(dirItem.full_path);
           set(
             newState,
             pathTokens,
@@ -82,23 +96,30 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
               filesystemItem = filesystemItem[pathToken];
             }
 
-            if (filesystemItem.type === 'file') {
-              filesystemItem.loaded = true;
-            } else {
-              if (filesystemItem.contents) {
+            if (isFilesystemItem(filesystemItem)) {
+              if (filesystemItem.type === 'file') {
                 filesystemItem.loaded = true;
-                filesystemItem.action = { ...item.action };
               } else {
-                filesystemItem.loaded = false;
-                filesystemItem.action = undefined;
-                filesystemItem.loadedFromActionId = '';
+                if (filesystemItem.contents) {
+                  filesystemItem.loaded = true;
+                  filesystemItem.action = { ...item.action };
+                  filesystemItem.loadedFromActionId = directoryContent.data.data.actionId;
+                } else {
+                  filesystemItem.loaded = false;
+                  filesystemItem.action = undefined;
+                  filesystemItem.loadedFromActionId = '';
+                }
               }
             }
           }
         }
 
-        set(newState, `${dirStoreKeyPath}.loaded`, true);
-        set(newState, `${dirStoreKeyPath}.loadedFromActionId`, directoryContent.data.data.actionId);
+        // set(newState, dirStoreKeyPath.concat('loaded'), true);
+        // set(
+        //   newState,
+        //   dirStoreKeyPath.concat('loadedFromActionId'),
+        //   directoryContent.data.data.actionId
+        // );
 
         return newState;
       });
@@ -114,7 +135,7 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
 
   // Send the `execute` action to get the content for the directory
   useEffect(() => {
-    if (!item.loaded && !item.action) {
+    if (!item.loaded && !item.action && isOpen) {
       executeResponseAction
         .mutateAsync({
           agent_type: state.agentType,
@@ -153,6 +174,7 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
     dirStoreKeyPath,
     executeResponseAction,
     isMounted,
+    isOpen,
     item.action,
     item.fullPath,
     item.loaded,
@@ -183,16 +205,26 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
     state.filesystem.action?.isPending,
   ]);
 
-  if (!state.filesystem.loaded) {
-    return (
+  return (
+    <DirectoryContainer>
       <EuiText>
-        <EuiLoadingSpinner />
-        <span>{'Loading directory structure'}</span>
+        <EuiIcon type={isOpen ? 'folderOpen' : item.loaded ? 'folderCheck' : 'folderClose'} />
+        &nbsp;
+        {item.meta?.name || item.fullPath}&nbsp;
+        {!state.filesystem.loaded && state.filesystem.action?.isPending && (
+          <EuiLoadingChart size="m" mono />
+        )}
+        {isOpen && dirChildren.length > 0 ? (
+          <div className={'dir-children'}>
+            {dirChildren.map((childItem) => {
+              return <Directory item={childItem} key={childItem.fullPath} />;
+            })}
+          </div>
+        ) : null}
+        <div />
       </EuiText>
-    );
-  }
-
-  return <div>{'Directory placeholder'}</div>;
+    </DirectoryContainer>
+  );
 });
 Directory.displayName = 'Directory';
 
@@ -200,40 +232,34 @@ Directory.displayName = 'Directory';
 // Module Private utilities
 // -------------------------------------------
 
-const cloneObjectPath = <T extends object>(obj: T, path: string): T => {
-  const paths = path.split('.');
-  let mutatePath = '';
+const cloneObjectPath = <T extends object>(obj: T, path: string[]): T => {
+  const paths = path;
+  const mutatePath: string[] = [];
   const newObj = { ...obj };
 
   for (const pathValue of paths) {
-    mutatePath += (mutatePath.length > 0 ? '.' : '') + pathValue;
+    mutatePath.push(pathValue);
     set(newObj, mutatePath, { ...get(newObj, mutatePath) });
   }
 
   return newObj;
 };
 
-const getStoreKeyPathForFilePath = (
-  filePath: string
-): { keyPath: string; pathTokens: string[] } => {
+const getStoreKeyPathForFilePath = (filePath: string): string[] => {
   const dirPathTokens = filePath === '/' ? ['filesystem'] : `filesystem${filePath}`.split('/');
   const pathTokens: string[] = [];
-  let keyPath = '';
 
   if (filePath === '/') {
-    keyPath = 'filesystem';
     pathTokens.push('filesystem');
   } else {
     dirPathTokens.forEach((pathToken, index) => {
       if (index === 0) {
-        keyPath += pathToken;
         pathTokens.push(pathToken);
       } else {
-        keyPath += `.contents.${pathToken}`;
         pathTokens.push('contents', pathToken);
       }
     });
   }
 
-  return { keyPath, pathTokens };
+  return pathTokens;
 };

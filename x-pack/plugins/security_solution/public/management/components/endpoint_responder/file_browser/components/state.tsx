@@ -20,14 +20,20 @@ type CurrentState = [FileBrowserState, React.Dispatch<React.SetStateAction<FileB
 
 const FileBrowserStateContext = createContext<null | CurrentState>(null);
 
+const FilesystemItemIdentifier = Symbol('filesystemItem');
+
 export const createFilesystemItem = (overrides: Partial<FilesystemItem> = {}): FilesystemItem => {
-  return {
+  return Object.assign(Object.create({ [FilesystemItemIdentifier]: true }), {
     type: 'directory',
     loaded: false,
     loadedFromActionId: '',
     fullPath: '/',
     ...overrides,
-  };
+  });
+};
+
+export const isFilesystemItem = (obj: object): obj is FilesystemItem => {
+  return Boolean(obj[FilesystemItemIdentifier]);
 };
 
 export type FileBrowserStateProviderProps = PropsWithChildren<{
