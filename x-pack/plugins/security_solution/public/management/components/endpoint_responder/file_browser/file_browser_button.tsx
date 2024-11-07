@@ -48,7 +48,7 @@ export const FileBrowserButton = memo<EndpointResponderExtensionComponentProps>(
       {showActionLogFlyout && (
         <EuiFlyout
           onClose={toggleActionLog}
-          size="m"
+          size="l"
           paddingSize="l"
           aria-labelledby={responderActionLogFlyoutTitleId}
           data-test-subj="responderActionLogFlyout"
