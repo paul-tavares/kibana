@@ -132,7 +132,7 @@ export const DirectoryContent = memo<DirectoryContentProps>((props) => {
         items={dirChildren}
         columns={tableColumns}
         onChange={() => {
-          // TODO:PT implement
+          // TODO:PT implement sorting
         }}
         sorting={{
           sort: {
@@ -152,7 +152,7 @@ export const DirectoryContent = memo<DirectoryContentProps>((props) => {
           <EuiPanel paddingSize="m">
             <EuiTitle size="xs">
               <span>
-                {item.fullPath}
+                {item.fullPath}&nbsp;
                 {item.action?.isPending && <EuiLoadingChart size="m" mono />}
               </span>
             </EuiTitle>

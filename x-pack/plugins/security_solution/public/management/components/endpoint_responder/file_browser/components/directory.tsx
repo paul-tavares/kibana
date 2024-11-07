@@ -30,16 +30,15 @@ export interface DirectoryProps {
 
 export const Directory = memo<DirectoryProps>(({ item }) => {
   const isMounted = useIsMounted();
-  const [isOpen, setIsOpen] = useState(
-    // Root directory is always initially opened, so that we can retrieve the initial content
-    item.fullPath === '/'
-  );
+  // Root directory is always initially opened, so that we can retrieve the initial content
+  const [isOpen, setIsOpen] = useState(item.fullPath === '/');
   const [state, setState] = useFileBrowserState();
   const executeResponseAction = useSendExecuteEndpoint();
   const actionDetails = useGetActionDetails(item.action?.actionId ?? '', {
     enabled: Boolean(item.action && item.action.isPending && item.action?.actionId),
     refetchInterval: 5000, // 5s
   });
+
   const directoryContent = useFetchDirectoryContent(item.action?.actionId ?? '', {
     enabled: Boolean(
       item.action &&
@@ -48,9 +47,11 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
         (!item.loaded || item.loadedFromActionId !== item.action.actionId)
     ),
   });
+
   const dirStoreKeyPath: string[] = useMemo(() => {
     return getStoreKeyPathForFilePath(item.fullPath);
   }, [item.fullPath]);
+
   const dirChildren = useMemo(() => {
     return Object.values(item.contents ?? {}).filter((dirItem) => dirItem.type === 'directory');
   }, [item.contents]);
@@ -178,6 +179,15 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
                 retrieved: '',
               });
 
+              // If there is a directory whose content is currently being displayed, ensure it is
+              // still valid based on this latest update to the filesystem
+              if (newState.showDetailsFor) {
+                newState.showDetailsFor = get(
+                  newState,
+                  getStoreKeyPathForFilePath(newState.showDetailsFor.fullPath)
+                );
+              }
+
               return newState;
             });
           }
@@ -190,6 +200,15 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
           isPending: true,
           retrieved: '',
         });
+
+        // If there is a directory whose content is currently being displayed, ensure it is
+        // still valid based on this latest update to the filesystem
+        if (newState.showDetailsFor) {
+          newState.showDetailsFor = get(
+            newState,
+            getStoreKeyPathForFilePath(newState.showDetailsFor.fullPath)
+          );
+        }
 
         return newState;
       });
@@ -218,6 +237,15 @@ export const Directory = memo<DirectoryProps>(({ item }) => {
           dirStoreKeyPath.concat('action', 'retrieved'),
           actionDetails.data.data.completedAt
         );
+        // If there is a directory whose content is currently being displayed, ensure it is
+        // still valid based on this latest update to the filesystem
+        if (newState.showDetailsFor) {
+          newState.showDetailsFor = get(
+            newState,
+            getStoreKeyPathForFilePath(newState.showDetailsFor.fullPath)
+          );
+        }
+
         return newState;
       });
     }

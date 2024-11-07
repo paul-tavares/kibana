@@ -6,7 +6,7 @@
  */
 
 import React, { memo } from 'react';
-import { EuiCallOut, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiPanel } from '@elastic/eui';
 import { FileBrowserStateProvider } from './components/state';
 import { DirectoryTree } from './components/directory_tree';
 import { DirectoryContent } from './components/directory_content';
@@ -28,10 +28,20 @@ export const FileBrowser = memo<FileBrowserProps>(({ agentType, agentId }) => {
 
   return (
     <FileBrowserStateProvider agentId={agentId} agentType={agentType}>
-      <EuiFlexGroup wrap={false} responsive={false} gutterSize="s">
+      <EuiFlexGroup
+        wrap={false}
+        responsive={false}
+        gutterSize="m"
+        style={{
+          // height: 'calc(100vh - 237px)',
+          height: '100%',
+        }}
+      >
         {/* FIXME:PT add styles and remove `style` tag */}
         <EuiFlexItem grow={false} style={{ width: '30%' }}>
-          <DirectoryTree />
+          <EuiPanel paddingSize="s">
+            <DirectoryTree />
+          </EuiPanel>
         </EuiFlexItem>
         <EuiFlexItem>
           <DirectoryContent />
