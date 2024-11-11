@@ -194,21 +194,27 @@ export const DirectoryContent = memo<DirectoryContentProps>((props) => {
 
   return (
     <div>
-      {item && (
-        <div>
-          <EuiPanel paddingSize="m">
-            <EuiTitle size="xs">
-              <span>
-                {item.fullPath}&nbsp;
-                {item.action?.isPending && <EuiLoadingChart size="m" mono />}
-              </span>
-            </EuiTitle>
-          </EuiPanel>
-          <EuiSpacer />
-        </div>
-      )}
+      <div>
+        <EuiPanel paddingSize="m">
+          <EuiTitle size="xs">
+            <span>
+              {item ? (
+                <>
+                  {item.fullPath}&nbsp;
+                  {item.action?.isPending && <EuiLoadingChart size="m" mono />}
+                </>
+              ) : (
+                getEmptyValue()
+              )}
+            </span>
+          </EuiTitle>
+        </EuiPanel>
+        <EuiSpacer size="l" />
+      </div>
 
-      <div>{directoryContent}</div>
+      <EuiPanel paddingSize="m" className="eui-yScroll" style={{ height: 'calc(100vh - 320px)' }}>
+        {directoryContent}
+      </EuiPanel>
     </div>
   );
 });

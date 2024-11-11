@@ -6,6 +6,7 @@
  */
 
 import React, { memo } from 'react';
+import { EuiPanel } from '@elastic/eui';
 import { useFileBrowserState } from './state';
 import { Directory } from './directory';
 
@@ -16,6 +17,10 @@ export interface DirectoryTreeProps {
 export const DirectoryTree = memo<DirectoryTreeProps>((props) => {
   const [state] = useFileBrowserState();
 
-  return <Directory item={state.filesystem} />;
+  return (
+    <EuiPanel paddingSize="s" className="eui-yScroll" style={{ height: 'calc(100vh - 245px)' }}>
+      <Directory item={state.filesystem} />
+    </EuiPanel>
+  );
 });
 DirectoryTree.displayName = 'DirectoryTree';
