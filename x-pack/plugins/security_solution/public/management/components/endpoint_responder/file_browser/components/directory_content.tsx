@@ -5,10 +5,11 @@
  * 2.0.
  */
 
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import type { EuiBasicTableColumn } from '@elastic/eui';
 import {
   EuiPanel,
+  EuiButtonIcon,
   EuiSpacer,
   EuiIcon,
   EuiTitle,
@@ -19,6 +20,8 @@ import {
   EuiLoadingLogo,
 } from '@elastic/eui';
 import { FormattedNumber } from '@kbn/i18n-react';
+import { useAppToasts } from '../../../../../common/hooks/use_app_toasts';
+import { useSendGetFileRequest } from '../../../../hooks/response_actions/use_send_get_file_request';
 import { FormattedDate } from '../../../../../common/components/formatted_date';
 import { getEmptyValue } from '../../../../../common/components/empty_value';
 import type { FilesystemItem } from '../types';
@@ -30,12 +33,35 @@ export interface DirectoryContentProps {
 
 export const DirectoryContent = memo<DirectoryContentProps>((props) => {
   const [state] = useFileBrowserState();
+  const getFileAction = useSendGetFileRequest();
+  const toast = useAppToasts();
   const dirChildren: FilesystemItem[] = useMemo(() => {
     return Object.values(state.showDetailsFor?.contents ?? {});
   }, [state.showDetailsFor]);
   const item = useMemo(() => {
     return state.showDetailsFor;
   }, [state.showDetailsFor]);
+
+  const handleFileDownloadOnClick = useCallback(
+    (fileItem: FilesystemItem) => {
+      getFileAction
+        .mutateAsync({
+          endpoint_ids: [state.agentId],
+          agent_type: state.agentType,
+          parameters: {
+            path: fileItem.fullPath,
+          },
+        })
+        .then((response) => {
+          toast.api.addInfo({
+            title: 'Retrieving file',
+            text: `A get-file action was sent to the host for file: ${fileItem.fullPath}`,
+          });
+          // /app/security/administration/response_actions_history?withOutputs=ab59cd2b-0e00-4f72-932a-a424d811d3c2
+        });
+    },
+    [getFileAction, state.agentId, state.agentType, toast.api]
+  );
 
   const tableColumns: Array<EuiBasicTableColumn<FilesystemItem>> = useMemo(() => {
     return [
@@ -83,8 +109,29 @@ export const DirectoryContent = memo<DirectoryContentProps>((props) => {
           return getEmptyValue();
         },
       },
+
+      {
+        name: 'Actions',
+        actions: [
+          {
+            render: (fileItem) => {
+              if (fileItem.type !== 'file') {
+                return <>{getEmptyValue()}</>;
+              }
+
+              return (
+                <EuiButtonIcon
+                  iconType="download"
+                  onClick={() => handleFileDownloadOnClick(fileItem)}
+                  title={'Download file'}
+                />
+              );
+            },
+          },
+        ],
+      },
     ];
-  }, []);
+  }, [handleFileDownloadOnClick]);
 
   const directoryContent = useMemo(() => {
     if (!state.filesystem.loaded) {
