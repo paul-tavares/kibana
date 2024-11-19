@@ -26,6 +26,7 @@ import type { CloudSetup } from '@kbn/cloud-plugin/server';
 import type { FleetActionsClientInterface } from '@kbn/fleet-plugin/server/services/actions/types';
 import type { PluginStartContract as ActionsPluginStartContract } from '@kbn/actions-plugin/server';
 import { DEFAULT_SPACE_ID } from '@kbn/spaces-plugin/common';
+import type { SpacesServiceStart } from '@kbn/spaces-plugin/server';
 import { SavedObjectsClientFactory } from './services/saved_objects';
 import type { ResponseActionsClient } from './services';
 import { getResponseActionsClient, NormalizedExternalConnectorClient } from './services';
@@ -86,6 +87,7 @@ export interface EndpointAppContextServiceStartContract {
   productFeaturesService: ProductFeaturesService;
   savedObjectsServiceStart: SavedObjectsServiceStart;
   connectorActions: ActionsPluginStartContract;
+  spaces: SpacesServiceStart | undefined;
 }
 
 /**
@@ -425,5 +427,13 @@ export class EndpointAppContextService {
       throw new EndpointAppContentServicesNotSetUpError();
     }
     return this.setupDependencies.telemetry;
+  }
+
+  public getSpaceId(request?: KibanaRequest): string {
+    if (!request || !this.startDependencies?.spaces) {
+      return DEFAULT_SPACE_ID;
+    }
+
+    return this.startDependencies.spaces.getSpaceId(request) ?? DEFAULT_SPACE_ID;
   }
 }

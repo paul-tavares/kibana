@@ -591,6 +591,7 @@ export class Plugin implements ISecuritySolutionPlugin {
       productFeaturesService,
       savedObjectsServiceStart: core.savedObjects,
       connectorActions: plugins.actions,
+      spaces: plugins.spaces?.spacesService,
     });
 
     if (this.lists && plugins.taskManager && plugins.fleet) {
