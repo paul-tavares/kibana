@@ -43,9 +43,9 @@ ${stringify(data)}`
     );
 
     // Append filter that only returns back content for Fleet policies that are visible in the  current space
-    const spaceVisibleDataFilter = `(exception-list-agnostic.attributes.tags:"policy:all" OR ${allEndpointPolicyIds
-      .map((policyId) => `exception-list-agnostic.attributes.tags:"policy:${policyId}"`)
-      .join(' OR ')})`;
+    const spaceVisibleDataFilter = `(exception-list-agnostic.attributes.tags:("policy:all" OR ${allEndpointPolicyIds
+      .map((policyId) => `"policy:${policyId}"`)
+      .join(' OR ')}))`;
 
     if (data.filter) {
       data.filter[0] = spaceVisibleDataFilter + (data.filter[0] ? ` AND (${data.filter[0]})` : '');
