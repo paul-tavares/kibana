@@ -6,6 +6,7 @@
  */
 
 import type { ExceptionsListPreSingleListFindServerExtension } from '@kbn/lists-plugin/server';
+import { stringify } from '../../../endpoint/utils/stringify';
 import type { EndpointAppContextService } from '../../../endpoint/endpoint_app_context_services';
 import {
   BlocklistValidator,
@@ -19,7 +20,14 @@ type ValidatorCallback = ExceptionsListPreSingleListFindServerExtension['callbac
 export const getExceptionsPreSingleListFindHandler = (
   endpointAppContextService: EndpointAppContextService
 ): ValidatorCallback => {
+  const logger = endpointAppContextService.createLogger('listsPluginPreListFind');
+
   return async function ({ data, context: { request } }) {
+    logger.debug(
+      () => `Pre-find with data:
+${stringify(data)}`
+    );
+
     if (data.namespaceType !== 'agnostic') {
       return data;
     }
