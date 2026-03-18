@@ -35,7 +35,7 @@ components:
         - $ref: '#/components/schemas/KillProcess'
         - $ref: '#/components/schemas/GetFile'
         - $ref: '#/components/schemas/Execute'
-        - $ref: '#/components/schemas/Runscript'
+        - $ref: '#/components/schemas/RunScript'
         - $ref: '#/components/schemas/Upload'
         - $ref: '#/components/schemas/Scan'
         - $ref: '#/components/schemas/Cancel'
@@ -50,7 +50,7 @@ components:
           kill-process: '#/components/schemas/KillProcess'
           get-file: '#/components/schemas/GetFile'
           execute: '#/components/schemas/Execute'
-          runscript: '#/components/schemas/Runscript'
+          runscript: '#/components/schemas/RunScript'
           upload: '#/components/schemas/Upload'
           scan: '#/components/schemas/Scan'
           cancel: '#/components/schemas/Cancel'
@@ -212,7 +212,7 @@ components:
                           output_file_stderr_truncated:
                             type: boolean
 
-    RunscriptParamsCrowdStrike:
+    RunScriptParamsCrowdStrike:
       type: object
       properties:
         raw:
@@ -226,7 +226,7 @@ components:
         timeout:
           type: number
 
-    RunscriptParamsMicrosoft:
+    RunScriptParamsMicrosoft:
       type: object
       properties:
         scriptName:
@@ -234,7 +234,7 @@ components:
         args:
           type: string
 
-    RunscriptParamsSentinelOne:
+    RunScriptParamsSentinelOne:
       type: object
       properties:
         scriptId:
@@ -242,16 +242,16 @@ components:
         scriptInput:
           type: string
 
-    Runscript:
+    RunScript:
       allOf:
         - $ref: '../../model/schema/common.schema.yaml#/components/schemas/ResponseActionDetails'
         - type: object
           properties:
             parameters:
               oneOf:
-                - $ref: '#/components/schemas/RunscriptParamsCrowdStrike'
-                - $ref: '#/components/schemas/RunscriptParamsMicrosoft'
-                - $ref: '#/components/schemas/RunscriptParamsSentinelOne'
+                - $ref: '#/components/schemas/RunScriptParamsCrowdStrike'
+                - $ref: '#/components/schemas/RunScriptParamsMicrosoft'
+                - $ref: '#/components/schemas/RunScriptParamsSentinelOne'
             outputs:
               type: object
               additionalProperties:

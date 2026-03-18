@@ -144,7 +144,7 @@ components:
           example: 60
 
 
-    RunscriptParams:
+    RunScriptParams:
       type: object
       description: |
         > warn
@@ -208,7 +208,7 @@ components:
           oneOf:
             - $ref: '#/components/schemas/DefaultParams'
             - $ref: '#/components/schemas/ProcessesParams'
-            - $ref: '#/components/schemas/RunscriptParams'
+            - $ref: '#/components/schemas/RunScriptParams'
       required:
         - action_type_id
         - params
@@ -225,7 +225,7 @@ components:
           oneOf:
             - $ref: '#/components/schemas/DefaultParams'
             - $ref: '#/components/schemas/ProcessesParams'
-            - $ref: '#/components/schemas/RunscriptParams'
+            - $ref: '#/components/schemas/RunScriptParams'
       required:
         - actionTypeId
         - params
