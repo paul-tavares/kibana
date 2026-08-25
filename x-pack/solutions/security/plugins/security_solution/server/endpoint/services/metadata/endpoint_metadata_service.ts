@@ -15,6 +15,8 @@ import {
   hasVersionSuffix,
   removeVersionSuffixFromPolicyId,
 } from '@kbn/fleet-plugin/common/services/version_specific_policies_utils';
+import { mapEsQlResultToHostMetadataDocument } from './utils';
+import { getEsQLFetchListQuery } from './queries';
 import { stringify } from '../../utils/stringify';
 import type {
   HostInfo,
@@ -477,6 +479,38 @@ export class EndpointMetadataService {
     return endpointPackagePolicy as PolicyData;
   }
 
+  async fetchListUsingEsQl(): Promise<Pick<MetadataListResponse, 'data' | 'total'>> {
+    const logger = this.logger.get('fetchList()');
+    logger.debug(() => `Retrieving host metadata list using ESQL`);
+    const endpointPolicies = await this.getAllEndpointPackagePolicies();
+    const endpointIntegrationPolicyIds = uniq(endpointPolicies.map(({ id }) => id));
+    const esQlQuery = await getEsQLFetchListQuery({
+      endpointPolicyIds: endpointIntegrationPolicyIds,
+    });
+    const result: Pick<MetadataListResponse, 'data' | 'total'> = {
+      total: 0,
+      data: [],
+    };
+
+    logger.debug(() => `Retrieving host metadata list using ESQL: ${esQlQuery.query}`);
+
+    try {
+      const queryResults = await this.esClient.esql.query({
+        query: esQlQuery.query,
+      });
+
+      logger.debug(() => `Results of query:\n${stringify(queryResults)}`);
+
+      Object.assign(result, await mapEsQlResultToHostMetadataDocument({ queryResults }));
+    } catch (err) {
+      logger.error(`Error retrieving host metadata list: ${err.message}`, { error: err });
+    }
+
+    logger.debug(() => `Returning results: ${stringify(result)}`);
+
+    return result;
+  }
+
   /**
    * Retrieve list of host metadata. Only supports new united index.
    *
@@ -490,6 +524,11 @@ export class EndpointMetadataService {
   ): Promise<Pick<MetadataListResponse, 'data' | 'total'>> {
     const logger = this.logger.get('getHostMetadataList()');
     logger.debug(() => `Retrieving host metadata list using: ${stringify(queryOptions)}`);
+
+    // #################################
+    // FIXME:PT Remove - POC code
+    await this.fetchListUsingEsQl();
+    // #################################
 
     const cpsRead = scoped?.isCpsRead() ?? false;
     const ccsEnabled = await this.endpointContext.isCcsEnabled();

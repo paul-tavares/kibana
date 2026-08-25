@@ -1,0 +1,65 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0; you may not use this file except in compliance with the Elastic License
+ * 2.0.
+ */
+
+import { buildEsQlAgentStatusCommand } from '@kbn/fleet-plugin/server/services/agents/build_status_runtime_field';
+
+export const getEsQLFetchListQuery = async (options: {
+  endpointPolicyIds: string[];
+}): Promise<{ query: string }> => {
+  const andMatchEndpointPolicyIds = `AND (
+            Endpoint.policy.applied.id IN (${options.endpointPolicyIds
+              .map((id) => `"${id}"`)
+              .join(', ')})
+            OR ${options.endpointPolicyIds
+              .map((id) => `Endpoint.policy.applied.id LIKE "${id}#*"`)
+              .join(' OR ')}
+        )`;
+
+  const fleetAgentStatusCommand = await buildEsQlAgentStatusCommand('fleet_agent.');
+
+  return {
+    query: `
+
+    FROM metrics-endpoint.metadata-default
+    | WHERE agent.id != "00000000-0000-0000-0000-000000000000"
+        AND agent.id != "11111111-1111-1111-1111-111111111111"
+        AND agent.id IS NOT NULL
+    | INLINE STATS _max_ts = MAX(@timestamp) BY agent.id
+    | WHERE @timestamp == _max_ts
+        ${andMatchEndpointPolicyIds}
+    | INLINESTATS total_count = COUNT(*)
+    | ENRICH fleet-agents-policy
+        ON agent.id
+        WITH fleet_agent.active = active,
+            fleet_agent.policy_id = policy_id,
+            fleet_agent.last_checkin_status = last_checkin_status,
+            fleet_agent.last_checkin = last_checkin,
+            fleet_agent.enrolled_at = enrolled_at,
+            fleet_agent.audit_unenrolled_reason = audit_unenrolled_reason,
+            fleet_agent.policy_revision_idx = policy_revision_idx,
+            fleet_agent.upgrade_started_at = upgrade_started_at,
+            fleet_agent.upgraded_at = upgraded_at,
+            fleet_agent.unenrollment_started_at = unenrollment_started_at
+    | WHERE fleet_agent.active == true
+    /* Calculate the Agent Status */
+    ${fleetAgentStatusCommand}
+    | KEEP \`@timestamp\`,
+        status,
+        elastic.*,
+        agent.*,
+        host.*,
+        Endpoint.*,
+        fleet_agent.active,
+        fleet_agent.last_checkin_status,
+        fleet_agent.last_checkin,
+        fleet_agent.enrolled_at,
+        total_count
+    | SORT fleet_agent.enrolled_at ASC
+    | LIMIT 10
+`,
+  };
+};
