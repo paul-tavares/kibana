@@ -6,9 +6,9 @@
  */
 import { uniq } from 'lodash';
 import type { ElasticsearchClient, Logger, SavedObjectsClientContract } from '@kbn/core/server';
-
 import type { SearchResponse, SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import type { Agent, AgentPolicy, PackagePolicy } from '@kbn/fleet-plugin/common';
+import { AGENTS_INDEX } from '@kbn/fleet-plugin/common';
 import { AgentNotFoundError } from '@kbn/fleet-plugin/server';
 import { DEFAULT_SPACE_ID } from '@kbn/core-spaces-common';
 import {
@@ -495,11 +495,49 @@ export class EndpointMetadataService {
     logger.debug(() => `Retrieving host metadata list using ESQL: ${esQlQuery.query}`);
 
     try {
-      const queryResults = await this.esClient.esql.query({
-        query: esQlQuery.query,
-      });
+      // FIXME:PT POC CODE!!!! DO not commit to `main` - this will likely move to a background task
+      await this.esClient.enrich
+        .putPolicy({
+          name: 'endpoint_metadata_fleet_agent_enrich_policy',
+          match: {
+            indices: AGENTS_INDEX,
+            match_field: 'agent.id',
+            enrich_fields: [
+              'active',
+              'policy_id',
+              'last_checkin_status',
+              'last_checkin',
+              'enrolled_at',
+              'audit_unenrolled_reason',
+              'policy_revision_idx',
+              'upgrade_started_at',
+              'upgraded_at',
+              'unenrollment_started_at',
+            ],
+          },
+        })
+        .catch(catchAndWrapError)
+        .catch((err) => {
+          if (err.debug?.es_response?.body?.error?.type !== 'resource_already_exists_exception') {
+            throw err;
+          }
+        });
 
-      logger.debug(() => `Results of query:\n${stringify(queryResults)}`);
+      await this.esClient.enrich
+        .executePolicy({
+          name: 'endpoint_metadata_fleet_agent_enrich_policy',
+        })
+        .then((policyExecResult) => {
+          logger.debug(
+            `Fleet agent enrichment policy was executed: ${stringify(policyExecResult)}`
+          );
+        });
+
+      const queryResults = await this.esClient.esql
+        .query({ query: esQlQuery.query })
+        .catch(catchAndWrapError);
+
+      logger.debug(() => `ES|QL query response:\n${stringify(queryResults)}`);
 
       Object.assign(result, await mapEsQlResultToHostMetadataDocument({ queryResults }));
     } catch (err) {
