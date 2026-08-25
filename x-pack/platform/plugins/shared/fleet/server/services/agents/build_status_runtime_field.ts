@@ -232,3 +232,101 @@ export async function buildAgentStatusRuntimeField(
     logger,
   });
 }
+
+export const buildEsQlAgentStatusCommand = async (
+  fieldPathPrefix: string = ''
+): Promise<string> => {
+  // FIXME:PT needs to be validated for accuracy
+
+  const config = appContextService.getConfig();
+
+  let logger: Logger | undefined;
+  try {
+    logger = appContextService.getLogger().get('buildEsQlAgentStatusCommand');
+  } catch (e) {
+    // ignore, logger is optional
+    // this code can be used and tested without an app context
+  }
+
+  const maxAgentPoliciesWithInactivityTimeout =
+    config?.developer?.maxAgentPoliciesWithInactivityTimeout ||
+    DEFAULT_MAX_AGENT_POLICIES_WITH_INACTIVITY_TIMEOUT;
+  const inactivityTimeouts = await agentPolicyService.getInactivityTimeouts();
+  const normalizedPrefix = fieldPathPrefix
+    ? `${fieldPathPrefix}${fieldPathPrefix.endsWith('.') ? '' : '.'}`
+    : '';
+  const fieldPath = (path: string) => `${normalizedPrefix + path}`;
+  const now = Date.now();
+  let inactivityCondition = '';
+
+  if (inactivityTimeouts.length > 0) {
+    const totalAgentPoliciesWithInactivityTimeouts = inactivityTimeouts.reduce(
+      (total, { policyIds }) => total + policyIds.length,
+      0
+    );
+
+    // if too many agent policies have inactivity timeouts, then we can't use the inactivity timeout
+    // as the query becomes too large see github.com/elastic/kibana/issues/150577
+    if (totalAgentPoliciesWithInactivityTimeouts > maxAgentPoliciesWithInactivityTimeout) {
+      if (!inactivityTimeoutsDisabled) {
+        // only log this once as this function is executed a lot
+        logger?.warn(
+          `There are ${totalAgentPoliciesWithInactivityTimeouts} agent policies with an inactivity timeout set but the maximum allowed is ${maxAgentPoliciesWithInactivityTimeout}. Agents will not be marked as inactive.`
+        );
+        inactivityTimeoutsDisabled = true;
+      }
+      return '';
+    }
+
+    if (inactivityTimeoutsDisabled) {
+      logger?.info(
+        `There are ${totalAgentPoliciesWithInactivityTimeouts} agent policies which is now below the maximum allowed of ${maxAgentPoliciesWithInactivityTimeout}. Agents will now be marked as inactive again.`
+      );
+      inactivityTimeoutsDisabled = false;
+    }
+
+    inactivityCondition = `${fieldPath('last_checkin_millis')} > 0
+        AND (
+            ${inactivityTimeouts
+              .map(({ policyIds, inactivityTimeout }) => {
+                return `(${fieldPath('policy_id')} IN (${policyIds
+                  .map((id) => `"${id}"`)
+                  .join(',')})\n AND ${fieldPath('last_checkin_millis')} < ${
+                  now - inactivityTimeout * 1000
+                })`;
+              })
+              .join('\n OR ')}
+            )`;
+  }
+
+  return `| EVAL ${fieldPath('last_checkin_millis')} = COALESCE(TO_LONG(${fieldPath(
+    'last_checkin'
+  )}), TO_LONG(${fieldPath('enrolled_at')}))
+    | EVAL status = CASE(
+        ${fieldPath('active')} IS NULL OR ${fieldPath('active')} == false,
+        "unenrolled",
+        ${inactivityCondition ? `${inactivityCondition},\n"inactive",` : ''}
+        ${fieldPath('audit_unenrolled_reason')} == "uninstall",
+        "uninstalled",
+        ${fieldPath('audit_unenrolled_reason')} == "orphaned",
+        "orphaned",
+        ${fieldPath('last_checkin_millis')} > 0 AND ${fieldPath('last_checkin_millis')} < ${
+    now - MS_BEFORE_OFFLINE
+  },
+        "offline",
+        TO_LOWER(${fieldPath('last_checkin_status')}) == "disconnected",
+        "offline",
+        ${fieldPath('policy_revision_idx')} IS NULL
+        OR (${fieldPath('upgrade_started_at')} IS NOT NULL AND ${fieldPath('upgraded_at')} IS NULL),
+        "updating",
+        ${fieldPath('last_checkin')} IS NULL,
+        "enrolling",
+        ${fieldPath('unenrollment_started_at')} IS NOT NULL,
+        "unenrolling",
+        TO_LOWER(${fieldPath('last_checkin_status')}) == "error",
+        "error",
+        TO_LOWER(${fieldPath('last_checkin_status')}) == "degraded",
+        "degraded",
+        "online"
+    )`;
+};
