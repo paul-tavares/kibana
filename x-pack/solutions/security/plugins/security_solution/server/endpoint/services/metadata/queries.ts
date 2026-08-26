@@ -24,6 +24,7 @@ export const getEsQLFetchListQuery = async (options: {
   return {
     query: `
 
+    SET unmapped_fields = "LOAD";
     FROM metrics-endpoint.metadata-default
     | WHERE agent.id != "00000000-0000-0000-0000-000000000000"
         AND agent.id != "11111111-1111-1111-1111-111111111111"
@@ -45,6 +46,9 @@ export const getEsQLFetchListQuery = async (options: {
             fleet_agent.upgraded_at = upgraded_at,
             fleet_agent.unenrollment_started_at = unenrollment_started_at
     | WHERE fleet_agent.active == true
+    /* Due to how some field mappings are defined, we need this special logic here */
+    | EVAL host.os.name = host.os.name.text
+    | EVAL host.os.full = host.os.host.full.text
     /* Calculate the Agent Status */
     ${fleetAgentStatusCommand}
     | KEEP \`@timestamp\`,
@@ -53,6 +57,10 @@ export const getEsQLFetchListQuery = async (options: {
         agent.*,
         host.*,
         Endpoint.*,
+        Endpoint.policy.applied.endpoint_policy_version, /* Unclear why this si not include in the star match above */
+        Endpoint.policy.applied.version,
+        event.*,
+        data_stream.*,
         fleet_agent.active,
         fleet_agent.last_checkin_status,
         fleet_agent.last_checkin,

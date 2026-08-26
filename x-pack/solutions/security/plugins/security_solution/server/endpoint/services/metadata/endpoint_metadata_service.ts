@@ -15,7 +15,7 @@ import {
   hasVersionSuffix,
   removeVersionSuffixFromPolicyId,
 } from '@kbn/fleet-plugin/common/services/version_specific_policies_utils';
-import { mapEsQlResultToHostMetadataDocument } from './utils';
+import { buildNextPageCursorString, mapEsQlResultToHostMetadataDocument } from './utils';
 import { getEsQLFetchListQuery } from './queries';
 import { stringify } from '../../utils/stringify';
 import type {
@@ -479,7 +479,12 @@ export class EndpointMetadataService {
     return endpointPackagePolicy as PolicyData;
   }
 
-  async fetchListUsingEsQl(): Promise<Pick<MetadataListResponse, 'data' | 'total'>> {
+  async fetchListUsingEsQl(): Promise<
+    Pick<MetadataListResponse, 'data' | 'total'> & { nextPage: string }
+  > {
+    // TODO:PT support for CPS/CCS
+    // TODO:PT Enrichment of each endpoint record with policy info.
+
     const logger = this.logger.get('fetchList()');
     logger.debug(() => `Retrieving host metadata list using ESQL`);
     const endpointPolicies = await this.getAllEndpointPackagePolicies();
@@ -490,6 +495,7 @@ export class EndpointMetadataService {
     const result: Pick<MetadataListResponse, 'data' | 'total'> = {
       total: 0,
       data: [],
+      nextPage: '',
     };
 
     logger.debug(() => `Retrieving host metadata list using ESQL: ${esQlQuery.query}`);
@@ -524,13 +530,16 @@ export class EndpointMetadataService {
         });
 
       await this.esClient.enrich
-        .executePolicy({
-          name: 'endpoint_metadata_fleet_agent_enrich_policy',
-        })
+        .executePolicy({ name: 'endpoint_metadata_fleet_agent_enrich_policy' })
         .then((policyExecResult) => {
           logger.debug(
             `Fleet agent enrichment policy was executed: ${stringify(policyExecResult)}`
           );
+        })
+        .catch((err) => {
+          logger.warn(`Fleet agent enrichment policy execution failed: ${err.message}`, {
+            error: err,
+          });
         });
 
       const queryResults = await this.esClient.esql
@@ -540,8 +549,26 @@ export class EndpointMetadataService {
       logger.debug(() => `ES|QL query response:\n${stringify(queryResults)}`);
 
       Object.assign(result, await mapEsQlResultToHostMetadataDocument({ queryResults }));
+
+      // FIXME:PT POC: each Endpoint record currently `policy_info` which causes a lookup/search into fleet. Do we need this? anyway to get around it?
+      for (const hostMeta of result.data) {
+        hostMeta.policy_info = (await this.enrichHostMetadata(hostMeta.metadata)).policy_info;
+      }
+
+      const lastResultRecord = result.data.at(-1);
+
+      // FIXME:PT This would need to be adjusted to include values used in query's filtering
+      result.nextPage = buildNextPageCursorString({
+        column: '@timestamp',
+        columnValue: lastResultRecord?.['@timestamp'] ?? '',
+        tieBreakerColumn: 'agent.id',
+        tieBreakerValue: lastResultRecord?.agent?.id ?? '',
+        sortColumn: '@timestamp',
+        sortDirection: 'asc',
+      });
     } catch (err) {
       logger.error(`Error retrieving host metadata list: ${err.message}`, { error: err });
+      throw err;
     }
 
     logger.debug(() => `Returning results: ${stringify(result)}`);
@@ -565,7 +592,10 @@ export class EndpointMetadataService {
 
     // #################################
     // FIXME:PT Remove - POC code
-    await this.fetchListUsingEsQl();
+    // #################################
+    if (true) {
+      return this.fetchListUsingEsQl();
+    }
     // #################################
 
     const cpsRead = scoped?.isCpsRead() ?? false;

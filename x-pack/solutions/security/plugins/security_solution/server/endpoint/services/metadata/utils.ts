@@ -8,6 +8,7 @@
 import type { EsqlEsqlResult } from '@elastic/elasticsearch/lib/api/types';
 import { set } from '@kbn/safer-lodash-set';
 import { pick } from 'lodash';
+import { fleetAgentStatusToEndpointHostStatus } from '../../utils';
 import type { HostInfoInterface } from '../../../../common/endpoint/types';
 
 interface EsQlHostMetadataResult {
@@ -43,9 +44,51 @@ export const mapEsQlResultToHostMetadataDocument = async (options: {
         'data_stream',
       ]),
       last_checkin: hostMeta.fleet_agent.last_checkin,
-      host_status: hostMeta.status,
+      host_status: fleetAgentStatusToEndpointHostStatus(hostMeta.status),
     };
   });
 
   return result;
+};
+
+interface BuildNextPageCursorOptions {
+  column: string;
+  columnValue: string;
+  tieBreakerColumn: string;
+  tieBreakerValue: string;
+  sortColumn: string;
+  sortDirection: string;
+}
+
+/**
+ * Builds a Next Page cursor string use by ES|QL to perform next/previous page queries.
+ * @param param0
+ * @param param0.column
+ * @param param0.columnValue
+ * @param param0.sortColumn
+ * @param param0.sortDirection
+ * @param param0.tieBreakerColumn
+ * @param param0.tieBreakerValue
+ */
+export const buildNextPageCursorString = ({
+  column,
+  columnValue,
+  sortColumn,
+  sortDirection,
+  tieBreakerColumn,
+  tieBreakerValue,
+}: BuildNextPageCursorOptions): string => {
+  return encodeURIComponent(
+    Buffer.from(
+      JSON.stringify({
+        column,
+        columnValue,
+        sortColumn,
+        sortDirection,
+        tieBreakerColumn,
+        tieBreakerValue,
+      }),
+      'utf8'
+    ).toString('base64')
+  );
 };
