@@ -25,6 +25,7 @@ import type { ILicense } from '@kbn/licensing-types';
 import type { NewPackagePolicy, UpdatePackagePolicyWithId } from '@kbn/fleet-plugin/common';
 import { FLEET_ENDPOINT_PACKAGE } from '@kbn/fleet-plugin/common';
 
+import { UnifiedMetadataTask } from './endpoint/lib/metadata/unified_metadata/unified_metadata_task';
 import { registerScriptsLibraryRoutes } from './endpoint/routes/scripts_library';
 import { registerAttachments } from './agent_builder/attachments/register_attachments';
 import { registerTools } from './agent_builder/tools/register_tools';
@@ -211,6 +212,7 @@ export class Plugin implements ISecuritySolutionPlugin {
 
   private manifestTask: ManifestTask | undefined;
   private completeExternalResponseActionsTask: CompleteExternalResponseActionsTask;
+  private endpointUnifiedMetadataTask: UnifiedMetadataTask;
   private checkMetadataTransformsTask: CheckMetadataTransformsTask | undefined;
   private telemetryUsageCounter?: UsageCounter;
   private endpointContext: EndpointAppContext;
@@ -263,6 +265,9 @@ export class Plugin implements ISecuritySolutionPlugin {
     this.completeExternalResponseActionsTask = new CompleteExternalResponseActionsTask({
       endpointAppContext: this.endpointContext,
     });
+
+    this.endpointUnifiedMetadataTask = new UnifiedMetadataTask(this.endpointContext);
+
     this.isServerless = context.env.packageInfo.buildFlavor === 'serverless';
 
     this.logger.debug('plugin initialized');
@@ -731,6 +736,7 @@ export class Plugin implements ISecuritySolutionPlugin {
 
     if (plugins.taskManager) {
       this.completeExternalResponseActionsTask.setup({ taskManager: plugins.taskManager });
+      this.endpointUnifiedMetadataTask.setup(plugins.taskManager);
     }
 
     core
@@ -1058,6 +1064,8 @@ export class Plugin implements ISecuritySolutionPlugin {
           esClient: core.elasticsearch.client.asInternalUser,
         })
         .catch(() => {}); // it shouldn't refuse, but just in case
+
+      this.endpointUnifiedMetadataTask.start(plugins.taskManager).catch(() => {}); // it shouldn't refuse, but just in case
     }
 
     const uiSettingsClient = core.uiSettings.asScopedToClient(
