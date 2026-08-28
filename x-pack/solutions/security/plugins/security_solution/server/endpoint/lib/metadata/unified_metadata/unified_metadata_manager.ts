@@ -13,7 +13,7 @@ import type { EndpointAppContextService } from '../../../endpoint_app_context_se
  *
  * FIXME: need perhaps better index name. Just using this one because its a pattern already allowed by kibana_system user
  */
-const UNIFIED_METADATA_INDEX_NAME = '.metrics-endpoint.metadata_united_default';
+const UNIFIED_METADATA_INDEX_NAME = '.metrics-endpoint.metadata_united_default-unified';
 
 interface UnifiedMetadataManagerOptions {
   endpointContextServices: EndpointAppContextService;
