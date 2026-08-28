@@ -1229,6 +1229,7 @@ export class Plugin implements ISecuritySolutionPlugin {
     this.policyWatcher?.stop();
     this.telemetryWatcher?.stop();
     this.completeExternalResponseActionsTask.stop().catch(() => {});
+    this.endpointUnifiedMetadataTask.stop();
     this.siemMigrationsService.stop();
     securityWorkflowInsightsService.stop();
     licenseService.stop();

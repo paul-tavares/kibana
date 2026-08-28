@@ -26,9 +26,11 @@ const DEFAULT_TASK_INTERVAL = '60s';
  * Maintains the unified endpoint ++ fleet agent metadata index
  */
 export class UnifiedMetadataTask {
-  private logger: Logger;
+  private logger: Logger = {} as unknown as Logger;
   private readonly taskTimeout: string;
   private readonly taskInterval: string;
+  private isSetupDone: boolean = false;
+  private isStartDone: boolean = false;
 
   constructor(private readonly endpointAppContext: EndpointAppContext) {
     // FIXME:PT these need to be retrieved from kibana server config settings
@@ -95,6 +97,9 @@ export class UnifiedMetadataTask {
         },
       },
     });
+
+    this.isSetupDone = true;
+    this.isStartDone = false;
   }
 
   public async start(taskManagerStartContract: TaskManagerStartContract) {
@@ -109,8 +114,15 @@ export class UnifiedMetadataTask {
         state: {},
         params: { version: TASK_VERSION },
       });
+
+      this.isStartDone = true;
     } catch (e) {
       this.logger.error(new EndpointError(`Error scheduling task, received ${e.message}`, e));
     }
+  }
+
+  public stop() {
+    this.isSetupDone = false;
+    this.isStartDone = false;
   }
 }
