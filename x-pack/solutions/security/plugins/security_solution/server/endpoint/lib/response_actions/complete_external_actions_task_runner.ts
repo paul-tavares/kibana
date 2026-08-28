@@ -9,6 +9,7 @@ import type { CancellableTask, RunContext, RunResult } from '@kbn/task-manager-p
 import { getDeleteTaskRunResult } from '@kbn/task-manager-plugin/server/task';
 import type { Logger, ElasticsearchClient } from '@kbn/core/server';
 import type { BulkRequest } from '@elastic/elasticsearch/lib/api/types';
+import { calculateDateFromInterval } from '../calculate_date_from_interval';
 import { ResponseActionsConnectorNotConfiguredError } from '../../services/actions/clients/errors';
 import { catchAndWrapError } from '../../utils';
 import { stringify } from '../../utils/stringify';
@@ -86,21 +87,7 @@ export class CompleteExternalActionsTaskRunner
   }
 
   private getNextRunDate(): Date | undefined {
-    const nextRun = new Date();
-    const nextRunInterval = this.nextRunInterval;
-
-    if (nextRunInterval.endsWith('s')) {
-      const seconds = parseInt(nextRunInterval.slice(0, -1), 10);
-      nextRun.setSeconds(nextRun.getSeconds() + seconds);
-    } else if (nextRunInterval.endsWith('m')) {
-      const minutes = parseInt(nextRunInterval.slice(0, -1), 10);
-      nextRun.setMinutes(nextRun.getMinutes() + minutes);
-    } else {
-      this.log.error(`Invalid task interval: ${nextRunInterval}`);
-      return;
-    }
-
-    return nextRun;
+    return calculateDateFromInterval(this.nextRunInterval, undefined, this.log);
   }
 
   public async run(): Promise<RunResult | void> {
