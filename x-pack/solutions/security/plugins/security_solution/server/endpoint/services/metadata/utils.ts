@@ -25,7 +25,7 @@ export const mapEsQlResultToHostMetadataDocument = async (options: {
   };
   const { columns, values } = options.queryResults;
 
-  result.total = values?.[0][columns.length - 1] ?? 0;
+  result.total = values?.[0]?.[columns.length - 1] ?? 0;
 
   result.data = values.map((hostValues) => {
     const hostMeta = hostValues.reduce((acc, hostColumnValue, index) => {

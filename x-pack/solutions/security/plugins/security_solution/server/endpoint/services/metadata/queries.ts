@@ -6,6 +6,7 @@
  */
 
 import { buildEsQlAgentStatusCommand } from '@kbn/fleet-plugin/server/services/agents/build_status_runtime_field';
+import { metadataIndexPattern } from '../../../../common/endpoint/constants';
 
 export const getEsQLFetchListQuery = async (options: {
   endpointPolicyIds: string[];
@@ -25,15 +26,15 @@ export const getEsQLFetchListQuery = async (options: {
     query: `
 
     SET unmapped_fields = "LOAD";
-    FROM metrics-endpoint.metadata-default
+    FROM ${metadataIndexPattern}
     | WHERE agent.id != "00000000-0000-0000-0000-000000000000"
         AND agent.id != "11111111-1111-1111-1111-111111111111"
         AND agent.id IS NOT NULL
     | INLINE STATS _max_ts = MAX(@timestamp) BY agent.id
     | WHERE @timestamp == _max_ts
         ${andMatchEndpointPolicyIds}
-    | INLINESTATS total_count = COUNT(*)
-    | ENRICH fleet-agents-policy
+    | INLINE STATS total_count = COUNT(*)
+    | ENRICH endpoint_metadata_fleet_agent_enrich_policy
         ON agent.id
         WITH fleet_agent.active = active,
             fleet_agent.policy_id = policy_id,
