@@ -17,6 +17,9 @@ export const getEsQlFetchLatestLatestEndpointMetadataByAgentIds = (agentIds: str
   | DROP _max_ts
   | EVAL host.os.name = host.os.name
   | EVAL host.os.full = host.os.full
+  | EVAL Endpoint.policy.applied.endpoint_policy_version = Endpoint.policy.applied.endpoint_policy_version
+  | EVAL Endpoint.policy.applied.version = Endpoint.policy.applied.version
+  | EVAL agent.build.original = agent.build.original
   | LIMIT ${agentIds.length}
   `;
 };

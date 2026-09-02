@@ -15,6 +15,8 @@ import type { IndicesIndexTemplateSummaryWithRollover } from '@elastic/elasticse
  */
 export const UNIFIED_METADATA_INDEX_NAME = '.metrics-endpoint.metadata_united_default-unified';
 
+// FIXME:PT need to create index field mappings for several fields that are currently unmapped or are mapped with sub-fields
+
 export const INDEX_TEMPLATE = deepFreeze<IndicesIndexTemplateSummaryWithRollover>({
   aliases: {},
   mappings: {

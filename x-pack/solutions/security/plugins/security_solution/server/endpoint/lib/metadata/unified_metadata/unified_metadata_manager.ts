@@ -176,6 +176,10 @@ export class UnifiedMetadataManager {
         this.logger.debug(
           () => `Fetching batch of fleet agents with:\n${stringify(fleetAgentsRequestOptions)}`
         );
+
+        // FIXME:PT need to query the index directly rather than to use the Fleet service
+        //      WHY: Some properties neeed are are missing from the output of the fleet service.
+        //           example: `policy_revision_idx` which is used to calcualte the agent's status
         const agentBatch = await fleetServices.fetchAgentList(fleetAgentsRequestOptions);
 
         if (agentBatch.agents.length === 0) {
