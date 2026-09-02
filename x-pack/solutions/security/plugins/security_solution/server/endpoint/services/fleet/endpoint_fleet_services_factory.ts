@@ -18,6 +18,7 @@ import {
   type Agent,
   type PackagePolicy,
   type AgentPolicy,
+  AGENTS_PREFIX,
 } from '@kbn/fleet-plugin/common';
 import type { Logger, SavedObjectsClientContract } from '@kbn/core/server';
 import {
@@ -52,6 +53,21 @@ export interface EndpointFleetServicesInterface {
   packagePolicy: PackagePolicyClient;
   /** The `kuery` that can be used to filter for Endpoint integration policies */
   endpointPolicyKuery: string;
+  /**
+   * The SO type for package polices - needed to build quries/filters against package policies service
+   */
+  packagePolicySOType: string;
+
+  /**
+   * The prefix used with fields when wanting to query against the agents service.
+   *
+   * @example
+   * ```
+   * kuery: `${agentsFieldPrefix}.policy_ids: one`
+   * ```
+   */
+  agentsFieldPrefix: string;
+
   logger: Logger;
 
   /**
@@ -243,6 +259,7 @@ export class EndpointFleetServicesFactory implements EndpointFleetServicesFactor
 
       agent,
       agentPolicy,
+      agentsFieldPrefix: AGENTS_PREFIX,
 
       packages: packageService.asInternalUser,
       packagePolicy,
@@ -250,6 +267,8 @@ export class EndpointFleetServicesFactory implements EndpointFleetServicesFactor
       savedObjects: this.savedObjects,
 
       endpointPolicyKuery: `${PACKAGE_POLICY_SAVED_OBJECT_TYPE}.package.name: "endpoint"`,
+      packagePolicySOType: PACKAGE_POLICY_SAVED_OBJECT_TYPE,
+
       ensureInCurrentSpace,
       getPolicyNamespace,
       getIntegrationNamespaces,
