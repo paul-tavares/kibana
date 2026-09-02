@@ -214,12 +214,20 @@ export class UnifiedMetadataManager {
           }
 
           const unifiedEndpointRecord = {
-            // FIXME:PT We don't actually need to store the entire agent record. We should only store only what we need
-            agent: fleetAgent,
-            endpoint: latestEndpointMetadataById[agentId],
+            updated_at: new Date().toISOString(),
+            agent: { id: agentId },
+            united: {
+              // FIXME:PT We don't actually need to store the entire agent record. We should only store only what we need
+              agent: fleetAgent,
+              endpoint: latestEndpointMetadataById[agentId],
+            },
           };
 
-          this.logger.debug(`updating unified record for agent id [${fleetAgent.id}]`);
+          this.logger.debug(
+            `updating unified record for agent id [${fleetAgent.id} | ${
+              fleetAgent.local_metadata?.host?.hostname ?? '?'
+            }]:\n${stringify(unifiedEndpointRecord)}`
+          );
 
           // FIXME:PT use QueueProcessor to make update in bulk and NOT one at a time
 

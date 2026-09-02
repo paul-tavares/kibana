@@ -15,6 +15,8 @@ export const getEsQlFetchLatestLatestEndpointMetadataByAgentIds = (agentIds: str
   | INLINE STATS _max_ts = MAX(@timestamp) BY agent.id
   | WHERE @timestamp == _max_ts
   | DROP _max_ts
+  | EVAL host.os.name = host.os.name
+  | EVAL host.os.full = host.os.full
   | LIMIT ${agentIds.length}
   `;
 };

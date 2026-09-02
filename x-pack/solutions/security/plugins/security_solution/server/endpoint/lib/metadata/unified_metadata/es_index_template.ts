@@ -37,6 +37,9 @@ export const INDEX_TEMPLATE = deepFreeze<IndicesIndexTemplateSummaryWithRollover
     ],
     date_detection: false,
     properties: {
+      updated_at: {
+        type: 'date',
+      },
       agent: {
         properties: {
           id: {
@@ -509,17 +512,6 @@ export const INDEX_TEMPLATE = deepFreeze<IndicesIndexTemplateSummaryWithRollover
                       full: {
                         type: 'keyword',
                         ignore_above: 1024,
-                        fields: {
-                          caseless: {
-                            type: 'keyword',
-                            ignore_above: 1024,
-                            normalizer: 'lowercase',
-                          },
-                          text: {
-                            type: 'text',
-                            norms: false,
-                          },
-                        },
                       },
                       kernel: {
                         type: 'keyword',
@@ -528,17 +520,6 @@ export const INDEX_TEMPLATE = deepFreeze<IndicesIndexTemplateSummaryWithRollover
                       name: {
                         type: 'keyword',
                         ignore_above: 1024,
-                        fields: {
-                          caseless: {
-                            type: 'keyword',
-                            ignore_above: 1024,
-                            normalizer: 'lowercase',
-                          },
-                          text: {
-                            type: 'text',
-                            norms: false,
-                          },
-                        },
                       },
                       platform: {
                         type: 'keyword',
