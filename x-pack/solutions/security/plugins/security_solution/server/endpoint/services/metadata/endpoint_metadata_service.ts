@@ -15,6 +15,7 @@ import {
   hasVersionSuffix,
   removeVersionSuffixFromPolicyId,
 } from '@kbn/fleet-plugin/common/services/version_specific_policies_utils';
+import { UNIFIED_METADATA_INDEX_NAME } from '../../lib/metadata/unified_metadata/es_index_template';
 import { buildNextPageCursorString, mapEsQlResultToHostMetadataDocument } from './utils';
 import { getEsQLFetchListQuery } from './queries';
 import { stringify } from '../../utils/stringify';
@@ -70,6 +71,12 @@ const isAgentPolicyWithPackagePolicies = (
 ): agentPolicy is AgentPolicyWithPackagePolicies => {
   return agentPolicy.package_policies ? true : false;
 };
+
+// #################################
+// FIXME:PT Remove - POC code
+// #################################
+let POC = '';
+// #################################
 
 export class EndpointMetadataService {
   private readonly esClient: ElasticsearchClient;
@@ -593,7 +600,22 @@ export class EndpointMetadataService {
     // #################################
     // FIXME:PT Remove - POC code
     // #################################
-    if (true) {
+    if (/poc_use/.test((queryOptions?.kuery ?? '').toLowerCase())) {
+      POC = (queryOptions.kuery ?? '').toLowerCase();
+      queryOptions.kuery = undefined;
+    }
+
+    if (POC === 'poc_use_esql') {
+      logger.debug(
+        () => `
+* * * * * * * * * * * * * * * * * * * * * * * *
+
+      POC: Using ESQl
+
+* * * * * * * * * * * * * * * * * * * * * * * *
+      `
+      );
+
       return this.fetchListUsingEsQl();
     }
     // #################################
@@ -609,6 +631,24 @@ export class EndpointMetadataService {
       ccsEnabled,
       cpsRead ? this.spaceId : undefined
     );
+
+    // #################################
+    // FIXME:PT Remove - POC code
+    // #################################
+    // Use new unified metadata index
+    if (POC === 'poc_use_unified_index') {
+      logger.debug(
+        () => `
+* * * * * * * * * * * * * * * * * * * * * * * *
+
+      POC: using new unified index
+
+* * * * * * * * * * * * * * * * * * * * * * * *
+      `
+      );
+      unitedIndexQuery.index = UNIFIED_METADATA_INDEX_NAME;
+    }
+    // #################################
 
     let unitedMetadataQueryResponse: SearchResponse<UnitedAgentMetadataPersistedData>;
 

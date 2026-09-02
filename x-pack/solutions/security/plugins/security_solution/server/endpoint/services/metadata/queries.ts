@@ -67,7 +67,7 @@ export const getEsQLFetchListQuery = async (options: {
         fleet_agent.last_checkin,
         fleet_agent.enrolled_at,
         total_count
-    | SORT fleet_agent.enrolled_at ASC
+    | SORT fleet_agent.enrolled_at DESC
     | LIMIT 10
 `,
   };
