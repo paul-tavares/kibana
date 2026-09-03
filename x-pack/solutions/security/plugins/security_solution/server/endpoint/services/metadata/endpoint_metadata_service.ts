@@ -486,7 +486,9 @@ export class EndpointMetadataService {
     return endpointPackagePolicy as PolicyData;
   }
 
-  async fetchListUsingEsQl(): Promise<
+  async fetchListUsingEsQl({
+    kuery,
+  }: GetMetadataListRequestQuery): Promise<
     Pick<MetadataListResponse, 'data' | 'total'> & { nextPage: string }
   > {
     // TODO:PT support for CPS/CCS
@@ -498,6 +500,7 @@ export class EndpointMetadataService {
     const endpointIntegrationPolicyIds = uniq(endpointPolicies.map(({ id }) => id));
     const esQlQuery = await getEsQLFetchListQuery({
       endpointPolicyIds: endpointIntegrationPolicyIds,
+      kqlFilter: kuery,
     });
     const result: Pick<MetadataListResponse, 'data' | 'total'> = {
       total: 0,
@@ -616,7 +619,7 @@ export class EndpointMetadataService {
       `
       );
 
-      return this.fetchListUsingEsQl();
+      return this.fetchListUsingEsQl(queryOptions);
     }
     // #################################
 

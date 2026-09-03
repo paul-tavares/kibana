@@ -6,10 +6,12 @@
  */
 
 import { buildEsQlAgentStatusCommand } from '@kbn/fleet-plugin/server/services/agents/build_status_runtime_field';
+import { escapeQuotes } from '@kbn/es-query';
 import { metadataIndexPattern } from '../../../../common/endpoint/constants';
 
 export const getEsQLFetchListQuery = async (options: {
   endpointPolicyIds: string[];
+  kqlFilter?: string;
 }): Promise<{ query: string }> => {
   const andMatchEndpointPolicyIds = `AND (
             Endpoint.policy.applied.id IN (${options.endpointPolicyIds
@@ -29,7 +31,12 @@ export const getEsQLFetchListQuery = async (options: {
     FROM ${metadataIndexPattern}
     | WHERE agent.id != "00000000-0000-0000-0000-000000000000"
         AND agent.id != "11111111-1111-1111-1111-111111111111"
-        AND agent.id IS NOT NULL
+        AND agent.id IS NOT NULL${
+          options.kqlFilter
+            ? `
+        AND KQL("${escapeQuotes(options.kqlFilter)}")`
+            : ''
+        }
     | INLINE STATS _max_ts = MAX(@timestamp) BY agent.id
     | WHERE @timestamp == _max_ts
         ${andMatchEndpointPolicyIds}
