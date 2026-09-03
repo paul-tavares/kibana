@@ -159,7 +159,14 @@ export class UnifiedMetadataManager {
         `${fleetServices.agentsFieldPrefix}.policy_id`
       );
 
-      // TODO:PT need to think about if there is a better approach to see if we can process only agent data that has changed.
+      this.logger.debug(`Kuery to be used to filter fleet agents: ${kuery}`);
+
+      // TODO:PT need to think about if there is a better approach to see if we can process only agent/metadata data that has changed.
+      //      Some ideas:
+      //      - Every short run (ex. interval of 30s) should process only agents whose agent record or metadata record
+      //        was changed in the last <interval + (interval * 2)>. This would be a more manageable list of agents and
+      //        should run much faster.
+      //      - Every day (maybe twice a day) do a full processing of all fleet agents (to make sure we did not drop any)
 
       const getAgentListOptions = (): Parameters<typeof fleetServices.fetchAgentList>[0] => {
         return {
@@ -172,10 +179,9 @@ export class UnifiedMetadataManager {
       };
 
       while (hasMorePages) {
+        this.logger.debug(() => `Fetching batch [${page + 1}] of fleet agents`);
+
         const fleetAgentsRequestOptions = getAgentListOptions();
-        this.logger.debug(
-          () => `Fetching batch of fleet agents with:\n${stringify(fleetAgentsRequestOptions)}`
-        );
 
         // FIXME:PT need to query the index directly rather than to use the Fleet service
         //      WHY: Some properties neeed are are missing from the output of the fleet service.
@@ -227,6 +233,7 @@ export class UnifiedMetadataManager {
             },
           };
 
+          // FIXME:PT real implementation should problaby drop the logging of the full record
           this.logger.debug(
             `updating unified record for agent id [${fleetAgent.id} | ${
               fleetAgent.local_metadata?.host?.hostname ?? '?'
