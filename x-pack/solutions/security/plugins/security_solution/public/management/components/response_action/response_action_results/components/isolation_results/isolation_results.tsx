@@ -6,12 +6,12 @@
  */
 
 import React, { memo } from 'react';
-import type { ActionDetails } from '../../../../../../../common/endpoint/types';
+import type { ActionDetails, MaybeImmutable } from '../../../../../../../common/endpoint/types';
 import { useTestIdGenerator } from '../../../../../hooks/use_test_id_generator';
 import { EndpointActionFailureMessage } from '../action_failure_message';
 
 export interface IsolationResultsProps {
-  action: ActionDetails;
+  action: MaybeImmutable<ActionDetails>;
   agentId: string;
   'data-test-subj'?: string;
 }
@@ -24,7 +24,7 @@ export const IsolationResults = memo<IsolationResultsProps>(
     const getTestId = useTestIdGenerator(dataTestSubj);
     const agentActionState = action.agentState[agentId];
 
-    if (!agentActionState.isComplete) {
+    if (!agentActionState.isCompleted) {
       return <></>;
     }
 
