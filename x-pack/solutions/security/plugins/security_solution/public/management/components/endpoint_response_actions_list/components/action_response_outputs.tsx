@@ -9,6 +9,7 @@
 
 import React, { memo, useMemo } from 'react';
 import { EuiSpacer } from '@elastic/eui';
+import { ResponseActionResults } from '../../response_action';
 import { KillSuspendProcessActionResult } from '../../kill_process_action_result';
 import { CancelActionResults } from '../../cancel_action_results';
 import {
