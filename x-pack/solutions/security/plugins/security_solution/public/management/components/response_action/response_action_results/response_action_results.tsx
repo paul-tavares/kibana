@@ -7,17 +7,26 @@
 
 import React, { memo, useMemo } from 'react';
 import { EuiText, EuiHorizontalRule, EuiSpacer } from '@elastic/eui';
-import type { GetFileResultsProps } from './components/get_file_results';
 import { GetFileResults } from './components/get_file_results';
 import { IsolationResults } from './components/isolation_results';
 import type { ResponseActionResultsProps } from './types';
-import type { KillSuspendProcessActionResultProps } from '../../kill_process_action_result';
 import { KillSuspendProcessActionResult } from '../../kill_process_action_result';
 import { OUTPUT_MESSAGES } from '../../endpoint_response_actions_list/translations';
 import { KeyValueDisplay } from '../../key_value_display';
 import { useTestIdGenerator } from '../../../hooks/use_test_id_generator';
 import { RunningProcessesActionResults } from './components/processes_results';
-import type { RunningProcessesActionResultsProps } from './components/processes_results';
+import { ExecuteResults } from './components/execute_results';
+import {
+  isCancelAction,
+  isExecuteAction,
+  isGetFileAction,
+  isKillProcessAction,
+  isMemoryDumpAction,
+  isProcessesAction,
+  isRunScriptAction,
+  isSuspendProcessAction,
+  isUploadAction,
+} from '../../../../../common/endpoint/service/response_actions/type_guards';
 
 /**
  * Display the results of a response action
@@ -81,44 +90,51 @@ export const ResponseActionResults = memo<ResponseActionResultsProps>(
                     />
                   )}
 
-                  {(command === 'kill-process' || command === 'suspend-process') && (
+                  {(isKillProcessAction(action) || isSuspendProcessAction(action)) && (
                     <KillSuspendProcessActionResult
-                      action={action as KillSuspendProcessActionResultProps['action']}
+                      action={action}
                       agentId={hostAgentId}
                       textSize={textSize}
                       data-test-subj={getTestId('results')}
                     />
                   )}
 
-                  {command === 'running-processes' && (
+                  {isProcessesAction(action) && (
                     <RunningProcessesActionResults
-                      action={action as RunningProcessesActionResultsProps['action']}
+                      action={action}
                       agentId={hostAgentId}
                       textSize={textSize}
                       data-test-subj={getTestId('results')}
                     />
                   )}
 
-                  {command === 'get-file' && (
+                  {isGetFileAction(action) && (
                     <GetFileResults
-                      action={action as GetFileResultsProps['action']}
+                      action={action}
                       agentId={hostAgentId}
                       textSize={textSize}
                       data-test-subj={getTestId('results')}
                     />
                   )}
 
-                  {command === 'execute' && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {isExecuteAction(action) && (
+                    <ExecuteResults
+                      action={action}
+                      agentId={hostAgentId}
+                      textSize={textSize}
+                      data-test-subj={getTestId('results')}
+                    />
+                  )}
 
-                  {command === 'upload' && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {isUploadAction(action) && <div>{' NOT IMPLEMENTED YET '}</div>}
 
                   {command === 'scan' && <div>{' NOT IMPLEMENTED YET '}</div>}
 
-                  {command === 'runscript' && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {isRunScriptAction(action) && <div>{' NOT IMPLEMENTED YET '}</div>}
 
-                  {command === 'cancel' && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {isCancelAction(action) && <div>{' NOT IMPLEMENTED YET '}</div>}
 
-                  {command === 'memory-dump' && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {isMemoryDumpAction(action) && <div>{' NOT IMPLEMENTED YET '}</div>}
                 </>
               )}
 
