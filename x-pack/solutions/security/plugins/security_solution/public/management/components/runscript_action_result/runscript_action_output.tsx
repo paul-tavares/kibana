@@ -104,7 +104,7 @@ export interface RunscriptOutputProps {
   action: MaybeImmutable<ActionDetails<ResponseActionRunScriptOutputContent>>;
   agentId: string;
   'data-test-subj'?: string;
-  textSize?: Exclude<EuiTextProps['size'], 'm' | 'relative'>;
+  textSize?: EuiTextProps['size'];
 }
 
 export const RunscriptOutput = memo<RunscriptOutputProps>(

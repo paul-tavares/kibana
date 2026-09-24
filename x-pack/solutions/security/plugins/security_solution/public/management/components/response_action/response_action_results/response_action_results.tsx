@@ -7,6 +7,11 @@
 
 import React, { memo, useMemo } from 'react';
 import { EuiText, EuiHorizontalRule, EuiSpacer } from '@elastic/eui';
+import { MemoryDumpResponseActionOutputResult } from '../../memory_dump_response_action_output_result';
+import { CancelActionResults } from '../../cancel_action_results';
+import { RunscriptOutput } from './components/runscript_results';
+import { ScanResults } from './components/scan_results';
+import { EndpointUploadActionResult } from '../../endpoint_upload_action_result';
 import { GetFileResults } from './components/get_file_results';
 import { IsolationResults } from './components/isolation_results';
 import type { ResponseActionResultsProps } from './types';
@@ -50,6 +55,7 @@ export const ResponseActionResults = memo<ResponseActionResultsProps>(
 
     return (
       <EuiText data-test-subj={getTestId()} size={textSize}>
+        {/* eslint-disable-next-line complexity */}
         {agents.map((hostAgentId, index) => {
           const agentActionState = action.agentState[hostAgentId];
           const hostName = action.hosts[hostAgentId]?.name ?? hostAgentId;
@@ -126,15 +132,50 @@ export const ResponseActionResults = memo<ResponseActionResultsProps>(
                     />
                   )}
 
-                  {isUploadAction(action) && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {isUploadAction(action) && (
+                    <EndpointUploadActionResult
+                      action={action}
+                      agentId={hostAgentId}
+                      textSize={textSize}
+                      data-test-subj={getTestId('results')}
+                    />
+                  )}
 
-                  {command === 'scan' && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {command === 'scan' && (
+                    <ScanResults
+                      action={action}
+                      agentId={hostAgentId}
+                      textSize={textSize}
+                      data-test-subj={getTestId('results')}
+                    />
+                  )}
 
-                  {isRunScriptAction(action) && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {isRunScriptAction(action) && (
+                    <RunscriptOutput
+                      action={action}
+                      agentId={hostAgentId}
+                      textSize={textSize}
+                      data-test-subj={getTestId('results')}
+                    />
+                  )}
 
-                  {isCancelAction(action) && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {isCancelAction(action) && (
+                    <CancelActionResults
+                      action={action}
+                      agentId={hostAgentId}
+                      textSize={textSize}
+                      data-test-subj={getTestId('results')}
+                    />
+                  )}
 
-                  {isMemoryDumpAction(action) && <div>{' NOT IMPLEMENTED YET '}</div>}
+                  {isMemoryDumpAction(action) && (
+                    <MemoryDumpResponseActionOutputResult
+                      action={action}
+                      agentId={hostAgentId}
+                      textSize={textSize}
+                      data-test-subj={getTestId('results')}
+                    />
+                  )}
                 </>
               )}
 
