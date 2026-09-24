@@ -6,22 +6,14 @@
  */
 
 import React, { memo, useMemo } from 'react';
-import type { EuiTextProps } from '@elastic/eui';
 import { EuiText, EuiHorizontalRule } from '@elastic/eui';
+import { IsolationResults } from './components/isolation_results';
+import type { ResponseActionResultsProps } from './types';
 import type { KillSuspendProcessActionResultProps } from '../../kill_process_action_result';
 import { KillSuspendProcessActionResult } from '../../kill_process_action_result';
 import { OUTPUT_MESSAGES } from '../../endpoint_response_actions_list/translations';
 import { KeyValueDisplay } from '../../key_value_display';
 import { useTestIdGenerator } from '../../../hooks/use_test_id_generator';
-import type { ActionDetails, MaybeImmutable } from '../../../../../common/endpoint/types';
-
-export interface ResponseActionResultsProps {
-  action: MaybeImmutable<ActionDetails>;
-  /** The agent id to display the result for. If undefined, the output for ALL agents will be displayed */
-  agentId?: string;
-  textSize?: EuiTextProps['size'];
-  'data-test-subj'?: string;
-}
 
 /**
  * Display the results of a response action
@@ -73,18 +65,28 @@ export const ResponseActionResults = memo<ResponseActionResultsProps>(
                 hostStatusMessage
               )}
 
-              {(command === 'kill-process' || command === 'suspend-process') && (
-                <KillSuspendProcessActionResult
-                  action={action as KillSuspendProcessActionResultProps['action']}
-                  agentId={hostAgentId}
-                  textSize={textSize}
-                  data-test-subj={getTestId('results')}
-                />
+              {agentActionState.isCompleted && (
+                <>
+                  {(command === 'isolate' || command === 'unisolate') && (
+                    <IsolationResults
+                      action={action}
+                      agentId={hostAgentId}
+                      data-test-subj={getTestId('results')}
+                    />
+                  )}
+
+                  {(command === 'kill-process' || command === 'suspend-process') && (
+                    <KillSuspendProcessActionResult
+                      action={action as KillSuspendProcessActionResultProps['action']}
+                      agentId={hostAgentId}
+                      textSize={textSize}
+                      data-test-subj={getTestId('results')}
+                    />
+                  )}
+                </>
               )}
 
-              {isMultiAgent && index !== agents.length - 1 && (
-                <EuiHorizontalRule margin="xl" size="half" />
-              )}
+              {isMultiAgent && index !== agents.length - 1 && <EuiHorizontalRule margin="xl" />}
             </div>
           );
         })}
